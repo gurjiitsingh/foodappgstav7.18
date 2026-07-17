@@ -787,14 +787,14 @@ class BillViewModel(
                             currency = _currencySymbol.value,
                             // 🔹 Payment snapshot (do NOT rely on join later)
                             paymentStatus = "FREE",
-                            taxRate = first.taxRate,
+                            taxRate = 0.0,
                             taxType = first.taxType,
-                            taxAmountPerItem = taxPerItemPlusModifier,
-                            taxTotal = taxTotalItemPlusModifier,
+                            taxAmountPerItem = 0.0,
+                            taxTotal = 0.0,
                             note = first.note,
                             modifiersJson = first.modifiersJson,
-                            finalPricePerItem = finalPricePerItemPlusModifier,
-                            finalTotal = finalPriceTotalItemPlusModifier,
+                            finalPricePerItem = 0.0,
+                            finalTotal = 0.0,
                             createdAt = now
                         )
                     }
