@@ -362,14 +362,7 @@ fun TableSelectorGrid(
                                                     .fillMaxWidth()
                                                     .alpha(if (ui.cartCount > 0) 1f else 0f)
                                             )
-//                                        StatusBadge(
-//                                            icon = "🍳",
-//                                            text = ui.kitchenPendingCount.toString(),
-//                                            bgColor = Color(0xFFF9A825).copy(alpha = 0.25f),
-//                                            modifier = Modifier
-//                                                .fillMaxWidth()
-//                                                .alpha(if (ui.kitchenPendingCount > 0) 1f else 0f)
-//                                        )
+
                                             StatusBadge(
                                                 icon = "🧾",
                                                 text = ui.billDoneCount.toString(),
