@@ -917,6 +917,245 @@ class BillViewModel(
     }
 
 
+
+
+    fun printCurrentBill() {
+
+        viewModelScope.launch {
+
+            if (!paymentMutex.tryLock()) {
+                sendEvent("Already processing")
+                return@launch
+            }
+
+            _isProcessing.value = true
+            val now = System.currentTimeMillis()
+            try {
+
+                val outlet = outletDao.getOutlet()
+                if (outlet == null) {
+                    sendEvent("Outlet not configured")
+                    return@launch
+                }
+
+                val kotItems = kotItemDao
+                    .getItemsForTableSync(tableId)
+                    .filter { it.status == "DONE" }
+
+                if (kotItems.isEmpty()) {
+                    sendEvent("No items to print")
+                    return@launch
+                }
+
+
+                val orderId = UUID.randomUUID().toString()
+
+                val srno = orderSequenceRepository.nextOrderNo(
+                    outletId = outlet.outletId,
+                    businessDate = SimpleDateFormat(
+                        "yyyyMMdd",
+                        Locale.getDefault()
+                    ).format(Date())
+                )
+
+                // =========================
+                // CALCULATE TOTAL
+                // =========================
+                val itemSubtotalPaise = kotItems.sumOf {
+
+                    val modifierPrice =
+                        ModifierJsonHelper.fromJson(it.modifiersJson)
+                            .flatMap { g -> g.items }
+                            .sumOf { m -> m.price }
+
+                    val base = it.basePrice + modifierPrice
+
+                    MoneyUtils.toPaise(base) * it.quantity
+                }
+
+                // =========================
+// TAX CALCULATION
+// =========================
+                val rawTaxPaise = kotItems
+                    .filter { it.taxType == "exclusive" }
+                    .sumOf {
+
+                        val modifierPrice =
+                            ModifierJsonHelper.fromJson(it.modifiersJson)
+                                .flatMap { g -> g.items }
+                                .sumOf { m -> m.price }
+
+                        val base = it.basePrice + modifierPrice
+                        val basePaise = MoneyUtils.toPaise(base)
+
+                        val taxPerItem = (basePaise * it.taxRate) / 100.0
+
+                        taxPerItem * it.quantity
+                    }
+                    .toLong()
+
+// =========================
+// DISCOUNT
+// =========================
+                val flatPaise = MoneyUtils.toPaise(_discountFlat.value)
+
+                val percentPaise =
+                    ((itemSubtotalPaise * _discountPercent.value) / 100.0).roundToLong()
+
+                val discountPaise =
+                    if (flatPaise > 0) flatPaise else percentPaise
+
+                val safeDiscountPaise =
+                    discountPaise.coerceAtMost(itemSubtotalPaise)
+
+                val discountRatio =
+                    if (itemSubtotalPaise == 0L) 0.0
+                    else safeDiscountPaise.toDouble() / itemSubtotalPaise.toDouble()
+
+                val taxAfterDiscountPaise =
+                    (rawTaxPaise * (1 - discountRatio)).roundToLong()
+
+// =========================
+// DELIVERY
+// =========================
+                val deliveryFeePaise = MoneyUtils.toPaise(_deliveryFee.value)
+
+                val deliveryTaxPaise =
+                    (deliveryFeePaise * _deliveryTaxPercent.value / 100.0).roundToLong()
+
+                val totalTaxPaise = taxAfterDiscountPaise + deliveryTaxPaise
+
+// =========================
+// GRAND TOTAL
+// =========================
+                val grandTotalPaise =
+                    itemSubtotalPaise -
+                            safeDiscountPaise +
+                            totalTaxPaise +
+                            deliveryFeePaise
+
+                val grandTotal = MoneyUtils.fromPaise(grandTotalPaise)
+
+                // =========================
+                // ORDER MASTER (MINIMAL)
+                // =========================
+                val orderMaster = PosOrderMasterEntity(
+                    id = orderId,
+                    srno = srno,
+                    orderType = orderType,
+                    tableNo = tableName,
+                    customerName = "Customer",
+                    customerPhone = "",
+                    customerId = null,
+
+                    itemTotal = MoneyUtils.fromPaise(itemSubtotalPaise),
+
+                    deliveryFee = _deliveryFee.value,
+                    deliveryTax = MoneyUtils.fromPaise(deliveryTaxPaise),
+
+                    itemTax = MoneyUtils.fromPaise(taxAfterDiscountPaise),
+                    taxTotal = MoneyUtils.fromPaise(totalTaxPaise),
+
+                    discountTotal = MoneyUtils.fromPaise(safeDiscountPaise),
+
+                    grandTotal = grandTotal,
+
+                    paymentMode = "NONE",
+                    paymentStatus = "UNPAID",
+                    paidAmount = 0.0,
+                    dueAmount = grandTotal,
+
+                    orderStatus = "PRINTED",
+
+                    deviceId = "POS",
+                    deviceName = "POS",
+                    appVersion = "1.0",
+
+                    createdAt = now,
+                    updatedAt = now,
+
+                    syncStatus = "PENDING",
+                    lastSyncedAt = null,
+                    notes = null
+                )
+
+                val orderItems = kotItems.map {
+
+                    val modifierPrice =
+                        ModifierJsonHelper.fromJson(it.modifiersJson)
+                            .flatMap { g -> g.items }
+                            .sumOf { m -> m.price }
+
+                    val base = it.basePrice + modifierPrice
+                    val total = base * it.quantity
+
+                    PosOrderItemEntity(
+                        id = UUID.randomUUID().toString(),
+
+                        // ✅ REQUIRED (you removed these)
+                        categoryName = it.categoryName,
+                        productMode = it.productMode,
+                        currentStock = it.currentStock,
+                        categoryId = it.categoryId,
+                        parentId = it.parentId,
+                        isVariant = it.isVariant,
+
+                        orderMasterId = orderId,
+                        productId = it.productId,
+                        name = it.name,
+
+                        basePrice = it.basePrice,
+                        modifierPrice = modifierPrice * it.quantity,
+                        quantity = it.quantity,
+                        itemSubtotal = total,
+
+                        currency = _currencySymbol.value,
+                        paymentStatus = "UNPAID",
+
+                        taxRate = it.taxRate,
+                        taxType = it.taxType,
+                        taxAmountPerItem = 0.0,
+                        taxTotal = 0.0,
+
+                        note = it.note,
+                        modifiersJson = it.modifiersJson,
+
+                        finalPricePerItem = base,
+                        finalTotal = total,
+
+                        createdAt = now // ✅ NOW WILL WORK
+                    )
+                }
+
+                // =========================
+                // SAVE (optional but good)
+                // =========================
+                withContext(Dispatchers.IO) {
+                    orderMasterDao.insert(orderMaster)
+                    orderProductDao.insertAll(orderItems)
+                }
+
+                // =========================
+                // PRINT
+                // =========================
+                printOrder(orderMaster, orderItems)
+
+                sendEvent("Printed successfully")
+
+            } catch (e: Exception) {
+
+                Log.e("PRINT_ERROR", "Print failed", e)
+                sendEvent("Print failed")
+
+            } finally {
+                _isProcessing.value = false
+                if (paymentMutex.isLocked) paymentMutex.unlock()
+            }
+        }
+    }
+
+
+    //  ====================================== SAVE ORDER ======================
     fun payBill(
         payments: List<PaymentInput>,
         name: String,
@@ -1347,6 +1586,7 @@ class BillViewModel(
                     )
 
                     // ✅ 2. PRINT IMMEDIATELY
+
                     printOrder(orderMaster, orderItems)
 
                     // 🔥 FIRESTORE CLEAR
@@ -1469,6 +1709,9 @@ class BillViewModel(
         items: List<PosOrderItemEntity>,
 
     ) = withContext(Dispatchers.IO) {
+        Log.d("PRINTTEST", "discount1 = ${order.discountTotal}")
+        Log.d("PRINTTEST", "delivery1 = ${order.deliveryFee}")
+        Log.d("PRINTTEST", "grandTotal1 = ${order.grandTotal}")
         val printOrder = PrintOrderBuilder.build(order, items)
 
         val outlet = outletDao.getOutlet()

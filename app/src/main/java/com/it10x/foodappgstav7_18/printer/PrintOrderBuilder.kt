@@ -1,5 +1,6 @@
 package com.it10x.foodappgstav7_18.printer
 
+import android.util.Log
 import com.it10x.foodappgstav7_18.data.pos.entities.PosOrderItemEntity
 import com.it10x.foodappgstav7_18.data.pos.entities.PosOrderMasterEntity
 import java.text.SimpleDateFormat
@@ -15,7 +16,9 @@ object PrintOrderBuilder {
         master: PosOrderMasterEntity,
         items: List<PosOrderItemEntity>
     ): PrintOrder {
-
+        Log.d("PRINTTEST", "discount2 = ${master.discountTotal}")
+        Log.d("PRINTTEST", "delivery2 = ${master.deliveryFee}")
+        Log.d("PRINTTEST", "grandTotal2 = ${master.grandTotal}")
         val printItems = items.map { item ->
             PrintItem(
                 name = item.name,
