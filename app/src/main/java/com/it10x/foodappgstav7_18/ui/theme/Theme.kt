@@ -204,28 +204,30 @@ fun FoodPosTheme(
         PosThemeMode.TOAST -> {
 
             PosTheme.accent = PosAccentColors(
-                cartAddBg = Color(0xFFCFCD7F),
-                cartAddText = Color.White,            // ⚪ White text
-                cartRemoveBorder = Color(0xFFCFCD7F), // 🔴 Red border
-                cartRemoveText = Color(0xFFDC2626)    // 🔴 Red text
+                cartAddBg = Color(0xFF16A34A),        // Green Add button
+                cartAddText = Color.White,
+                cartRemoveBorder = Color(0xFF475569), // Slate border
+                cartRemoveText = Color(0xFF475569)    // Slate text
             )
 
             PosTheme.product = PosProductColors(
-                productCardBg = Color(0xFFFFFBEB),    // Soft warm cream
-                productCardText = Color(0xFF78350F)   // Deep brown text
+                productCardBg = Color.White,
+                productCardText = Color(0xFF1E293B)   // Slate-800
             )
 
             lightColorScheme(
-                primary = Color(0xFFD97706),          // Turmeric
+                primary = Color(0xFF334155),          // Slate top bar
                 onPrimary = Color.White,
-                background = Color(0xFFFEF3C7),       // Warm light yellow
-                onBackground = Color(0xFF78350F),
-                surface = Color.White,
-                onSurface = Color(0xFF78350F),
+
+                background = Color.White,             // Main background
+                onBackground = Color(0xFF1E293B),     // Dark slate text
+
+                surface = Color.White,                // Cards, dialogs
+                onSurface = Color(0xFF1E293B),
+
                 error = Color(0xFFDC2626)
             )
         }
-
 
 
         else -> lightColorScheme()

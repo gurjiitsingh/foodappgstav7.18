@@ -129,21 +129,7 @@ fun RightPanel(
     val isBillRequested = tableStatus == "BILL_REQUESTED"
 
     // ---------------- POS DERIVED STATE ----------------
-    val hasItems = cartItems.isNotEmpty()
-    val hasTable = isDineIn && tableNo != null
 
-    val canSendToKitchen =
-        hasItems && (!isDineIn || hasTable)
-
-    val canRequestBill =
-        isDineIn && isRunning && cartItems.isEmpty()
-
-//    val canOpenBill =
-//        hasBillItems && when (orderType) {
-//            "DINE_IN" -> isBillRequested
-//            "TAKEAWAY", "DELIVERY" -> true
-//            else -> false
-//        }
     val canOpenBill =
         hasBillItems && when (orderType) {
             "DINE_IN" -> true
@@ -151,8 +137,6 @@ fun RightPanel(
             else -> false
         }
 
-//    val canOpenKitchen = hasItems
-  //  val canOpenBill = hasBillItems
 
     Column(
         modifier = Modifier
