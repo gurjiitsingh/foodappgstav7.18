@@ -12,11 +12,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.it10x.foodappgstav7_18.data.pos.entities.CategoryEntity
+import com.it10x.foodappgstav7_18.ui.theme.PosTheme
 
 @Composable
 fun CategorySidebar(
@@ -26,44 +28,20 @@ fun CategorySidebar(
     modifier: Modifier = Modifier
 ) {
 
-//    Surface(
-//        modifier = modifier
-//            .fillMaxHeight()
-//            .widthIn(min = 90.dp, max = 130.dp),
-//        tonalElevation = 0.dp,
-//        color = MaterialTheme.colorScheme.surface,
-//        shape = RoundedCornerShape(0.dp)
-//    ) {
-
-
-    //        LazyColumn(
-//            modifier = Modifier
-//                .fillMaxSize()
-//                .padding(vertical = 6.dp),
-//            verticalArrangement = Arrangement.spacedBy(6.dp),
-//            contentPadding = PaddingValues(horizontal = 6.dp)
-//        ) {
-
-
-
     Surface(
         modifier = modifier
             .fillMaxHeight()
             .widthIn(min = 90.dp, max = 130.dp),
         tonalElevation = 6.dp,
-        color = androidx.compose.ui.graphics.Color.Transparent,
-        //color = MaterialTheme.colorScheme.surface,
+        color = Color.Transparent,
         shape = RoundedCornerShape(0.dp)
-    ){
+    ) {
+
         LazyColumn(
-            modifier = Modifier
-                .fillMaxSize(),
-
+            modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(6.dp),
-          //  contentPadding = PaddingValues(6.dp)
-                    contentPadding = PaddingValues(top=13.dp, start = 6.dp)
-
-        ){
+            contentPadding = PaddingValues(top = 13.dp, start = 6.dp, end = 6.dp)
+        ) {
 
             items(categories) { category ->
 
@@ -72,16 +50,15 @@ fun CategorySidebar(
                 Surface(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable {
-                            onCategorySelected(category.id)
-                        },
+                        .clickable { onCategorySelected(category.id) },
                     shape = RoundedCornerShape(10.dp),
-                    color =
-                        if (isSelected)
-                            MaterialTheme.colorScheme.primary
-                        else
-                            MaterialTheme.colorScheme.surfaceVariant,
-                    tonalElevation = if (isSelected) 4.dp else 0.dp
+
+                    color = if (isSelected)
+                        PosTheme.category.selectedBg
+                    else
+                        PosTheme.category.unselectedBg,
+
+                    tonalElevation = if (isSelected) 4.dp else 1.dp // 👈 slight lift for non-selected
                 ) {
 
                     Box(
@@ -94,16 +71,16 @@ fun CategorySidebar(
                         Text(
                             text = category.name,
                             style = MaterialTheme.typography.bodyMedium,
-                            fontWeight =
-                                if (isSelected)
-                                    FontWeight.SemiBold
-                                else
-                                    FontWeight.Normal,
-                            color =
-                                if (isSelected)
-                                    MaterialTheme.colorScheme.onPrimary
-                                else
-                                    MaterialTheme.colorScheme.onSurfaceVariant,
+                            fontWeight = if (isSelected)
+                                FontWeight.SemiBold
+                            else
+                                FontWeight.Normal,
+
+                            color = if (isSelected)
+                                PosTheme.category.selectedText
+                            else
+                                PosTheme.category.unselectedText,
+
                             maxLines = 2,
                             overflow = TextOverflow.Ellipsis,
                             textAlign = TextAlign.Center

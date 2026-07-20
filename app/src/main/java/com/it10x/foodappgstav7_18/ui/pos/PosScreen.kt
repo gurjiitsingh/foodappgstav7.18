@@ -30,6 +30,7 @@ import com.it10x.foodappgstav7_18.ui.kitchen.KitchenScreen
 
 import com.it10x.foodappgstav7_18.ui.kitchen.KitchenViewModel
 import android.widget.Toast
+import androidx.compose.foundation.border
 
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -67,6 +68,8 @@ import com.it10x.foodappgstav7_18.viewmodel.VirtualTableViewModel
 
 import com.it10x.foodappgstav7_18.data.print.OutletMapper
 import com.it10x.foodappgstav7_18.data.print.OutletInfo
+import com.it10x.foodappgstav7_18.ui.theme.PosTheme
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PosScreen(
@@ -292,7 +295,8 @@ fun PosScreen(
                             .padding(bottom = 8.dp),
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalAlignment = Alignment.CenterVertically
-                    ) {
+                    )
+                    {
 
                         // -------- ORDER TYPE ICON BUTTONS PHONE--------
 
@@ -462,6 +466,7 @@ fun PosScreen(
 
 
                 if (!isPhone) {
+
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -469,9 +474,17 @@ fun PosScreen(
                         horizontalArrangement = Arrangement.spacedBy(6.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        // -------- ORDER TYPE ICON BUTTONS TABLET--------
 
-                        // 🍽️ Dine In (Table)
+                        // ================= COMMON COLORS =================
+                        val selectedBg = PosTheme.topBar.background
+                        val selectedContent = PosTheme.topBar.content
+
+                        val unselectedBg = Color(0xFFF1F5F9)
+                        val unselectedContent = Color(0xFF475569)
+
+                        val borderColor = Color(0xFFE2E8F0)
+
+                        // ================= DINE IN =================
                         IconButton(
                             onClick = {
                                 orderType = "DINE_IN"
@@ -480,96 +493,97 @@ fun PosScreen(
                             modifier = Modifier
                                 .size(commonHeight)
                                 .background(
-                                    if (orderType == "DINE_IN") MaterialTheme.colorScheme.primary
-                                    else MaterialTheme.colorScheme.surfaceVariant,
+                                    if (orderType == "DINE_IN") selectedBg else unselectedBg,
+                                    shape = commonShape
+                                )
+                                .border(
+                                    1.dp,
+                                    if (orderType == "DINE_IN") selectedBg else borderColor,
                                     shape = commonShape
                                 )
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Restaurant,
                                 contentDescription = "Dine In",
-                                tint = if (orderType == "DINE_IN")
-                                    MaterialTheme.colorScheme.onPrimary
-                                else
-                                    MaterialTheme.colorScheme.onSurfaceVariant
+                                tint = if (orderType == "DINE_IN") selectedContent else unselectedContent
                             )
                         }
 
-
-                        // 🛍️ Takeaway icon
+                        // ================= TAKEAWAY =================
                         IconButton(
                             onClick = {
                                 orderType = "TAKEAWAY"
-                               // posSessionViewModel.clearTable()
                                 showTableSelector = true
                             },
                             modifier = Modifier
                                 .size(commonHeight)
                                 .background(
-                                    if (orderType == "TAKEAWAY") MaterialTheme.colorScheme.primary
-                                    else MaterialTheme.colorScheme.surfaceVariant,
+                                    if (orderType == "TAKEAWAY") selectedBg else unselectedBg,
+                                    shape = commonShape
+                                )
+                                .border(
+                                    1.dp,
+                                    if (orderType == "TAKEAWAY") selectedBg else borderColor,
                                     shape = commonShape
                                 )
                         ) {
                             Icon(
-                                imageVector = Icons.Default.ShoppingBag, // 🛍️
+                                imageVector = Icons.Default.ShoppingBag,
                                 contentDescription = "Takeaway",
-                                tint = if (orderType == "TAKEAWAY")
-                                    MaterialTheme.colorScheme.onPrimary
-                                else
-                                    MaterialTheme.colorScheme.onSurfaceVariant
+                                tint = if (orderType == "TAKEAWAY") selectedContent else unselectedContent
                             )
                         }
 
-                        // 🚚 Delivery icon
+                        // ================= DELIVERY =================
                         IconButton(
                             onClick = {
                                 orderType = "DELIVERY"
-                              //  posSessionViewModel.clearTable()
                                 showTableSelector = true
                             },
                             modifier = Modifier
                                 .size(commonHeight)
                                 .background(
-                                    if (orderType == "DELIVERY") MaterialTheme.colorScheme.primary
-                                    else MaterialTheme.colorScheme.surfaceVariant,
+                                    if (orderType == "DELIVERY") selectedBg else unselectedBg,
+                                    shape = commonShape
+                                )
+                                .border(
+                                    1.dp,
+                                    if (orderType == "DELIVERY") selectedBg else borderColor,
                                     shape = commonShape
                                 )
                         ) {
                             Icon(
-                                imageVector = Icons.Default.LocalShipping, // 🚚
-                                //imageVector = Icons.Default.DeliveryDining,
+                                imageVector = Icons.Default.LocalShipping,
                                 contentDescription = "Delivery",
-                                tint = if (orderType == "DELIVERY")
-                                    MaterialTheme.colorScheme.onPrimary
-                                else
-                                    MaterialTheme.colorScheme.onSurfaceVariant
+                                tint = if (orderType == "DELIVERY") selectedContent else unselectedContent
                             )
                         }
 
-
-
-                        // -------- CATEGORY BUTTON --------
+                        // ================= CATEGORY (CTA) =================
                         IconButton(
                             onClick = { showCategorySelector = true },
                             modifier = Modifier
                                 .size(commonHeight)
-                                .background(MaterialTheme.colorScheme.secondary, shape = commonShape)
-
+                                .background(
+                                    PosTheme.accent.cartAddBg,
+                                    shape = commonShape
+                                )
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Category,
                                 contentDescription = "Category",
-                                tint = MaterialTheme.colorScheme.onSecondary
+                                tint = PosTheme.accent.cartAddText
                             )
                         }
 
-                        // -------- SEARCH FIELD + CLEAR --------
+                        // ================= SEARCH + ACTIONS =================
                         Row(
                             modifier = Modifier.weight(1f),
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                            horizontalArrangement = Arrangement.spacedBy(6.dp)
                         ) {
+
+                            // 🔍 SEARCH FIELD (CLICKABLE)
                             Box(
                                 modifier = Modifier
                                     .weight(1f)
@@ -588,6 +602,7 @@ fun PosScreen(
                                 )
                             }
 
+                            // ❌ CLEAR
                             IconButton(
                                 onClick = {
                                     searchQuery = ""
@@ -595,34 +610,34 @@ fun PosScreen(
                                 },
                                 modifier = Modifier
                                     .size(commonHeight)
-                                    .background(MaterialTheme.colorScheme.surfaceVariant, shape = commonShape)
+                                    .background(unselectedBg, shape = commonShape)
+                                    .border(1.dp, borderColor, shape = commonShape)
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Close,
                                     contentDescription = "Clear",
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                    tint = unselectedContent
                                 )
                             }
 
-                            // ⋮ More Button
+                            // ⋮ MORE
                             IconButton(
                                 onClick = {
-                                    // 🔥 Trigger the More handler
                                     productsViewModel.showMoreMatches(true)
                                 },
                                 modifier = Modifier
                                     .size(commonHeight)
-                                    .background(MaterialTheme.colorScheme.surfaceVariant, shape = commonShape)
+                                    .background(unselectedBg, shape = commonShape)
+                                    .border(1.dp, borderColor, shape = commonShape)
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.MoreVert,
                                     contentDescription = "More Options",
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                    tint = unselectedContent
                                 )
                             }
 
-                            // -------- CURRENT ORDER CHIP --------
-                            // -------- CURRENT ORDER CHIP --------
+                            // ================= CURRENT ORDER CHIP =================
                             Spacer(Modifier.width(4.dp))
 
                             OutlinedButton(
@@ -632,19 +647,16 @@ fun PosScreen(
                                 contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
                                 border = BorderStroke(
                                     1.dp,
-                                    MaterialTheme.colorScheme.primary
+                                    selectedBg
                                 )
                             ) {
                                 Text(
                                     text = tableName ?: "",
                                     style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.primary,
+                                    color = selectedBg,
                                     fontWeight = FontWeight.SemiBold
                                 )
                             }
-
-
-
                         }
                     }
                 }

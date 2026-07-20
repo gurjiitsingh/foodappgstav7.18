@@ -22,12 +22,21 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.it10x.foodappgstav7_18.viewmodel.PosTableViewModel
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.border
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.draw.clip
+import com.it10x.foodappgstav7_18.ui.theme.PosTheme
 
 @Composable
 fun TableSelectorGrid(
@@ -47,123 +56,164 @@ fun TableSelectorGrid(
     val configuration = LocalConfiguration.current
     val isPhone = configuration.screenWidthDp < 600
     //TABLET
-    if(!isPhone){
-    Dialog(
-        onDismissRequest = onDismiss,
-        properties = DialogProperties(usePlatformDefaultWidth = false) // ✅ allows custom width
-    ) {
-        Surface(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(8.dp),
-            shape = RoundedCornerShape(16.dp),
-            color = MaterialTheme.colorScheme.surface.copy(alpha = 0.92f),
-            tonalElevation = 8.dp,
-            shadowElevation = 8.dp
-        )
-        {
-            Column(
+    if (!isPhone) {
+
+        var selectedArea by remember {
+            mutableStateOf(groupedByArea.keys.firstOrNull())
+        }
+
+        Dialog(
+            onDismissRequest = onDismiss,
+            properties = DialogProperties(usePlatformDefaultWidth = false)
+        ) {
+            Surface(
                 modifier = Modifier
                     .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
-                    .padding(16.dp)
-            ){
-                // 🔹 Close buttons (like cancel)
-                Row(
+                    .padding(8.dp),
+                shape = RoundedCornerShape(16.dp),
+                color = PosTheme.product.productCardBg,
+                tonalElevation = 8.dp
+            ) {
+                Column(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 4.dp),
-                    horizontalArrangement = Arrangement.End
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                        .padding(16.dp)
                 ) {
-                    IconButton(onClick = onDismiss) {
-                        Icon(
-                            imageVector = Icons.Default.Close,
-                            contentDescription = "Close"
-                        )
+
+                    // 🔹 CLOSE BUTTON
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        IconButton(onClick = onDismiss) {
+                            Icon(
+                                Icons.Default.Close,
+                                contentDescription = "Close",
+                                tint = PosTheme.product.productCardText
+                            )
+                        }
                     }
-                }
 
-                groupedByArea.entries.forEach { (areaName, areaTables) ->
+                    // 🔥 AREA TABS (FIXED COLORS)
+                    LazyRow(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.padding(bottom = 12.dp)
+                    ) {
+                        items(groupedByArea.keys.toList()) { area ->
 
-                    // 🔹 Area Title
+                            val isSelected = area == selectedArea
+
+                            val bgColor = if (isSelected)
+                                PosTheme.category.selectedBg
+                            else
+                                PosTheme.category.unselectedBg
+
+                            val contentColor = if (isSelected)
+                                PosTheme.category.selectedText
+                            else
+                                PosTheme.category.unselectedText
+
+                            Box(
+                                modifier = Modifier
+                                    .widthIn(min = 110.dp)
+                                    .clip(RoundedCornerShape(50))
+                                    .background(bgColor)
+                                    .border(
+                                        width = 1.dp,
+                                        color = if (isSelected)
+                                            PosTheme.category.selectedBg
+                                        else
+                                            PosTheme.accent.cartRemoveBorder,
+                                        shape = RoundedCornerShape(50)
+                                    )
+                                    .clickable { selectedArea = area }
+                                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                            ) {
+                                Text(
+                                    text = area,
+                                    color = contentColor,
+                                    style = MaterialTheme.typography.labelLarge
+                                )
+                            }
+                        }
+                    }
+
+                    val areaTables = groupedByArea[selectedArea] ?: emptyList()
+
+                    // 🔹 AREA TITLE
                     Text(
-                        text = areaName,
+                        text = selectedArea ?: "",
                         style = MaterialTheme.typography.titleMedium.copy(
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary
+                            fontWeight = FontWeight.Bold
                         ),
-                        modifier = Modifier
-                            .padding(vertical = 5.dp)
-                            .fillMaxWidth()
+                        color = PosTheme.topBar.background,
+                        modifier = Modifier.padding(vertical = 6.dp)
                     )
 
-                    // 🔹 Grid for each area — unchanged
-//                    val rows = (areaTables.size + 4) / 7
-//                    val gridHeight = (rows * 125).dp
-
-                    // Estimate how many columns fit based on screen width and min cell size
+                    // 🔹 GRID SETUP
                     val screenWidth = LocalConfiguration.current.screenWidthDp
-                    val columns = (screenWidth / 105).coerceAtLeast(1) // ~100dp per cell + spacing
+                    val columns = (screenWidth / 140).coerceAtLeast(1)
                     val rows = (areaTables.size + columns - 1) / columns
-                    val gridHeight = (rows * 115).dp
+                    val gridHeight = (rows * 110).dp
+
                     LazyVerticalGrid(
-                        //columns = GridCells.Fixed(9), // ✅ keep logic
-                        columns = GridCells.Adaptive(minSize = 85.dp),
+                        columns = GridCells.Adaptive(minSize = 105.dp),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(gridHeight)
-                            .padding(bottom = 5.dp),
-                        horizontalArrangement = Arrangement.spacedBy(5.dp),
-                        verticalArrangement = Arrangement.spacedBy(5.dp),
+                            .height(gridHeight),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        verticalArrangement = Arrangement.spacedBy(6.dp),
                         userScrollEnabled = false
                     ) {
                         items(areaTables) { ui ->
+
                             val table = ui.table
                             val isSelected = selectedTable == table.id
 
-                            val bgColor = when (ui.color) {
-                                PosTableViewModel.TableColor.GREEN ->
-                                    Color(0xFFBDBDBD).copy(alpha = 0.30f)
+                            // ✅ FIXED TABLE COLORS
+                            val bgColor = if (isSelected)
+                                PosTheme.category.selectedBg.copy(alpha = 0.15f)
+                            else
+                                PosTheme.product.productCardBg
 
-                                PosTableViewModel.TableColor.BLUE ->
-                                    Color(0xFFBDBDBD).copy(alpha = 0.30f)
-
-                                PosTableViewModel.TableColor.RED ->
-                                    Color(0xFFBDBDBD).copy(alpha = 0.30f)
-
-                                PosTableViewModel.TableColor.GRAY ->
-                                    Color(0xFFBDBDBD).copy(alpha = 0.30f)
-                            }
+                            val contentColor = if (isSelected)
+                                PosTheme.category.selectedBg
+                            else
+                                PosTheme.product.productCardText
 
                             Surface(
-                                color = bgColor.copy(alpha = 0.85f),
-                                shape = MaterialTheme.shapes.medium,
-                                tonalElevation = 1.dp,
-                                border = if (isSelected)
-                                    BorderStroke(2.dp, Color(0xFFFF9800))
-                                else null,
+                                color = bgColor,
+                                shape = RoundedCornerShape(12.dp),
+                                border = BorderStroke(
+                                    width = if (isSelected) 2.dp else 1.dp,
+                                    color = if (isSelected)
+                                        PosTheme.category.selectedBg
+                                    else
+                                        PosTheme.accent.cartRemoveBorder
+                                ),
                                 modifier = Modifier
-                                    .aspectRatio(0.89f)
+                                    .aspectRatio(0.9f)
                                     .animateContentSize()
                                     .clickable { onTableSelected(table.id) }
                             ) {
                                 Column(
                                     modifier = Modifier
                                         .fillMaxSize()
-                                        .padding(6.dp),
+                                        .padding(8.dp),
                                     verticalArrangement = Arrangement.SpaceBetween,
                                     horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
-                                    // 🔹 TABLE NAME
+
+                                    // 🔹 TABLE NAME + BILL
                                     Row(
                                         modifier = Modifier.fillMaxWidth(),
-                                        verticalAlignment = Alignment.CenterVertically,
                                         horizontalArrangement = Arrangement.SpaceBetween
                                     ) {
                                         Text(
                                             text = table.tableName,
-                                            style = MaterialTheme.typography.titleLarge,
-                                            color = MaterialTheme.colorScheme.onSurface
+                                            style = MaterialTheme.typography.titleMedium,
+                                            color = contentColor
                                         )
 
                                         if (ui.billAmount > 0) {
@@ -171,36 +221,30 @@ fun TableSelectorGrid(
                                                 text = ui.billAmount.toInt().toString(),
                                                 style = MaterialTheme.typography.bodySmall,
                                                 fontWeight = FontWeight.Bold,
-                                                color = Color.White.copy(alpha = 0.85f)
+                                                color = PosTheme.accent.primaryActionBg
                                             )
                                         }
                                     }
 
-                                    // 🔹 STATUS INFO
+                                    // 🔹 STATUS BADGES
                                     Column(
                                         verticalArrangement = Arrangement.spacedBy(4.dp),
                                         modifier = Modifier.fillMaxWidth()
                                     ) {
+
                                         StatusBadge(
                                             icon = "🛒",
                                             text = ui.cartCount.toString(),
-                                            bgColor = Color(0xFF1976D2).copy(alpha = 0.55f),
+                                            bgColor = PosTheme.accent.primaryActionBg.copy(alpha = 0.2f),
                                             modifier = Modifier
                                                 .fillMaxWidth()
                                                 .alpha(if (ui.cartCount > 0) 1f else 0f)
                                         )
-//                                        StatusBadge(
-//                                            icon = "🍳",
-//                                            text = ui.kitchenPendingCount.toString(),
-//                                            bgColor = Color(0xFFF9A825).copy(alpha = 0.25f),
-//                                            modifier = Modifier
-//                                                .fillMaxWidth()
-//                                                .alpha(if (ui.kitchenPendingCount > 0) 1f else 0f)
-//                                        )
+
                                         StatusBadge(
                                             icon = "🧾",
                                             text = ui.billDoneCount.toString(),
-                                            bgColor = Color(0xFF2E7D32).copy(alpha = 0.55f),
+                                            bgColor = PosTheme.accent.cartAddBg.copy(alpha = 0.2f),
                                             modifier = Modifier
                                                 .fillMaxWidth()
                                                 .alpha(if (ui.billDoneCount > 0) 1f else 0f)
@@ -211,12 +255,9 @@ fun TableSelectorGrid(
                         }
                     }
                 }
-
-
             }
         }
     }
-}
 
     //PHONE
     if(isPhone){
@@ -263,7 +304,7 @@ fun TableSelectorGrid(
                             text = areaName,
                             style = MaterialTheme.typography.titleMedium.copy(
                                 fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.primary
+                                color = PosTheme.product.productCardBg
                             ),
                             modifier = Modifier
                                 .padding(vertical = 5.dp)
@@ -336,7 +377,7 @@ fun TableSelectorGrid(
                                             Text(
                                                 text = table.tableName,
                                                 style = MaterialTheme.typography.titleLarge,
-                                                color = MaterialTheme.colorScheme.onSurface
+                                                color = PosTheme.product.productCardBg
                                             )
 
                                             if (ui.billAmount > 0) {
@@ -362,7 +403,14 @@ fun TableSelectorGrid(
                                                     .fillMaxWidth()
                                                     .alpha(if (ui.cartCount > 0) 1f else 0f)
                                             )
-
+//                                        StatusBadge(
+//                                            icon = "🍳",
+//                                            text = ui.kitchenPendingCount.toString(),
+//                                            bgColor = Color(0xFFF9A825).copy(alpha = 0.25f),
+//                                            modifier = Modifier
+//                                                .fillMaxWidth()
+//                                                .alpha(if (ui.kitchenPendingCount > 0) 1f else 0f)
+//                                        )
                                             StatusBadge(
                                                 icon = "🧾",
                                                 text = ui.billDoneCount.toString(),

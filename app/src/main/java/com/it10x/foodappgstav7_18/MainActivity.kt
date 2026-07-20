@@ -96,12 +96,21 @@ import com.it10x.foodappgstav7_18.ui.settings.FirstAutoSyncScreen
 import com.it10x.foodappgstav7_18.ui.waiterkitchen.WaiterKitchenViewModel
 import com.it10x.foodappgstav7_18.ui.waiterkitchen.WaiterKitchenViewModelFactory
 import com.it10x.foodappgstav7_18.network.RetrofitInstance
+import com.it10x.foodappgstav7_18.ui.components.TopBarNavButton
 import com.it10x.foodappgstav7_18.ui.menu.fastfood.FastFoodMenu
 import com.it10x.foodappgstav7_18.ui.menu.restaurant.RestaurantMainMenu
 import com.it10x.foodappgstav7_18.ui.menu.restaurant.WaiterMenu
 import com.it10x.foodappgstav7_18.ui.menu.retail.RetailMenu
+import com.it10x.foodappgstav7_18.ui.theme.PosTheme
 import kotlin.math.log
 
+//LOGIN
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.collectAsState
+import com.it10x.foodappgstav7_18.auth.PosLoginViewModel
+import com.it10x.foodappgstav7_18.ui.login.PosLoginScreen
+import com.it10x.foodappgstav7_18.auth.PosSessionManager
 class MainActivity : ComponentActivity() {
     private lateinit var globalOrderSyncManager: GlobalOrderSyncManager
 
@@ -441,6 +450,48 @@ class MainActivity : ComponentActivity() {
             val drawerState = rememberDrawerState(DrawerValue.Closed)
             val scope = rememberCoroutineScope()
 
+                var loggedIn by remember {
+                    mutableStateOf(PosSessionManager.isLoggedIn(context))
+                }
+
+                val loginViewModel: PosLoginViewModel = viewModel()
+
+                val users by loginViewModel.users.collectAsState()
+
+                val loginLoading by loginViewModel.isLoading.collectAsState()
+
+                val loginError by loginViewModel.error.collectAsState()
+
+                if (!loggedIn) {
+
+                    PosLoginScreen(
+
+                        users = users,
+
+                        isLoading = loginLoading,
+
+                        error = loginError,
+
+                        onLoginClick = { user, password ->
+
+                            // Temporary login (we'll replace with server verification)
+                            PosSessionManager.login(
+                                context = context,
+                                userId = user.id,
+                                employeeId = user.employeeId,
+                                fullName = user.fullName,
+                                mobile = user.mobile,
+                                role = user.role
+                            )
+
+                            loggedIn = true
+                        }
+
+                    )
+
+                    return@FoodPosTheme
+                }
+
                 ModalNavigationDrawer(
                     drawerState = drawerState,
                     drawerContent = {
@@ -516,6 +567,13 @@ class MainActivity : ComponentActivity() {
 
                             title = {},
 
+                            colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                                containerColor = PosTheme.topBar.background,
+                                titleContentColor = PosTheme.topBar.content,
+                                navigationIconContentColor = PosTheme.topBar.content,
+                                actionIconContentColor = PosTheme.topBar.content
+                            ),
+
                             navigationIcon = {
 
                                 Row(
@@ -550,69 +608,42 @@ class MainActivity : ComponentActivity() {
 
                                 if (role == PosRole.MAIN) {
 
-                                    IconButton(
+                                    TopBarNavButton(
+                                        selected = currentRoute == "tables",
+                                        icon = Icons.Default.TableBar,
+                                        description = "Tables",
+                                        size = commonHeight,
+                                        shape = commonShape,
                                         onClick = {
                                             navController.navigate("tables") { launchSingleTop = true }
-                                        },
-                                        modifier = Modifier
-                                            .size(commonHeight)
-                                            .background(
-                                                if (currentRoute == "tables")
-                                                    MaterialTheme.colorScheme.primary
-                                                else
-                                                    MaterialTheme.colorScheme.surfaceVariant,
-                                                shape = commonShape
-                                            )
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Default.TableBar,
-                                            contentDescription = "Tables"
-                                        )
-                                    }
+                                        }
+                                    )
 
                                     Spacer(Modifier.width(6.dp))
 
-                                    IconButton(
+                                    TopBarNavButton(
+                                        selected = currentRoute == "pos",
+                                        icon = Icons.Default.PointOfSale,
+                                        description = "POS",
+                                        size = commonHeight,
+                                        shape = commonShape,
                                         onClick = {
                                             navController.navigate("pos") { launchSingleTop = true }
-                                        },
-                                        modifier = Modifier
-                                            .size(commonHeight)
-                                            .background(
-                                                if (currentRoute == "pos")
-                                                    MaterialTheme.colorScheme.primary
-                                                else
-                                                    MaterialTheme.colorScheme.surfaceVariant,
-                                                shape = commonShape
-                                            )
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Default.PointOfSale,
-                                            contentDescription = "POS"
-                                        )
-                                    }
+                                        }
+                                    )
 
                                     Spacer(Modifier.width(6.dp))
 
-                                    IconButton(
+                                    TopBarNavButton(
+                                        selected = currentRoute == "local_orders",
+                                        icon = Icons.Default.ReceiptLong,
+                                        description = "Orders",
+                                        size = commonHeight,
+                                        shape = commonShape,
                                         onClick = {
                                             navController.navigate("local_orders") { launchSingleTop = true }
-                                        },
-                                        modifier = Modifier
-                                            .size(commonHeight)
-                                            .background(
-                                                if (currentRoute == "local_orders")
-                                                    MaterialTheme.colorScheme.primary
-                                                else
-                                                    MaterialTheme.colorScheme.surfaceVariant,
-                                                shape = commonShape
-                                            )
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Default.ReceiptLong,
-                                            contentDescription = "Orders"
-                                        )
-                                    }
+                                        }
+                                    )
 
                                     Spacer(Modifier.width(8.dp))
 
@@ -621,47 +652,29 @@ class MainActivity : ComponentActivity() {
 
                                 if (role == PosRole.WAITER) {
 
-                                    IconButton(
+                                    TopBarNavButton(
+                                        selected = currentRoute == "posWaiter",
+                                        icon = Icons.Default.PointOfSale,
+                                        description = "Waiter POS",
+                                        size = commonHeight,
+                                        shape = commonShape,
                                         onClick = {
                                             navController.navigate("posWaiter") { launchSingleTop = true }
-                                        },
-                                        modifier = Modifier
-                                            .size(commonHeight)
-                                            .background(
-                                                if (currentRoute == "posWaiter")
-                                                    MaterialTheme.colorScheme.primary
-                                                else
-                                                    MaterialTheme.colorScheme.surfaceVariant,
-                                                shape = commonShape
-                                            )
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Default.PointOfSale,
-                                            contentDescription = "Waiter POS"
-                                        )
-                                    }
+                                        }
+                                    )
 
                                     Spacer(Modifier.width(6.dp))
 
-                                    IconButton(
+                                    TopBarNavButton(
+                                        selected = currentRoute == "local_orders",
+                                        icon = Icons.Default.ReceiptLong,
+                                        description = "Orders",
+                                        size = commonHeight,
+                                        shape = commonShape,
                                         onClick = {
                                             navController.navigate("local_orders") { launchSingleTop = true }
-                                        },
-                                        modifier = Modifier
-                                            .size(commonHeight)
-                                            .background(
-                                                if (currentRoute == "local_orders")
-                                                    MaterialTheme.colorScheme.primary
-                                                else
-                                                    MaterialTheme.colorScheme.surfaceVariant,
-                                                shape = commonShape
-                                            )
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Default.ReceiptLong,
-                                            contentDescription = "Orders"
-                                        )
-                                    }
+                                        }
+                                    )
                                 }
                             }
                         )

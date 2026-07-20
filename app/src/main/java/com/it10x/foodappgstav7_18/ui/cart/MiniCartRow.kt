@@ -44,7 +44,7 @@ fun MiniCartRow(
             text = item.name,
             fontWeight = FontWeight.Medium,
             fontSize = 14.sp,
-            color = Color(0xFFE0E0E0),
+            color = MaterialTheme.colorScheme.onBackground,
             modifier = Modifier.weight(1f),
             maxLines = 1
         )
@@ -53,7 +53,7 @@ fun MiniCartRow(
             text = item.quantity.toString(),
             fontWeight = FontWeight.Bold,
             fontSize = 14.sp,
-            color = Color.White
+            color = MaterialTheme.colorScheme.onBackground
         )
     }
 

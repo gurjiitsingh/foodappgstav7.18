@@ -34,6 +34,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavController
 import com.it10x.foodappgstav7_18.ui.pos.StatusBadge
+import com.it10x.foodappgstav7_18.ui.theme.PosTheme
 
 
 @Composable
@@ -50,12 +51,12 @@ fun TableGridContent(
         .toSortedMap()
 
     LazyVerticalGrid(
-        columns = GridCells.Adaptive(minSize = 90.dp),
+        columns = GridCells.Adaptive(minSize = 120.dp),
         modifier = Modifier
             .fillMaxSize()
             .padding(3.dp),
-        horizontalArrangement = Arrangement.spacedBy(6.dp),
-        verticalArrangement = Arrangement.spacedBy(6.dp)
+        horizontalArrangement = Arrangement.spacedBy(2.dp),
+        verticalArrangement = Arrangement.spacedBy(2.dp)
     ) {
 
         groupedByArea.forEach { (areaName, areaTables) ->
@@ -107,7 +108,7 @@ fun TableGridContent(
                             // OPEN POS BUTTON
                             Surface(
                                 shape = RoundedCornerShape(8.dp),
-                                color = MaterialTheme.colorScheme.primary,
+                                color = PosTheme.accent.cartAddBg,   // ✅ use existing color
                                 shadowElevation = 3.dp,
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -121,14 +122,14 @@ fun TableGridContent(
                                 Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(horizontal = 8.dp, vertical = 6.dp),
+                                        .padding(horizontal = 8.dp, vertical = 16.dp),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
 
                                     Icon(
                                         imageVector = Icons.Default.PointOfSale,
                                         contentDescription = null,
-                                        tint = Color.White,
+                                        tint = PosTheme.accent.cartAddText, // ✅ text color
                                         modifier = Modifier.size(18.dp)
                                     )
 
@@ -138,7 +139,7 @@ fun TableGridContent(
                                         text = table.tableName,
                                         style = MaterialTheme.typography.bodyMedium,
                                         fontWeight = FontWeight.Bold,
-                                        color = Color.White
+                                        color = PosTheme.accent.cartAddText // ✅ text color
                                     )
                                 }
                             }
@@ -162,7 +163,7 @@ fun TableGridContent(
                                 Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(horizontal = 8.dp, vertical = 6.dp),
+                                        .padding(horizontal = 8.dp, vertical = 16.dp),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
 
@@ -188,7 +189,7 @@ fun TableGridContent(
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(28.dp)
+                                    .height(30.dp)
                                     .padding(horizontal = 2.dp),
                                 contentAlignment = Alignment.CenterStart
                             ) {

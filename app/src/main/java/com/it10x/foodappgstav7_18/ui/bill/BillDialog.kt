@@ -355,7 +355,7 @@ fun BillDialog(
 
 
 
-
+                    Log.d("ISPIRINTED", "is print done = ${isPrinted}")
 
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -705,7 +705,8 @@ fun BillDialog(
                             discountPercent = discountPercent,
                             creditAmount = creditAmount,
                             deliveryFee = deliveryFee,
-                            billViewModel = billViewModel
+                            billViewModel = billViewModel,
+                            isPrinted = isPrinted
                         )
                     }
 
@@ -945,10 +946,21 @@ fun handleInput(
     discountPercent: MutableState<String>,
     creditAmount: MutableState<String>,
     deliveryFee: MutableState<String>,
-    billViewModel: BillViewModel
-){
+    billViewModel: BillViewModel,
+    isPrinted: Boolean   // ✅ NEW PARAM
+) {
+
+    // 🛑 GLOBAL LOCK (after print)
+    if (isPrinted) {
+        // ✅ Allow ONLY phone editing (optional)
+        if (activeInput != "PHONE") return
+    }
+
     when (activeInput) {
 
+        // =========================
+        // 📱 PHONE INPUT
+        // =========================
         "PHONE" -> {
             when (label) {
 
@@ -986,10 +998,9 @@ fun handleInput(
             }
         }
 
-
-
-
-
+        // =========================
+        // 💰 FLAT DISCOUNT
+        // =========================
         "FLAT" -> {
             discountFlat.value = handleNumberInput(discountFlat.value, label)
 
@@ -998,6 +1009,9 @@ fun handleInput(
             )
         }
 
+        // =========================
+        // 📊 PERCENT DISCOUNT
+        // =========================
         "PERCENT" -> {
             discountPercent.value = handleNumberInput(
                 current = discountPercent.value,
@@ -1010,33 +1024,23 @@ fun handleInput(
             )
         }
 
-
-
-
+        // =========================
+        // 💳 CREDIT
+        // =========================
         "CREDIT" -> {
             creditAmount.value = handleNumberInput(creditAmount.value, label)
         }
-//        "CREDIT" -> {
-//            when (label) {
-//                "←" -> creditAmount.value = creditAmount.value.dropLast(1)
-//                else -> creditAmount.value += label
-//            }
-//        }
 
+        // =========================
+        // 🚚 DELIVERY
+        // =========================
         "DELIVERY" -> {
             deliveryFee.value = handleNumberInput(deliveryFee.value, label)
 
-            // ✅ SEND TO VIEWMODEL (REAL-TIME)
             billViewModel.setDeliveryFee(
                 deliveryFee.value.toDoubleOrNull() ?: 0.0
-                )
-
-//            deliveryFee.value += label
-//
-//            val value = deliveryFee.value.toDoubleOrNull() ?: 0.0
-//            billViewModel.setDeliveryFee(value)   // ✅ REQUIRED
+            )
         }
-
     }
 }
 
