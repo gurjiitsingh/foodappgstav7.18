@@ -34,6 +34,17 @@ val reason: String?="",
     val customerName: String? = null,
     val customerPhone: String? = null,
     val customerId: String? = null,
+
+    // =====================================================
+// USER SNAPSHOT
+// =====================================================
+
+    val createdById: String,
+    val createdByName: String,
+
+    val finalizedById: String? = null,
+    val finalizedByName: String? = null,
+
     // =====================================================
     // DELIVERY ADDRESS SNAPSHOT (ONLY FOR DELIVERY / ONLINE)
     // =====================================================

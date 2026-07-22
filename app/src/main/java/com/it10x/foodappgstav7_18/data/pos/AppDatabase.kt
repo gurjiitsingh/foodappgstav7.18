@@ -29,7 +29,6 @@ import com.it10x.foodappgstav7_18.data.pos.entity.ProductRecipeEntity
         ProcessedCloudOrderEntity::class,
         VirtualTableEntity:: class,
         PrinterEntity::class,
-        PosUserEntity::class,
         PosPreferenceEntity::class,
         PosDeviceEntity::class,
         PrintQueueEntity::class,
@@ -40,9 +39,9 @@ import com.it10x.foodappgstav7_18.data.pos.entity.ProductRecipeEntity
         ProductRecipeEntity::class,
         InventorySyncEntity::class,
         PosKotHistoryEntity::class,
-
+        PosUserEntity:: class,
     ],
-    version = 108,              // ⬆️ increment version since schema changed
+    version = 109,              // ⬆️ increment version since schema changed
     exportSchema = true
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -78,4 +77,6 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun productRecipeDao(): ProductRecipeDao
 
     abstract fun inventorySyncDao(): InventorySyncDao
+
+    abstract fun posUserDao(): PosUserDao
 }

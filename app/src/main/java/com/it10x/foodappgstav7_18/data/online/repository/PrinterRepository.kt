@@ -1,4 +1,4 @@
-package com.it10x.foodappgstav7_18.data.online.models.repository
+package com.it10x.foodappgstav7_18.data.online.repository
 
 import com.it10x.foodappgstav7_18.data.PrinterPreferences
 import com.it10x.foodappgstav7_18.data.PrinterRole

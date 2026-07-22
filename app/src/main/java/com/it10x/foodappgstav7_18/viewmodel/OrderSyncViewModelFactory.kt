@@ -4,7 +4,7 @@ import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.it10x.foodappgstav7_18.data.pos.AppDatabaseProvider
-import com.it10x.foodappgstav7_18.data.online.models.repository.PosOrderSyncRepository
+import com.it10x.foodappgstav7_18.data.online.repository.PosOrderSyncRepository
 import com.it10x.foodappgstav7_18.data.pos.repository.POSPaymentRepository
 
 class OrderSyncViewModelFactory(

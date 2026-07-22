@@ -3,7 +3,7 @@ package com.it10x.foodappgstav7_18.viewmodel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.it10x.foodappgstav7_18.data.online.models.repository.PosOrderSyncRepository
+import com.it10x.foodappgstav7_18.data.online.repository.PosOrderSyncRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch

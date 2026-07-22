@@ -18,7 +18,7 @@ import com.it10x.foodappgstav7_18.data.pos.repository.VirtualTableRepository
 import com.it10x.foodappgstav7_18.data.pos.manager.TableSyncManager
 import com.it10x.foodappgstav7_18.fiskaly.FiskalyService
 import com.it10x.foodappgstav7_18.fiskaly.FiskalyServiceFactory
-
+import com.it10x.foodappgstav7_18.auth.PosSessionManager
 
 sealed class CartUiEvent {
     object SessionRequired : CartUiEvent()
@@ -48,8 +48,11 @@ class CartViewModel(
 
 
     // ---------- SESSION ----------
-    private val sessionId =
-        savedStateHandle.getStateFlow<String?>("sessionId", null)
+    private val sessionId = savedStateHandle.getStateFlow<String?>("sessionId", null)
+
+    private val createdById = savedStateHandle.getStateFlow<String?>("createdById", null)
+
+    private val createdByName = savedStateHandle.getStateFlow<String?>("createdByName", null)
 
     val  sessionKey: StateFlow<String?> = sessionId
     // ---------- CART ----------
@@ -273,15 +276,24 @@ class CartViewModel(
         ) {
             return
         }
-
+        //val currentUser = PosSessionManager.currentUser
         val sid = "$orderType-$resolvedTableId-${System.currentTimeMillis()}"
 
         savedStateHandle["orderType"] = orderType
         savedStateHandle["tableId"] = resolvedTableId
         savedStateHandle["sessionId"] = sid
 
+//        savedStateHandle["createdById"] = currentUser?.userId
+//        savedStateHandle["createdByName"] = currentUser?.fullName
+
 
     }
+
+    fun getCreatedById(): String? =
+        createdById.value
+
+    fun getCreatedByName(): String? =
+        createdByName.value
 
     private fun cartScopeKey(): String? {
         return when (currentOrderType.value) {

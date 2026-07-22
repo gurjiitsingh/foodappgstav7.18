@@ -21,12 +21,10 @@ data class PosUserEntity(
 
     val employeeId: String = "",
 
-    // admin / manager / cashier / waiter
     val role: String,
 
-    // Temporary for development.
-    // Later rename to hashedPassword.
-    val password: String,
+    // 4-6 digit PIN (temporary plain text)
+    val loginPin: String,
 
     val allowPosLogin: Boolean = true,
 
@@ -36,7 +34,6 @@ data class PosUserEntity(
 
     val updatedAt: Long = System.currentTimeMillis(),
 
-    // Sync
     val syncStatus: String = "PENDING",
 
     val lastSyncedAt: Long? = null

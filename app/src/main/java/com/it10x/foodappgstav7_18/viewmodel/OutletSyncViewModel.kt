@@ -5,7 +5,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.it10x.foodappgstav7_18.data.pos.AppDatabaseProvider
-import com.it10x.foodappgstav7_18.data.online.models.repository.OutletSyncRepository
+import com.it10x.foodappgstav7_18.data.online.repository.OutletSyncRepository
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

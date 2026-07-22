@@ -66,6 +66,7 @@ import kotlin.math.pow
 import kotlin.math.roundToLong
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlin.String
 
 
 class BillViewModel(
@@ -711,6 +712,11 @@ class BillViewModel(
                     deviceName = "POS",
                     appVersion = "1.0",
 
+                    createdById ="",
+                    createdByName="",
+                    finalizedById="",
+                    finalizedByName="",
+
                     createdAt = now,
                     updatedAt = now,
 
@@ -1070,6 +1076,11 @@ class BillViewModel(
                     deviceId = "POS",
                     deviceName = "POS",
                     appVersion = "1.0",
+
+                    createdById ="",
+                    createdByName="",
+                    finalizedById="",
+                    finalizedByName="",
 
                     createdAt = now,
                     updatedAt = now,
@@ -1454,6 +1465,11 @@ class BillViewModel(
                 deviceId = "POS",
                 deviceName = "POS",
                 appVersion = "1.0",
+
+                createdById ="",
+                createdByName="",
+                finalizedById="",
+                finalizedByName="",
 
                 createdAt = now,
                 updatedAt = now,

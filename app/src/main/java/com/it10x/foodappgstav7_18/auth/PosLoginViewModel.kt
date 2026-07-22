@@ -1,54 +1,53 @@
 package com.it10x.foodappgstav7_18.auth
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.it10x.foodappgstav7_18.data.pos.AppDatabaseProvider
+import com.it10x.foodappgstav7_18.data.pos.entities.PosUserEntity
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class PosLoginViewModel : ViewModel() {
+class PosLoginViewModel(
+    application: Application
+) : AndroidViewModel(application) {
 
-    private val repository = UserRepository()
+    private val dao =
+        AppDatabaseProvider
+            .get(application)
+            .posUserDao()
 
-    private val _users = MutableStateFlow<List<PosUser>>(emptyList())
-    val users: StateFlow<List<PosUser>> = _users.asStateFlow()
+    private val _users =
+        MutableStateFlow<List<PosUserEntity>>(emptyList())
+    val users: StateFlow<List<PosUserEntity>> =
+        _users.asStateFlow()
 
-    private val _isLoading = MutableStateFlow(false)
-    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+    private val _isLoading =
+        MutableStateFlow(true)
+    val isLoading: StateFlow<Boolean> =
+        _isLoading.asStateFlow()
 
-    private val _error = MutableStateFlow<String?>(null)
-    val error: StateFlow<String?> = _error.asStateFlow()
+    private val _error =
+        MutableStateFlow<String?>(null)
+    val error: StateFlow<String?> =
+        _error.asStateFlow()
 
     init {
-        loadUsers()
-    }
-
-    fun loadUsers() {
-
         viewModelScope.launch {
-
-            _isLoading.value = true
-            _error.value = null
-
-            try {
-
-                _users.value = repository.getPosUsers()
-
-            } catch (e: Exception) {
-
-                _error.value = e.message ?: "Failed to load users."
-
-            } finally {
-
+            dao.observeUsers().collect { list ->
+                _users.value = list
                 _isLoading.value = false
-
             }
         }
+    }
+
+    fun showError(message: String) {
+        _error.value = message
     }
 
     fun clearError() {
         _error.value = null
     }
-
 }

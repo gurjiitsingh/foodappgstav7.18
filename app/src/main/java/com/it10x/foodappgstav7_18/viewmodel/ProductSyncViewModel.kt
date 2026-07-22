@@ -5,8 +5,9 @@ import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.it10x.foodappgstav7_18.data.pos.AppDatabaseProvider
-import com.it10x.foodappgstav7_18.data.online.models.repository.ProductSyncRepository
-import com.it10x.foodappgstav7_18.data.online.models.repository.ModifierSyncRepository // 👈 ADD THIS
+import com.it10x.foodappgstav7_18.data.online.repository.ProductSyncRepository
+import com.it10x.foodappgstav7_18.data.online.repository.ModifierSyncRepository // 👈 ADD THIS
+import com.it10x.foodappgstav7_18.data.online.repository.UserSyncRepository
 import com.it10x.foodappgstav7_18.data.online.repository.ProductRecipeSyncRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -19,6 +20,8 @@ class ProductSyncViewModel(app: Application) : AndroidViewModel(app) {
     private val repo = ProductSyncRepository(db)
 
     private val modifierRepo = ModifierSyncRepository(db) // 👈 ADD THIS
+
+    private val userRepo = UserSyncRepository(db)
 
     private val _syncing = MutableStateFlow(false)
     val syncing: StateFlow<Boolean> = _syncing
@@ -53,6 +56,11 @@ class ProductSyncViewModel(app: Application) : AndroidViewModel(app) {
                 _status.value =
                     "Syncing product recipes..."
                 recipeRepo.syncProductRecipes()
+
+                _status.value = "Syncing users..."
+                userRepo.syncUsers()
+
+                _status.value = "Sync complete 🎉"
 
             } catch (e: Exception) {
                 _status.value = "Sync failed: ${e.message}"

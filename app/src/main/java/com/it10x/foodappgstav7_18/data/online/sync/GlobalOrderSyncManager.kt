@@ -330,62 +330,7 @@ private fun startWaiterListener() {
                         }
                     }
 
-//                    scope.launch(Dispatchers.IO) {
-//                        try {
-//
-//                            // Ignore older updates for same table
-//                            val lastUpdated = lastProcessedMap[tableId] ?: 0L
-//
-//                            if (updatedAt <= lastUpdated) {
-//                                Log.d(
-//                                    "SYNC_ORDER",
-//                                    "⏭️ Ignoring stale update table=$tableId updatedAt=$updatedAt last=$lastUpdated"
-//                                )
-//                                return@launch
-//                            }
-//                            Log.d(
-//                                "SYNC_ORDER",
-//                                "ACCEPT table=$tableId updatedAt=$updatedAt previous=${lastProcessedMap[tableId]}"
-//                            )
-//
-//                            lastProcessedMap[tableId] = updatedAt
-//
-//                            val uniqueId = "${tableId}_$updatedAt"
-//
-//                            val insertResult = processedDao.insert(
-//                                ProcessedCloudOrderEntity(
-//                                    orderId = uniqueId,
-//                                    processedAt = System.currentTimeMillis()
-//                                )
-//                            )
-//
-//                            if (insertResult == -1L) {
-//                                Log.d("SYNC", "⏭️ Already processed: $uniqueId")
-//                                return@launch
-//                            }
-//
-//                            Log.d("SYNC", "✅ Processing: $uniqueId")
-//                            Log.d(
-//                                "SYNC_ORDER",
-//                                "PROCESSING table=$tableId updatedAt=$updatedAt items=${items.size}"
-//                            )
-//                            // IMPORTANT: no nested launch
-//                            kitchenViewModel.replaceKotFromFirestoreWaiterListener(
-//                                tableId = tableId,
-//                                sessionId = sessionId,
-//                                items = items,
-//                                source = "FIRESTORE"
-//                            )
-//
-//                            Log.d(
-//                                "SYNC_ORDER",
-//                                "DONE table=$tableId updatedAt=$updatedAt"
-//                            )
-//
-//                        } catch (e: Exception) {
-//                            Log.e("SYNC", "❌ Sync failed for table: $tableId", e)
-//                        }
-//                    }
+
                 }
             }
     }

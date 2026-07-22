@@ -474,10 +474,14 @@ class MainActivity : ComponentActivity() {
 
                         onLoginClick = { user, password ->
 
-                            // Temporary login (we'll replace with server verification)
+                            if (user.loginPin != password) {
+                                loginViewModel.showError("Invalid PIN")
+                                return@PosLoginScreen
+                            }
+
                             PosSessionManager.login(
                                 context = context,
-                                userId = user.id,
+                                userId = user.userId,
                                 employeeId = user.employeeId,
                                 fullName = user.fullName,
                                 mobile = user.mobile,
@@ -531,15 +535,26 @@ class MainActivity : ComponentActivity() {
                                         when (role) {
 
                                             PosRole.MAIN -> RestaurantMainMenu(
-                                                navController, drawerState, scope
+                                                navController = navController,
+                                                drawerState = drawerState,
+                                                scope = scope,
+                                                onLogout = {
+                                                    loggedIn = false
+
+                                                }
                                             )
 
                                             PosRole.WAITER -> WaiterMenu(
                                                 navController, drawerState, scope
                                             )
 
-                                            else -> RestaurantMainMenu(   // ✅ fallback
-                                                navController, drawerState, scope
+                                            else -> RestaurantMainMenu(
+                                                navController = navController,
+                                                drawerState = drawerState,
+                                                scope = scope,
+                                                onLogout = {
+                                                    loggedIn = false
+                                                }
                                             )
                                         }
                                     }
@@ -547,7 +562,10 @@ class MainActivity : ComponentActivity() {
                                     else -> RestaurantMainMenu(
                                         navController = navController,
                                         drawerState = drawerState,
-                                        scope = scope
+                                        scope = scope,
+                                        onLogout = {
+                                            loggedIn = false
+                                        }
                                     )
                                 }
 

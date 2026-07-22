@@ -7,7 +7,7 @@ import android.media.RingtoneManager
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.it10x.foodappgstav7_18.data.online.models.OrderMasterData
-import com.it10x.foodappgstav7_18.data.online.models.repository.RealtimeOrdersRepository
+import com.it10x.foodappgstav7_18.data.online.repository.RealtimeOrdersRepository
 import com.it10x.foodappgstav7_18.printer.AutoPrintManager
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore

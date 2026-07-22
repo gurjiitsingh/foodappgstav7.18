@@ -1,15 +1,22 @@
 package com.it10x.foodappgstav7_18.ui.menu.restaurant
 
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Logout
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerState
+import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.it10x.foodappgstav7_18.SidebarSectionHeader
+import com.it10x.foodappgstav7_18.auth.PosSessionManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -17,12 +24,37 @@ import kotlinx.coroutines.launch
 fun RestaurantMainMenu(
     navController: NavController,
     drawerState: DrawerState,
-    scope: CoroutineScope
+    scope: CoroutineScope,
+    onLogout: () -> Unit
 ) {
+
+    val context = LocalContext.current
+
+    var showLogoutDialog by remember {
+        mutableStateOf(false)
+    }
+
     // ===============================
     // OPERATIONS
     // ===============================
+
     SidebarSectionHeader("OPERATIONS")
+
+    NavigationDrawerItem(
+        icon = {
+            Icon(
+                imageVector = Icons.Default.Logout,
+                contentDescription = null
+            )
+        },
+        label = {
+            Text("Logout")
+        },
+        selected = false,
+        onClick = {
+            showLogoutDialog = true
+        }
+    )
 
     NavigationDrawerItem(
         label = { Text("POS") },
@@ -42,7 +74,6 @@ fun RestaurantMainMenu(
         thickness = 0.5.dp
     )
 
-
     NavigationDrawerItem(
         label = { Text("Tables") },
         selected = false,
@@ -53,10 +84,6 @@ fun RestaurantMainMenu(
             }
         }
     )
-
-
-
-
 
     Divider(
         modifier = Modifier
@@ -83,13 +110,6 @@ fun RestaurantMainMenu(
         thickness = 0.5.dp
     )
 
-    Divider(
-        modifier = Modifier
-            .padding(horizontal = 16.dp)
-            .padding(bottom = 4.dp),
-        thickness = 0.5.dp
-    )
-
     NavigationDrawerItem(
         label = { Text("Online Orders") },
         selected = false,
@@ -99,13 +119,13 @@ fun RestaurantMainMenu(
         }
     )
 
-
     Divider(
         modifier = Modifier
             .padding(horizontal = 16.dp)
             .padding(bottom = 4.dp),
         thickness = 0.5.dp
     )
+
     NavigationDrawerItem(
         label = { Text("Local Orders") },
         selected = false,
@@ -114,7 +134,6 @@ fun RestaurantMainMenu(
             navController.navigate("local_orders")
         }
     )
-
 
     Divider(
         modifier = Modifier
@@ -133,8 +152,9 @@ fun RestaurantMainMenu(
     )
 
     // ===============================
-    // SALES / Z-REPORT
+    // REPORTS
     // ===============================
+
     SidebarSectionHeader("REPORTS")
 
     NavigationDrawerItem(
@@ -142,7 +162,7 @@ fun RestaurantMainMenu(
         selected = false,
         onClick = {
             scope.launch { drawerState.close() }
-            navController.navigate("sales") // opens SalesScreen
+            navController.navigate("sales")
         }
     )
 
@@ -153,14 +173,10 @@ fun RestaurantMainMenu(
         thickness = 0.5.dp
     )
 
-
-
-
-
-
     // ===============================
-// CUSTOMERS
-// ===============================
+    // CUSTOMERS
+    // ===============================
+
     SidebarSectionHeader("CUSTOMERS")
 
     NavigationDrawerItem(
@@ -184,7 +200,8 @@ fun RestaurantMainMenu(
         selected = false,
         onClick = {
             scope.launch { drawerState.close() }
-            navController.navigate("delivery_settlement") }
+            navController.navigate("delivery_settlement")
+        }
     )
 
     Divider(
@@ -199,12 +216,14 @@ fun RestaurantMainMenu(
         selected = false,
         onClick = {
             scope.launch { drawerState.close() }
-            navController.navigate("Address") }
+            navController.navigate("Address")
+        }
     )
 
     // ===============================
-    // SYNC & DATA
+    // SYSTEM
     // ===============================
+
     SidebarSectionHeader("SYSTEM")
 
     NavigationDrawerItem(
@@ -216,18 +235,12 @@ fun RestaurantMainMenu(
         }
     )
 
-    // ===============================
-    // SETTINGS
-    // ===============================
-    //  SidebarSectionHeader("SETTINGS")
-
     Divider(
         modifier = Modifier
             .padding(horizontal = 16.dp)
             .padding(bottom = 4.dp),
         thickness = 0.5.dp
     )
-
 
     NavigationDrawerItem(
         label = { Text("Settings") },
@@ -241,7 +254,6 @@ fun RestaurantMainMenu(
         }
     )
 
-
     NavigationDrawerItem(
         label = { Text("Printer Settings") },
         selected = false,
@@ -251,36 +263,9 @@ fun RestaurantMainMenu(
         }
     )
 
-//                                    Divider(
-//                                        modifier = Modifier
-//                                            .padding(horizontal = 16.dp)
-//                                            .padding(bottom = 4.dp),
-//                                        thickness = 0.5.dp
-//                                    )
-//                                    NavigationDrawerItem(
-//                                        label = { Text("Advanced Settings") },
-//                                        selected = false,
-//                                        onClick = {
-//                                            scope.launch { drawerState.close() }
-//                                            navController.navigate("advanced_settings")
-//                                        }
-//                                    )
-
-//                                    Divider(
-//                                        modifier = Modifier
-//                                            .padding(horizontal = 16.dp)
-//                                            .padding(bottom = 4.dp),
-//                                        thickness = 0.5.dp
-//                                    )
-//
-//                                    NavigationDrawerItem(
-//                                        label = { Text("Theme Settings") },
-//                                        selected = false,
-//                                        onClick = {
-//                                            scope.launch { drawerState.close() }
-//                                            navController.navigate("theme_settings")
-//                                        }
-//                                    )
+    // ===============================
+    // SETUP
+    // ===============================
 
     SidebarSectionHeader("SETUP")
 
@@ -299,4 +284,46 @@ fun RestaurantMainMenu(
             .padding(bottom = 4.dp),
         thickness = 0.5.dp
     )
+
+    if (showLogoutDialog) {
+
+        AlertDialog(
+            onDismissRequest = {
+                showLogoutDialog = false
+            },
+            title = {
+                Text("Logout")
+            },
+            text = {
+                Text("Are you sure you want to logout?")
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+
+                        showLogoutDialog = false
+
+                        PosSessionManager.logout(context)
+
+                        onLogout()
+
+                        scope.launch {
+                            drawerState.close()
+                        }
+                    }
+                ) {
+                    Text("Logout")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        showLogoutDialog = false
+                    }
+                ) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
 }
