@@ -40,8 +40,10 @@ import com.it10x.foodappgstav7_18.data.pos.entity.ProductRecipeEntity
         InventorySyncEntity::class,
         PosKotHistoryEntity::class,
         PosUserEntity:: class,
+        PosDayClosingEntity::class,
+        PosBusinessDayEntity::class,
     ],
-    version = 109,              // ⬆️ increment version since schema changed
+    version = 113,              // ⬆️ increment version since schema changed
     exportSchema = true
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -79,4 +81,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun inventorySyncDao(): InventorySyncDao
 
     abstract fun posUserDao(): PosUserDao
+
+    abstract fun dayClosingDao(): DayClosingDao
+    abstract fun businessDayDao(): BusinessDayDao
 }

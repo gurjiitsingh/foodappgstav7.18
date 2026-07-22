@@ -29,6 +29,8 @@ data class PosOrderItemEntity(
     val orderMasterId: String,       // FK → pos_order_master.id
     val productId: String,           // Original product ID (Firestore)
 
+    val createdById : String = "",
+    val createdByName: String = "",
     // =====================================================
     // SNAPSHOT PRODUCT INFO (NEVER CHANGES)
     // =====================================================

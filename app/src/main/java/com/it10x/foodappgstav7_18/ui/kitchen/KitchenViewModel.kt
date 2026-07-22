@@ -304,6 +304,8 @@ class KitchenViewModel(
                     currentStock = cart.currentStock,
                     categoryId = cart.categoryId,
                     categoryName = cart.categoryName,
+                    createdById = cart.createdById,
+                    createdByName = cart.createdByName,
                     parentId = cart.parentId,
                     isVariant = cart.isVariant,
                     basePrice = cart.basePrice,

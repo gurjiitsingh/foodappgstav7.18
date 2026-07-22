@@ -228,11 +228,48 @@ fun BillDialog(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(
-                            "Actions",
-                            style = MaterialTheme.typography.titleSmall,
-                            color = Color.White
-                        )
+//                        Text(
+//                            "Actions",
+//                            style = MaterialTheme.typography.titleSmall,
+//                            color = Color.White
+//                        )
+
+                        if (isPrinted) {
+
+                            Button(
+                                onClick = {
+                                    isPrinted = false
+                                },
+                                modifier = Modifier
+                                    .height(28.dp)
+                                    .width(90.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color(0xFF1976D2),
+                                    contentColor = Color.White
+                                ),
+                                contentPadding = PaddingValues(vertical = 0.dp)
+                            ) {
+                                Text("Print Again", fontSize = 12.sp)
+                            }
+
+                        } else {
+
+                            Button(
+                                onClick = {
+                                    isPrinted = true
+                                },
+                                modifier = Modifier
+                                    .height(28.dp)
+                                    .width(90.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color(0xFF2E7D32),
+                                    contentColor = Color.White
+                                ),
+                                contentPadding = PaddingValues(vertical = 0.dp)
+                            ) {
+                                Text("No Print", fontSize = 12.sp)
+                            }
+                        }
 
                         // ✅ Compact Close button (top-right)
                         Button(

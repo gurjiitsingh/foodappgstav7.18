@@ -28,6 +28,7 @@ data class PosCartEntity(
     val parentId: String?,
     val isVariant: Boolean,
 
+
     val basePrice: Double,
     val finalPrice: Double = 0.0,
     val modifierTotal: Double,
@@ -41,7 +42,8 @@ data class PosCartEntity(
 
     // 🪑 Only for DINE_IN
     val tableId: String?,
-
+    val createdById : String = "",
+    val createdByName: String = "",
     // 📝 Free text kitchen instruction
     val note: String = "",
 

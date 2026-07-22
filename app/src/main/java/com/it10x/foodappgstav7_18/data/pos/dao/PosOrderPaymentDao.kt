@@ -87,6 +87,20 @@ interface PosOrderPaymentDao {
 
     @Query("SELECT * FROM pos_order_payments WHERE orderId = :orderId")
     suspend fun getPaymentsByOrderId(orderId: String): List<PosOrderPaymentEntity>
+
+
+    @Query("""
+    SELECT IFNULL(SUM(amount),0)
+    FROM pos_order_payments
+    WHERE mode = :mode
+    AND businessDate = :businessDate
+    AND status = 'SUCCESS'
+    AND isVoided = 0
+""")
+    suspend fun getPaymentTotal(
+        mode: String,
+        businessDate: String
+    ): Double
 }
 
 

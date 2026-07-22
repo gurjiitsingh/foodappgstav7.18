@@ -397,11 +397,12 @@ fun LocalPosOrderTableHeader() {
     ) {
         HeaderCell("Order#", 0.14f)
         HeaderCell("Type/Table", 0.18f)
+        HeaderCell("Created/Final", 0.20f)
         HeaderCell("Amount", 0.16f)
        // HeaderCell("Payment", 0.18f)
      //   HeaderCell("Status", 0.18f)
         HeaderCell("Time", 0.16f)
-        HeaderCell("Bill", 0.16f)
+        HeaderCell("Print Bill   Send Bill", 0.16f)
     }
 }
 
@@ -467,7 +468,6 @@ fun LocalPosOrderTableRow(
             shortType
         }
 
-
         Text(
             text = displayType,
             modifier = Modifier.weight(0.16f),
@@ -478,6 +478,15 @@ fun LocalPosOrderTableRow(
                 FontWeight.Normal
         )
 
+        Text(
+            text = "By ${order.finalizedByName}",
+            modifier = Modifier.weight(0.20f),
+            style = MaterialTheme.typography.bodySmall,
+            fontWeight = FontWeight.SemiBold
+        )
+
+
+
 
         // Amount
         Text(
@@ -486,7 +495,7 @@ fun LocalPosOrderTableRow(
                 currencyCode = currencyCode,
                 localeTag = localeTag
             ),
-            modifier = Modifier.weight(0.15f),
+            modifier = Modifier.weight(0.16f),
             fontWeight = FontWeight.Medium
         )
 
@@ -494,14 +503,14 @@ fun LocalPosOrderTableRow(
         // Time
         Text(
             formatLocalTime(order.createdAt),
-            modifier = Modifier.weight(0.12f),
+            modifier = Modifier.weight(0.16f),
             style = MaterialTheme.typography.bodySmall
         )
 
 
         // Actions
         Row(
-            modifier = Modifier.weight(0.12f),
+            modifier = Modifier.weight(0.16f),
             horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
 

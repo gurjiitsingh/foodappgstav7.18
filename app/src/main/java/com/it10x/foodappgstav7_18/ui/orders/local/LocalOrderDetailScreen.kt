@@ -152,6 +152,18 @@ fun OrderProductRow(item: PosOrderItemEntity, currencyCode: String, localeTag: S
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.Gray
                 )
+
+                if (item.createdByName.isNotBlank()) {
+                    Spacer(Modifier.height(2.dp))
+
+                    Text(
+                        text = "Created by: ${item.createdByName}",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Color(0xFF1976D2)
+                    )
+                }
+
+                Spacer(Modifier.height(2.dp))
                 val modifiers = ModifierJsonHelper.fromJson(item.modifiersJson)
 
                 modifiers.forEach { group ->

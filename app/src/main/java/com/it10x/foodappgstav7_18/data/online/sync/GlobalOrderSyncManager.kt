@@ -150,6 +150,8 @@ private fun startMainPosListener() {
                                 categoryName = itemDoc.getString("categoryName") ?: "",
                                 parentId = null,
                                 isVariant = false,
+                                createdById = itemDoc.getString("createdById") ?: "",
+                                createdByName = itemDoc.getString("createdByName") ?: "",
                                 basePrice = itemDoc.getDouble("price") ?: 0.0,
                                 modifierTotal = 0.0,
                                 quantity = (itemDoc.getLong("quantity") ?: 1L).toInt(),

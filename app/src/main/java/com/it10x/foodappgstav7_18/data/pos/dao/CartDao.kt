@@ -114,27 +114,7 @@ interface CartDao {
     @Query("SELECT SUM(quantity) FROM cart WHERE tableId = :tableId")
     suspend fun getCartCountForTable(tableId: String): Int?
 
-//
-//    @Query("""
-//    SELECT * FROM cart
-//    WHERE productId = :productId
-//    AND tableId = :tableId
-//    AND (
-//        (note IS NULL AND :note IS NULL)
-//        OR note = :note
-//    )
-//    AND (
-//        (modifiersJson IS NULL AND :modifiersJson IS NULL)
-//        OR modifiersJson = :modifiersJson
-//    )
-//    LIMIT 1
-//""")
-//    suspend fun findMatchingItem(
-//        productId: String,
-//        tableId: String?,
-//        note: String?,
-//        modifiersJson: String?
-//    ): PosCartEntity?
+
 
 
     @Query("SELECT * FROM cart WHERE id = :id LIMIT 1")

@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.firestore.FirebaseFirestore
+import com.it10x.foodappgstav7_18.auth.PosSessionManager
 import com.it10x.foodappgstav7_18.data.PrinterRole
 import com.it10x.foodappgstav7_18.data.online.repository.CashierOrderSyncRepository
 import com.it10x.foodappgstav7_18.data.online.sync.SyncManagerProvider
@@ -67,9 +68,11 @@ import kotlin.math.roundToLong
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlin.String
-
+import android.app.Application
+import com.it10x.foodappgstav7_18.data.pos.repository.BusinessDayRepository
 
 class BillViewModel(
+    private val app: Application,
     private val kotItemDao: KotItemDao,
     private val orderMasterDao: OrderMasterDao,
     private val orderProductDao: OrderProductDao,
@@ -87,6 +90,7 @@ class BillViewModel(
     private val kotRepository: KotRepository,
     private val cashierOrderSyncRepository: CashierOrderSyncRepository,
     private val tableSyncManager: TableSyncManager,
+    private val businessDayRepository: BusinessDayRepository,
     private val fiskalyRepository: FiskalyRepository
 ) : ViewModel() {
 
@@ -453,6 +457,13 @@ class BillViewModel(
                 val kotItems = kotItemDao
                     .getItemsForTableSync(tableId)
                     .filter { it.status == "DONE" }
+
+                kotItems.forEach {
+                    Log.d(
+                        "CREATED_BY",
+                        "Item=${it.name}, createdById=${it.createdById}, createdByName=${it.createdByName}"
+                    )
+                }
                 if (kotItems.isEmpty()) {
                     sendEvent("No items to bill")
                     return@launch
@@ -513,14 +524,23 @@ class BillViewModel(
                     (rawTaxPaise * (1 - discountRatio)).roundToLong()
 
                 val now = System.currentTimeMillis()
+                val currentBusinessDay =
+                    businessDayRepository.getCurrentBusinessDay()
+
+                val businessDate = currentBusinessDay.businessDate
                 val orderId = UUID.randomUUID().toString()
+
+//                val srno = orderSequenceRepository.nextOrderNo(
+//                    outletId = outlet.outletId,
+//                    businessDate = SimpleDateFormat(
+//                        "yyyyMMdd",
+//                        Locale.getDefault()
+//                    ).format(Date())
+//                )
 
                 val srno = orderSequenceRepository.nextOrderNo(
                     outletId = outlet.outletId,
-                    businessDate = SimpleDateFormat(
-                        "yyyyMMdd",
-                        Locale.getDefault()
-                    ).format(Date())
+                    businessDate = businessDate
                 )
 
 
@@ -663,6 +683,8 @@ class BillViewModel(
                     if (payments.size > 1) "MIXED"
                     else payments.firstOrNull()?.mode ?: "CREDIT"
 
+                val finalizedById = PosSessionManager.getUserId(app) ?: ""
+                val finalizedByName = PosSessionManager.getFullName(app) ?: ""
                 // ===========================
                 // ORDER MASTER
                 // ===========================
@@ -712,11 +734,11 @@ class BillViewModel(
                     deviceName = "POS",
                     appVersion = "1.0",
 
-                    createdById ="",
-                    createdByName="",
-                    finalizedById="",
-                    finalizedByName="",
-
+//                    createdById ="",
+//                    createdByName="",
+                    finalizedById= finalizedById,
+                    finalizedByName= finalizedByName,
+                    businessDate = businessDate,
                     createdAt = now,
                     updatedAt = now,
 
@@ -811,8 +833,8 @@ class BillViewModel(
                     fiscalService.start()
                 }
                 withContext(Dispatchers.IO) {
-                    orderMasterDao.insert(orderMaster)
-                    orderProductDao.insertAll(orderItems)
+                 //   orderMasterDao.insert(orderMaster)
+                  //  orderProductDao.insertAll(orderItems)
 
                     // if (payments.isNotEmpty() && totalPaidPaise > 0){
                     //     val paymentEntities = payments.map {
@@ -948,20 +970,35 @@ class BillViewModel(
                     .getItemsForTableSync(tableId)
                     .filter { it.status == "DONE" }
 
+                kotItems.forEach {
+                    Log.d(
+                        "CREATED_BY",
+                        "Item=${it.name}, createdById=${it.createdById}, createdByName=${it.createdByName}"
+                    )
+                }
+
                 if (kotItems.isEmpty()) {
                     sendEvent("No items to print")
                     return@launch
                 }
 
+                val currentBusinessDay =
+                    businessDayRepository.getCurrentBusinessDay()
 
+                val businessDate = currentBusinessDay.businessDate
                 val orderId = UUID.randomUUID().toString()
+
+//                val srno = orderSequenceRepository.nextOrderNo(
+//                    outletId = outlet.outletId,
+//                    businessDate = SimpleDateFormat(
+//                        "yyyyMMdd",
+//                        Locale.getDefault()
+//                    ).format(Date())
+//                )
 
                 val srno = orderSequenceRepository.nextOrderNo(
                     outletId = outlet.outletId,
-                    businessDate = SimpleDateFormat(
-                        "yyyyMMdd",
-                        Locale.getDefault()
-                    ).format(Date())
+                    businessDate = businessDate
                 )
 
                 // =========================
@@ -1042,6 +1079,8 @@ class BillViewModel(
 
                 val grandTotal = MoneyUtils.fromPaise(grandTotalPaise)
 
+                val finalizedById = PosSessionManager.getUserId(app) ?: ""
+                val finalizedByName = PosSessionManager.getFullName(app) ?: ""
                 // =========================
                 // ORDER MASTER (MINIMAL)
                 // =========================
@@ -1077,11 +1116,11 @@ class BillViewModel(
                     deviceName = "POS",
                     appVersion = "1.0",
 
-                    createdById ="",
-                    createdByName="",
-                    finalizedById="",
-                    finalizedByName="",
-
+//                    createdById ="",
+//                    createdByName="",
+                    finalizedById= finalizedById,
+                    finalizedByName=finalizedByName,
+                    businessDate = businessDate,
                     createdAt = now,
                     updatedAt = now,
 
@@ -1142,14 +1181,14 @@ class BillViewModel(
                 // SAVE (optional but good)
                 // =========================
                 withContext(Dispatchers.IO) {
-                    orderMasterDao.insert(orderMaster)
-                    orderProductDao.insertAll(orderItems)
+                  //  orderMasterDao.insert(orderMaster)
+                  //  orderProductDao.insertAll(orderItems)
                 }
 
                 // =========================
                 // PRINT
                 // =========================
-                printOrder(orderMaster, orderItems)
+               printOrder(orderMaster, orderItems)
 
                 sendEvent("Printed successfully")
 
@@ -1210,6 +1249,13 @@ class BillViewModel(
             val kotItems = kotItemDao
                 .getItemsForTableSync(tableId)
                 .filter { it.status == "DONE" }
+
+                kotItems.forEach {
+                    Log.d(
+                        "CREATED_BY",
+                        "Item=${it.name}, createdById=${it.createdById}, createdByName=${it.createdByName}"
+                    )
+                }
                 if (kotItems.isEmpty()) {
                     sendEvent("No items to bill")
                     return@launch
@@ -1270,15 +1316,24 @@ class BillViewModel(
                     (rawTaxPaise * (1 - discountRatio)).roundToLong()
 
             val now = System.currentTimeMillis()
+                val currentBusinessDay =
+                    businessDayRepository.getCurrentBusinessDay()
+
+                val businessDate = currentBusinessDay.businessDate
             val orderId = UUID.randomUUID().toString()
 
-            val srno = orderSequenceRepository.nextOrderNo(
-                outletId = outlet.outletId,
-                businessDate = SimpleDateFormat(
-                    "yyyyMMdd",
-                    Locale.getDefault()
-                ).format(Date())
-            )
+//            val srno = orderSequenceRepository.nextOrderNo(
+//                outletId = outlet.outletId,
+//                businessDate = SimpleDateFormat(
+//                    "yyyyMMdd",
+//                    Locale.getDefault()
+//                ).format(Date())
+//            )
+
+                val srno = orderSequenceRepository.nextOrderNo(
+                    outletId = outlet.outletId,
+                    businessDate = businessDate
+                )
 
 
                 val deliveryFeePaise = MoneyUtils.toPaise(_deliveryFee.value)
@@ -1421,9 +1476,14 @@ class BillViewModel(
                 if (payments.size > 1) "MIXED"
                 else payments.firstOrNull()?.mode ?: "CREDIT"
 
+                val finalizedById = PosSessionManager.getUserId(app) ?: ""
+                val finalizedByName = PosSessionManager.getFullName(app) ?: ""
+
             // ===========================
             // ORDER MASTER
             // ===========================
+
+
 
             val orderMaster = PosOrderMasterEntity(
                 id = orderId,
@@ -1466,11 +1526,11 @@ class BillViewModel(
                 deviceName = "POS",
                 appVersion = "1.0",
 
-                createdById ="",
-                createdByName="",
-                finalizedById="",
-                finalizedByName="",
-
+//                createdById ="",
+//                createdByName="",
+                finalizedById=finalizedById,
+                finalizedByName=finalizedByName,
+                businessDate = businessDate,
                 createdAt = now,
                 updatedAt = now,
 
@@ -1536,6 +1596,8 @@ class BillViewModel(
                              productMode = first.productMode,
                              currentStock = first.currentStock,
                             categoryId = first.categoryId,
+                             createdById =first.createdById,
+                             createdByName=first.createdByName,
                             parentId = first.parentId,
                             isVariant = first.isVariant,
                             basePrice = first.basePrice,
@@ -1603,7 +1665,7 @@ class BillViewModel(
 
                     // ✅ 2. PRINT IMMEDIATELY
 
-                    printOrder(orderMaster, orderItems)
+                   // printOrder(orderMaster, orderItems)
 
                     // 🔥 FIRESTORE CLEAR
                     try {
@@ -1725,9 +1787,9 @@ class BillViewModel(
         items: List<PosOrderItemEntity>,
 
     ) = withContext(Dispatchers.IO) {
-        Log.d("PRINTTEST", "discount1 = ${order.discountTotal}")
-        Log.d("PRINTTEST", "delivery1 = ${order.deliveryFee}")
-        Log.d("PRINTTEST", "grandTotal1 = ${order.grandTotal}")
+//        Log.d("PRINTTEST", "discount1 = ${order.discountTotal}")
+//        Log.d("PRINTTEST", "delivery1 = ${order.deliveryFee}")
+//        Log.d("PRINTTEST", "grandTotal1 = ${order.grandTotal}")
         val printOrder = PrintOrderBuilder.build(order, items)
 
         val outlet = outletDao.getOutlet()

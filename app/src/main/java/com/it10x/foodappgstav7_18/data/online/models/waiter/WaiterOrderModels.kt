@@ -22,6 +22,8 @@ data class WaiterOrderItem(
     val taxRate: Double = 0.0,
     val tableNo: String = "",
     val sessionId: String = "",
+    val createdById: String = "",
+    val createdByName: String = "",
     val note : String = "",
     val modifiersJson : String = "",
     val kitchenPrintReq: Boolean = true,

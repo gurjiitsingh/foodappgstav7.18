@@ -91,8 +91,13 @@ class BillViewModelFactory(
                 kotItemDao = db.kotItemDao()
             )
 
+            val businessDayRepository = BusinessDayRepository(
+                db.businessDayDao()
+            )
+
             @Suppress("UNCHECKED_CAST")
             return BillViewModel(
+                app = application,
                 kotItemDao = db.kotItemDao(),
                 orderMasterDao = db.orderMasterDao(),
                 orderProductDao = db.orderProductDao(),
@@ -110,6 +115,7 @@ class BillViewModelFactory(
                 kotRepository = kotRepository,
                 cashierOrderSyncRepository = cashierOrderSyncRepository,
                 tableSyncManager = tableSyncManager,
+                businessDayRepository = businessDayRepository,
                 fiskalyRepository = fiskalyRepository
             ) as T
         }

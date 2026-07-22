@@ -38,12 +38,12 @@ val reason: String?="",
     // =====================================================
 // USER SNAPSHOT
 // =====================================================
+// NO NEED AS ALREADY IN ITEM
+//    val createdById: String = "",
+//    val createdByName: String = "",
 
-    val createdById: String,
-    val createdByName: String,
-
-    val finalizedById: String? = null,
-    val finalizedByName: String? = null,
+    val finalizedById: String? = "",
+    val finalizedByName: String? = "",
 
     // =====================================================
     // DELIVERY ADDRESS SNAPSHOT (ONLY FOR DELIVERY / ONLINE)
@@ -94,6 +94,7 @@ val reason: String?="",
     // =====================================================
     // TIMING
     // =====================================================
+    val businessDate: String,
     val createdAt: Long,            // System.currentTimeMillis()
     val updatedAt: Long?,           // Last local update
 

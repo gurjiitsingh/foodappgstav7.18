@@ -22,7 +22,7 @@ import com.it10x.foodappgstav7_18.auth.PosSessionManager
 
 sealed class CartUiEvent {
     object SessionRequired : CartUiEvent()
-    object TableRequired : CartUiEvent()   // ✅ ADD THIS
+    object TableRequired : CartUiEvent()
 }
 
 class CartViewModel(
@@ -162,6 +162,8 @@ class CartViewModel(
                 categoryId = product.categoryId,
                 categoryName = product.productCat,
                 kitchenPrintReq = resolvedKitchenPrint,
+                createdById = createdById.value ?: "",
+                createdByName = createdByName.value ?: "",
                 sessionId = sessionId.value!!,
                 tableId = currentTableId.value
             )
@@ -198,7 +200,9 @@ class CartViewModel(
 
                 product.copy(
                     sessionId = sessionId.value!!,
-                    tableId = currentTableId.value
+                    tableId = currentTableId.value,
+                    createdById = createdById.value ?: "",
+                    createdByName = createdByName.value ?: ""
                 ),
                 tableNo =  currentTableId.value!!,
             )
@@ -276,15 +280,23 @@ class CartViewModel(
         ) {
             return
         }
-        //val currentUser = PosSessionManager.currentUser
+
+
         val sid = "$orderType-$resolvedTableId-${System.currentTimeMillis()}"
 
         savedStateHandle["orderType"] = orderType
         savedStateHandle["tableId"] = resolvedTableId
         savedStateHandle["sessionId"] = sid
 
-//        savedStateHandle["createdById"] = currentUser?.userId
-//        savedStateHandle["createdByName"] = currentUser?.fullName
+        savedStateHandle.set<String?>(
+            "createdById",
+            PosSessionManager.getUserId(app)
+        )
+
+        savedStateHandle.set<String?>(
+            "createdByName",
+            PosSessionManager.getFullName(app)
+        )
 
 
     }

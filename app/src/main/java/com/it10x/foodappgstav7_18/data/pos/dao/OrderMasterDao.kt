@@ -165,6 +165,71 @@ WHERE id = :orderId
     @Query("SELECT * FROM pos_order_master WHERE createdAt BETWEEN :start AND :end ORDER BY createdAt DESC")
     fun getOrdersBetween(start: Long, end: Long): Flow<List<PosOrderMasterEntity>>
 
+
+
+    //DAY CLOSE
+
+    @Query("""
+SELECT IFNULL(SUM(grandTotal),0)
+FROM pos_order_master
+WHERE businessDate=:businessDate
+""")
+    suspend fun getTotalSales(
+        businessDate:String
+    ):Double
+
+
+    @Query("""
+SELECT COUNT(*)
+FROM pos_order_master
+WHERE businessDate=:businessDate
+""")
+    suspend fun getOrderCount(
+        businessDate:String
+    ):Int
+
+    @Query("""
+SELECT IFNULL(SUM(discountTotal),0)
+FROM pos_order_master
+WHERE businessDate=:businessDate
+""")
+    suspend fun getTotalDiscount(
+        businessDate:String
+    ):Double
+
+
+    @Query("""
+SELECT IFNULL(SUM(taxTotal),0)
+FROM pos_order_master
+WHERE businessDate=:businessDate
+""")
+    suspend fun getTotalTax(
+        businessDate:String
+    ):Double
+
+    @Query("""
+SELECT IFNULL(SUM(grandTotal),0)
+FROM pos_order_master
+WHERE businessDate=:businessDate
+AND saleType='COMPLIMENTARY'
+""")
+    suspend fun getComplimentarySales(
+        businessDate:String
+    ):Double
+
+    @Query("""
+SELECT IFNULL(SUM(dueAmount),0)
+FROM pos_order_master
+WHERE businessDate=:businessDate
+""")
+    suspend fun getCreditSales(
+        businessDate:String
+    ):Double
+
+
+
+
+
 }
 
 

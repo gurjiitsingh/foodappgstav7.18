@@ -31,6 +31,9 @@ data class PosKotItemEntity(
     val name: String,
     val categoryId: String,
 
+    val createdById: String = "",
+    val createdByName: String = "",
+
     val parentId: String?,
     val isVariant: Boolean,
 
