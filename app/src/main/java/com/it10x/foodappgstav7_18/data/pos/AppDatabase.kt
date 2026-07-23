@@ -43,7 +43,7 @@ import com.it10x.foodappgstav7_18.data.pos.entity.ProductRecipeEntity
         PosDayClosingEntity::class,
         PosBusinessDayEntity::class,
     ],
-    version = 113,              // ⬆️ increment version since schema changed
+    version = 115,              // ⬆️ increment version since schema changed
     exportSchema = true
 )
 abstract class AppDatabase : RoomDatabase() {

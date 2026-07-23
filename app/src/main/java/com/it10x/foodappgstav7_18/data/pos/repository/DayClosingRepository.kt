@@ -1,24 +1,40 @@
 package com.it10x.foodappgstav7_18.data.pos.repository
 
+import com.it10x.foodappgstav7_18.data.pos.AppDatabase
+import com.it10x.foodappgstav7_18.data.pos.dao.BusinessDayDao
 import com.it10x.foodappgstav7_18.data.pos.dao.DayClosingDao
 import com.it10x.foodappgstav7_18.data.pos.dao.OrderMasterDao
 import com.it10x.foodappgstav7_18.data.pos.dao.PosOrderPaymentDao
 import com.it10x.foodappgstav7_18.data.pos.entities.PosDayClosingEntity
 
 class DayClosingRepository(
-    private val dao: DayClosingDao,
+
+    private val db: AppDatabase,
+
+    private val dayClosingDao: DayClosingDao,
+
+    private val businessDayDao: BusinessDayDao,
+
     private val orderMasterDao: OrderMasterDao,
+
     private val paymentDao: PosOrderPaymentDao
 ) {
 
-    suspend fun save(
-        entity: PosDayClosingEntity
-    ) {
-        dao.insert(entity)
+    suspend fun save(entity: PosDayClosingEntity) {
+        dayClosingDao.insert(entity)
     }
 
     suspend fun history(): List<PosDayClosingEntity> {
-        return dao.getAll()
+        return dayClosingDao.getAll()
+    }
+
+    suspend fun alreadyClosed(
+        businessDate: String
+    ): Boolean {
+
+        return dayClosingDao.getByBusinessDate(
+            businessDate
+        ) != null
     }
 
     suspend fun getSummary(

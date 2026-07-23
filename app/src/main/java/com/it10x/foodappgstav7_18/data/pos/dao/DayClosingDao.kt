@@ -18,13 +18,15 @@ interface DayClosingDao {
     """)
     suspend fun getAll(): List<PosDayClosingEntity>
 
+
+
     @Query("""
-        SELECT *
-        FROM pos_day_closing
-        WHERE businessDate=:businessDate
-        LIMIT 1
-    """)
+SELECT *
+FROM pos_day_closing
+WHERE businessDate = :businessDate
+LIMIT 1
+""")
     suspend fun getByBusinessDate(
-        businessDate:String
+        businessDate: String
     ): PosDayClosingEntity?
 }

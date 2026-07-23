@@ -1644,6 +1644,7 @@ class BillViewModel(
                             status = "SUCCESS",
                             deviceId = "POS",
                             createdAt = now,
+                           businessDate = businessDate,
                             syncStatus = "PENDING"
                         )
                     }

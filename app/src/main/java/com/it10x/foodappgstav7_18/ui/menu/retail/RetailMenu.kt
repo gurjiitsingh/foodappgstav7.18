@@ -92,6 +92,23 @@ fun RetailMenu(
     // ===============================
     SidebarSectionHeader("REPORTS")
 
+
+    NavigationDrawerItem(
+        label = { Text("Business Day Closing") },
+        selected = false,
+        onClick = {
+            scope.launch { drawerState.close() }
+            navController.navigate("day_closing")
+        }
+    )
+
+    Divider(
+        modifier = Modifier
+            .padding(horizontal = 16.dp)
+            .padding(bottom = 4.dp),
+        thickness = 0.5.dp
+    )
+
     NavigationDrawerItem(
         label = { Text("Sales / Z-Report") },
         selected = false,

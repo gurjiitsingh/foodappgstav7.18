@@ -45,7 +45,7 @@ data class PosOrderPaymentEntity(
     // TIMING
     // =====================================================
     val createdAt: Long,
-
+    val businessDate: String,
     // =====================================================
     // SYNC CONTROL
     // =====================================================

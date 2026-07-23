@@ -86,6 +86,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import com.it10x.foodappgstav7_18.core.PosType
 import com.it10x.foodappgstav7_18.data.pos.entities.config.OutletEntity
+import com.it10x.foodappgstav7_18.ui.dayclosing.DayClosingScreen
+import com.it10x.foodappgstav7_18.ui.dayclosing.DayClosingViewModel
+import com.it10x.foodappgstav7_18.ui.dayclosing.DayClosingViewModelFactory
 import com.it10x.foodappgstav7_18.ui.kot.history.KotHistoryScreen
 import com.it10x.foodappgstav7_18.ui.pos.FastFoodPosScreen
 import com.it10x.foodappgstav7_18.ui.pos.RetailPosScreen
@@ -511,10 +514,24 @@ fun NavigationHost(
             )
         }
 
+// ---------------- DAY CLOSING ----------------
+        composable("day_closing") {
 
+            val viewModel: DayClosingViewModel = viewModel(
+                factory = DayClosingViewModelFactory(
+                    application = application
+                )
+            )
 
-
-
+            DayClosingScreen(
+                viewModel = viewModel,
+                currencyCode = currencyCode,
+                localeTag = localeTag,
+                onCloseDay = {
+                    viewModel.closeBusinessDay()
+                }
+            )
+        }
 // ---------------- SALES ----------------
 
         composable("sales") {
