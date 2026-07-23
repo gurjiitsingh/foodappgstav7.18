@@ -1,5 +1,7 @@
 package com.it10x.foodappgstav7_18.printer
 
+import android.content.Context
+import android.graphics.Bitmap
 import android.text.Layout
 import android.util.Log
 import com.it10x.foodappgstav7_18.data.PrinterRole
@@ -157,7 +159,33 @@ Thank You!
     }
 
 
-    fun billing48(order: PrintOrder, outletInfo: OutletInfo): String {
+
+    fun billing48(
+        order: PrintOrder,
+        outletInfo: OutletInfo
+    ): String {
+
+        return Receipt48Formatter.billing48(
+            order,
+            outletInfo
+        )
+    }
+
+    fun billing48_IMAGE(
+        context: Context,
+        order: PrintOrder,
+        outletInfo: OutletInfo
+    ): Bitmap {
+
+        return ReceiptBitmapGenerator.billing48Image(
+            context,
+            order,
+            outletInfo
+        )
+    }
+
+
+    fun billing48_OLD(order: PrintOrder, outletInfo: OutletInfo): String {
 
         val LINE_WIDTH = 48
         //  Log.d("RECEIPT_FORMATTER", "billing48() called for orderNo=${order.orderNo}")
