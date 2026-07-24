@@ -19,6 +19,7 @@ import com.it10x.foodappgstav7_18.data.PrinterType
 import com.it10x.foodappgstav7_18.viewmodel.PrinterSettingsViewModel
 import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.launch
+import android.content.Intent
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PrinterSettingsScreen(
@@ -223,6 +224,43 @@ fun PrinterSettingsScreen(
             onClick = onBack
         ) {
             Text("Back")
+        }
+
+
+        Button(
+            modifier = Modifier.fillMaxWidth(),
+            onClick = {
+
+                val file = java.io.File(
+                    context.cacheDir,
+                    "receipt_preview.png"
+                )
+
+                if (!file.exists()) {
+
+                    Toast.makeText(
+                        context,
+                        "No preview found. Print a bill first.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+
+                    return@Button
+                }
+
+                val intent = Intent(
+                    context,
+                    com.it10x.foodappgstav7_18.ui.preview.ReceiptPreviewActivity::class.java
+                )
+
+                intent.putExtra(
+                    "image",
+                    file.absolutePath
+                )
+
+                context.startActivity(intent)
+            }
+        ) {
+            Text("Receipt Preview")
         }
     }
 }

@@ -44,9 +44,11 @@ class PrintQueueManager(
         val job = PrintQueueEntity(
             id = UUID.randomUUID().toString(),
             role = role.name,
+            jobType = "TEXT",
             text = text,
-            paymentMode,
-            grandTotal,
+            imagePath = null,
+            paymentMode = paymentMode,
+            grandTotal = grandTotal,
             status = "PENDING",
             retryCount = 0,
             createdAt = System.currentTimeMillis()
@@ -55,6 +57,36 @@ class PrintQueueManager(
         dao.insert(job)
 
         channels[role]?.send(job)   // ✅ ROLE BASED
+    }
+
+
+    suspend fun enqueueImage(
+        role: PrinterRole,
+        imagePath: String,
+        paymentMode: String? = null,
+        grandTotal: Double? = null
+    ) {
+        Log.d(
+            "IMAGE_TEST",
+            "Queue IMAGE job"
+        )
+
+        val job = PrintQueueEntity(
+            id = UUID.randomUUID().toString(),
+            role = role.name,
+            jobType = "IMAGE",
+            text = null,
+            imagePath = imagePath,
+            paymentMode = paymentMode,
+            grandTotal = grandTotal,
+            status = "PENDING",
+            retryCount = 0,
+            createdAt = System.currentTimeMillis()
+        )
+
+        dao.insert(job)
+
+        channels[role]?.send(job)
     }
 
     private fun startWorker(channel: Channel<PrintQueueEntity>) {
@@ -66,31 +98,100 @@ class PrintQueueManager(
     }
 
 
-
-
     private suspend fun processJob(job: PrintQueueEntity) {
+
+        Log.d(
+            "IMAGE_TEST",
+            "Job Type = ${job.jobType}"
+        )
 
         dao.updateStatus(job.id, "PRINTING", job.retryCount)
 
-        Log.d("PRINT_QUEUE", "Printing job ${job.id}")
+        Log.d(
+            "PRINT_QUEUE",
+            "Printing ${job.jobType} job ${job.id}"
+        )
 
         suspendCancellableCoroutine<Unit> { cont ->
 
-            printerManager.printText(
-                PrinterRole.valueOf(job.role),
-                job.text,
-                job.paymentMode,   // ✅ NEW
-                job.grandTotal     // ✅ NEW
-            ) {
-                if (cont.isActive) cont.resume(Unit)
+            when (job.jobType) {
+
+                "TEXT" -> {
+
+                    printerManager.printText(
+                        PrinterRole.valueOf(job.role),
+                        requireNotNull(job.text) {
+                            "Text job has no text."
+                        },
+                        job.paymentMode,
+                        job.grandTotal
+                    ) {
+                        if (cont.isActive) {
+                            cont.resume(Unit)
+                        }
+                    }
+                }
+
+                "IMAGE" -> {
+
+                    printerManager.printBitmap(
+                        role = PrinterRole.valueOf(job.role),
+                        imagePath = requireNotNull(job.imagePath) {
+                            "Image job has no image path."
+                        }
+                    ) {
+                        if (cont.isActive) {
+                            cont.resume(Unit)
+                        }
+                    }
+                }
+
+                else -> {
+
+                    Log.e(
+                        "PRINT_QUEUE",
+                        "Unknown job type ${job.jobType}"
+                    )
+
+                    if (cont.isActive) {
+                        cont.resume(Unit)
+                    }
+                }
             }
         }
 
-        // ✅ ALWAYS mark success after first attempt
         dao.delete(job.id)
 
-        Log.d("PRINT_QUEUE", "DONE ${job.id}")
+        Log.d(
+            "PRINT_QUEUE",
+            "DONE ${job.id}"
+        )
     }
+
+
+//    private suspend fun processJob(job: PrintQueueEntity) {
+//
+//        dao.updateStatus(job.id, "PRINTING", job.retryCount)
+//
+//        Log.d("PRINT_QUEUE", "Printing job ${job.id}")
+//
+//        suspendCancellableCoroutine<Unit> { cont ->
+//
+//            printerManager.printText(
+//                PrinterRole.valueOf(job.role),
+//                requireNotNull(job.text) { "Text job has no text." },
+//                job.paymentMode,
+//                job.grandTotal
+//            ) {
+//                if (cont.isActive) cont.resume(Unit)
+//            }
+//        }
+//
+//        // ✅ ALWAYS mark success after first attempt
+//        dao.delete(job.id)
+//
+//        Log.d("PRINT_QUEUE", "DONE ${job.id}")
+//    }
 
     private suspend fun loadPendingJobs() {
         val jobs = dao.getPending()

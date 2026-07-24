@@ -21,7 +21,7 @@ object LanPrinter {
 // -----------------------------
 //FULL BILL AS IMAGE PRINT
 // -----------------------------
-    fun printBitmap(
+    fun printBitmap1(
         ip: String,
         port: Int,
         bitmap: android.graphics.Bitmap,
@@ -107,6 +107,135 @@ object LanPrinter {
 
         }
 
+    }
+
+
+    fun printBitmap(
+        ip: String,
+        port: Int,
+        bitmap: android.graphics.Bitmap,
+        onResult: (Boolean) -> Unit
+    ) {
+
+        Log.d(
+            "IMAGE_TEST",
+            "LanPrinter.printBitmap()"
+        )
+
+        Log.d(
+            "IMAGE_TEST",
+            "Bitmap size = ${bitmap.width} x ${bitmap.height}"
+        )
+
+        CoroutineScope(Dispatchers.IO).launch {
+
+            var socket: Socket? = null
+            var output: OutputStream? = null
+
+            try {
+
+                socket = Socket()
+                socket.connect(
+                    InetSocketAddress(ip, port),
+                    TIMEOUT
+                )
+
+                output = socket.getOutputStream()
+
+                //--------------------------------
+                // INIT
+                //--------------------------------
+
+                output.write(
+                    byteArrayOf(
+                        0x1B,
+                        0x40
+                    )
+                )
+
+                //--------------------------------
+                // BEEP
+                //--------------------------------
+
+                output.write(
+                    byteArrayOf(
+                        0x1B,
+                        0x42,
+                        0x03,
+                        0x02
+                    )
+                )
+
+                //--------------------------------
+                // CENTER
+                //--------------------------------
+
+                output.write(
+                    byteArrayOf(
+                        0x1B,
+                        0x61,
+                        0x01
+                    )
+                )
+
+                //--------------------------------
+                // IMAGE
+                //--------------------------------
+
+                printBitmapInChunks(
+                    output,
+                    bitmap
+                )
+
+                //--------------------------------
+                // FEED
+                //--------------------------------
+
+                output.write(byteArrayOf(0x0A))
+
+                //--------------------------------
+                // CUT
+                //--------------------------------
+
+                output.write(
+                    byteArrayOf(
+                        0x1D,
+                        0x56,
+                        0x01
+                    )
+                )
+
+                output.flush()
+
+                withContext(Dispatchers.Main) {
+                    onResult(true)
+                }
+
+            } catch (e: Exception) {
+
+                Log.e(
+                    TAG,
+                    "Bitmap print failed",
+                    e
+                )
+
+                withContext(Dispatchers.Main) {
+                    onResult(false)
+                }
+
+            } finally {
+
+                try {
+                    output?.close()
+                } catch (_: Exception) {
+                }
+
+                try {
+                    socket?.close()
+                } catch (_: Exception) {
+                }
+            }
+        }
     }
 
     // -----------------------------

@@ -176,15 +176,16 @@ Thank You!
         order: PrintOrder,
         outletInfo: OutletInfo,
         context: Context,
+        logo: Bitmap?,
     ): Bitmap {
 
         return ReceiptBitmapGenerator.billing48Image(
             context,
             order,
-            outletInfo
+            outletInfo,
+            logo   // ✅ IMPORTANT: pass here
         )
     }
-
 
     fun billing48_OLD(order: PrintOrder, outletInfo: OutletInfo): String {
 

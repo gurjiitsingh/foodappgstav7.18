@@ -10,13 +10,52 @@ data class PrintQueueEntity(
     val id: String,
 
     val role: String,
-    val text: String,
 
+    // ----------------------------
+    // JOB TYPE
+    // ----------------------------
+    val jobType: String = "TEXT",   // TEXT or IMAGE
+
+    // ----------------------------
+    // TEXT JOB
+    // ----------------------------
+    val text: String? = null,
+
+    // ----------------------------
+    // IMAGE JOB
+    // ----------------------------
+    val imagePath: String? = null,
+
+    // ----------------------------
+    // PAYMENT INFO
+    // ----------------------------
     val paymentMode: String? = null,
     val grandTotal: Double? = null,
 
+    // ----------------------------
+    // STATUS
+    // ----------------------------
     val status: String, // PENDING, PRINTING, FAILED
+
     val retryCount: Int,
 
     val createdAt: Long
 )
+
+//@Entity(tableName = "print_queue")
+//data class PrintQueueEntity(
+//
+//    @PrimaryKey
+//    val id: String,
+//
+//    val role: String,
+//    val text: String,
+//
+//    val paymentMode: String? = null,
+//    val grandTotal: Double? = null,
+//
+//    val status: String, // PENDING, PRINTING, FAILED
+//    val retryCount: Int,
+//
+//    val createdAt: Long
+//)

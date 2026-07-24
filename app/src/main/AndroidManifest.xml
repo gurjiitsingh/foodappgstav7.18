@@ -66,6 +66,10 @@
                 android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
                 android:resource="@xml/usb_device_filter" />
         </activity>
+        <!-- RECEIPT PREVIEW -->
+        <activity
+            android:name=".ui.preview.ReceiptPreviewActivity"
+            android:exported="false" />
 
         <!-- USB RECEIVER -->
         <receiver

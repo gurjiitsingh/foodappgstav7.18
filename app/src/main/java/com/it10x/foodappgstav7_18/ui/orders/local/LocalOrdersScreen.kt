@@ -23,11 +23,12 @@ import java.util.*
 import com.it10x.foodappgstav7_18.utils.formatter.MoneyFormatter
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.ui.platform.LocalContext
-import com.it10x.foodappgstav7_18.utils.share.ReceiptImageGenerator
+
 import com.it10x.foodappgstav7_18.utils.share.ReceiptPdfGenerator
 import com.it10x.foodappgstav7_18.utils.share.ShareUtils
 import androidx.compose.runtime.rememberCoroutineScope
 import com.it10x.foodappgstav7_18.data.pos.entities.config.OutletEntity
+import com.it10x.foodappgstav7_18.printer.billimage.ReceiptImageGenerator
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)

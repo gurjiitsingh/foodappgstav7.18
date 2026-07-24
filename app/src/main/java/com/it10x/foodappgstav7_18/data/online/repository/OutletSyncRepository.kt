@@ -172,10 +172,12 @@ Printer    = ${outlet.printerWidth}mm
             }
         }
 
-
+        Log.d("QR_DEBUG","me ${outlet.qrText}  ${outlet.qrEnabled}")
         // --------------------------------------------
 // ✅ GENERATE & SAVE QR PNG
 // --------------------------------------------
+
+
         if (
             outlet.qrEnabled &&
             !outlet.qrText.isNullOrBlank()

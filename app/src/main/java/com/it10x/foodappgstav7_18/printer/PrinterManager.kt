@@ -27,6 +27,7 @@ import com.it10x.foodappgstav7_18.printer.utils.QrUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.io.File
 
 class PrinterManager private constructor(
     private val context: Context
@@ -69,10 +70,35 @@ class PrinterManager private constructor(
         paymentMode: String? = null,
         grandTotal: Double? = null
     ) {
+
         scope.launch {
+
+//            val imageFile = File(
+//                context.cacheDir,
+//                "receipt_${System.currentTimeMillis()}.png"
+//            )
+
+            val imageFile = File(
+                context.cacheDir,
+                "receipt_preview.png"
+            )
+
+            imageFile.outputStream().use {
+                bitmap.compress(
+                    Bitmap.CompressFormat.PNG,
+                    100,
+                    it
+                )
+            }
+
+            Log.d(
+                "IMAGE_TEST",
+                "Saved image: ${imageFile.absolutePath}"
+            )
+
             queueManager.enqueueImage(
                 role = role,
-                bitmap = bitmap,
+                imagePath = imageFile.absolutePath,
                 paymentMode = paymentMode,
                 grandTotal = grandTotal
             )
@@ -80,22 +106,56 @@ class PrinterManager private constructor(
     }
 
 
+//    fun enqueueBillImage1(
+//        order: PrintOrder,
+//        paymentMode: String,
+//        outletInfo: OutletInfo
+//    ) {
+//
+//        val receiptBitmap =
+//            ReceiptFormatter.billing48_IMAGE(
+//                context = context,
+//                order = order,
+//                outletInfo = outletInfo
+//            )
+//
+//        enqueueImagePrint(
+//            role = PrinterRole.BILLING,
+//            bitmap = receiptBitmap,
+//            paymentMode = paymentMode,
+//            grandTotal = order.grandTotal
+//        )
+//    }
+
     fun enqueueBillImage(
         order: PrintOrder,
         paymentMode: String,
         outletInfo: OutletInfo
     ) {
 
-        val receiptBitmap =
-            ReceiptFormatter.billing48_IMAGE(
-                context = context,
-                order = order,
-                outletInfo = outletInfo
-            )
+        //----------------------------------
+        // ✅ ADD THIS LINE (LOAD LOGO)
+        //----------------------------------
+        val logoBitmap = loadSavedLogo()
+
+        //----------------------------------
+        // ✅ PASS LOGO HERE
+        //----------------------------------
+        val bitmap = ReceiptFormatter.billing48_IMAGE(
+            context = context,
+            order = order,
+            outletInfo = outletInfo,
+            logo = logoBitmap   // ✅ IMPORTANT
+        )
+
+        Log.d(
+            "IMAGE_TEST",
+            "Bitmap: ${bitmap.width} x ${bitmap.height}"
+        )
 
         enqueueImagePrint(
             role = PrinterRole.BILLING,
-            bitmap = receiptBitmap,
+            bitmap = bitmap,
             paymentMode = paymentMode,
             grandTotal = order.grandTotal
         )
@@ -154,9 +214,137 @@ class PrinterManager private constructor(
         enqueuePrint(PrinterRole.KITCHEN, text)
     }
 
+
+    fun printBitmap(
+        role: PrinterRole,
+        imagePath: String,
+        onResult: (Boolean) -> Unit = {}
+    ) {
+        Log.d(
+            "IMAGE_TEST",
+            "PrinterManager.printBitmap()"
+        )
+        val config = prefs.getPrinterConfig(role)
+
+        Log.d("IMAGE_TEST", "Config = $config")
+
+        if (config == null) {
+            Log.d("IMAGE_TEST", "Config is NULL")
+            Log.e("PRINT_BITMAP", "No printer configured for role=$role")
+            onResult(false)
+            return
+        }
+
+        //--------------------------------------
+        // Load Bitmap
+        //--------------------------------------
+
+        val bitmap = BitmapFactory.decodeFile(imagePath)
+
+        if (bitmap == null) {
+            Log.e("IMAGE_TEST", "Unable to decode bitmap: $imagePath")
+            onResult(false)
+            return
+        }
+
+        //--------------------------------------
+        // Print
+        //--------------------------------------
+        LanPrinter.printBitmap(
+            ip = config.ip,
+            port = config.port,
+            bitmap = bitmap,
+            onResult = onResult
+        )
+//        when (config.type) {
+//
+//
+//
+//            PrinterType.BLUETOOTH -> {
+//
+//                if (config.bluetoothAddress.isBlank()) {
+//                    Log.e("PRINT_BITMAP", "Bluetooth address missing")
+//                    onResult(false)
+//                    return
+//                }
+//
+////                BluetoothPrinter.printBitmap(
+////                    address = config.bluetoothAddress,
+////                    bitmap = bitmap,
+////                    onResult = onResult
+////                )
+//            }
+//
+//            PrinterType.LAN -> {
+//                Log.d("IMAGE_TEST", "Entering LAN branch")
+//                if (config.ip.isBlank()) {
+//                    Log.e("PRINT_BITMAP", "LAN IP missing")
+//                    onResult(false)
+//                    return
+//                }
+//
+//                LanPrinter.printBitmap(
+//                    ip = config.ip,
+//                    port = config.port,
+//                    bitmap = bitmap,
+//                    onResult = onResult
+//                )
+//            }
+//
+//            PrinterType.USB -> {
+//
+//                val usbManager =
+//                    context.getSystemService(Context.USB_SERVICE)
+//                            as android.hardware.usb.UsbManager
+//
+//                val saved = prefs.getUSBPrinter(role)
+//
+//                if (saved == null) {
+//                    Log.e("PRINT_BITMAP", "No saved USB printer")
+//                    onResult(false)
+//                    return
+//                }
+//
+//                val (vendorId, productId) = saved
+//
+//                val device = usbManager.deviceList.values.find {
+//                    it.vendorId == vendorId &&
+//                            it.productId == productId
+//                }
+//
+//                if (device == null) {
+//                    Log.e("PRINT_BITMAP", "USB device not found")
+//                    onResult(false)
+//                    return
+//                }
+//
+//                if (!usbManager.hasPermission(device)) {
+//                    Log.e("PRINT_BITMAP", "USB permission denied")
+//                    onResult(false)
+//                    return
+//                }
+//
+////                USBPrinter.printBitmap(
+////                    context = context,
+////                    device = device,
+////                    bitmap = bitmap,
+////                    onResult = onResult
+////                )
+//            }
+//
+//            PrinterType.WIFI -> {
+//
+//                Log.e("PRINT_BITMAP", "WiFi not supported")
+//
+//                onResult(false)
+//            }
+//        }
+    }
     // --------------------------------
     // SELECT FORMAT DIRECT PRINT
     // --------------------------------
+
+
     fun printBillImage(
         role: PrinterRole,
         order: PrintOrder,
@@ -171,6 +359,11 @@ class PrinterManager private constructor(
             return
         }
 
+        //----------------------------------
+        // ✅ ADD THIS LINE (LOAD LOGO)
+        //----------------------------------
+        val logoBitmap = loadSavedLogo()
+
         val info = getOutletInfoOrNull()
 
         if (info == null) {
@@ -182,7 +375,8 @@ class PrinterManager private constructor(
         val receiptBitmap = ReceiptFormatter.billing48_IMAGE(
             context = context,
             order = order,
-            outletInfo = info
+            outletInfo = info,
+            logo = logoBitmap
         )
 
         Log.d(

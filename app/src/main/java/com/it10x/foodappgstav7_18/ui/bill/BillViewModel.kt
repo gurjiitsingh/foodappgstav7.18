@@ -1802,8 +1802,27 @@ class BillViewModel(
         }
         val outletInfo = OutletMapper.fromEntity(outlet)
 
-    //    printerManager.printTextNewSuspend(PrinterRole.BILLING, printOrder, outletInfo)
+       // printerManager.printTextNewSuspend(PrinterRole.BILLING, printOrder, outletInfo)
         printerManager.enqueueBill(printOrder,order.paymentMode, outletInfo)
+//        val bitmap = ReceiptFormatter.billing48_IMAGE(
+//            context = context,
+//            order = printOrder,
+//            outletInfo = outletInfo
+//        )
+
+//        printerManager.enqueueImagePrint(
+//            role = PrinterRole.BILLING,
+//            bitmap = bitmap,
+//            paymentMode = order.paymentMode,
+//            grandTotal = order.grandTotal
+//        )
+
+        printerManager.enqueueBillImage(
+            order = printOrder,
+            paymentMode = order.paymentMode,
+            outletInfo = outletInfo
+        )
+
           }
 
     fun getDoneItems(orderRef: String, orderType: String): Flow<List<PosKotItemEntity>> {

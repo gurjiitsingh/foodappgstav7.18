@@ -1,4 +1,6 @@
-package com.it10x.foodappgstav7_18.utils.share
+package com.it10x.foodappgstav7_18.printer.billimage
+
+
 
 import android.content.Context
 import android.graphics.*
@@ -144,49 +146,70 @@ object ReceiptImageGenerator {
         }
 
         // =========================
-        // HEADER
-        // =========================
+// HEADER
+// =========================
 
-        var y = 60f
+        var y = 80f   // More top padding
+
+// ---------- Restaurant Name ----------
+
+        val titleX = (600f - titlePaint.measureText(outletName)) / 2f
 
         canvas.drawText(
-            outletName,
-            40f,
+            outletName.uppercase(),
+            titleX,
             y,
             titlePaint
         )
 
-        y += 40f
+        y += 45f
+
+// ---------- Phone ----------
 
         if (outletPhone.isNotEmpty()) {
 
+            val phone = "Phone : $outletPhone"
+
+            val phoneX =
+                (600f - normalPaint.measureText(phone)) / 2f
+
             canvas.drawText(
-                "Phone: $outletPhone",
-                40f,
+                phone,
+                phoneX,
                 y,
                 normalPaint
             )
 
-            y += 35f
+            y += 32f
         }
+
+// ---------- Address ----------
 
         if (outletAddress.isNotEmpty()) {
 
+            val addressX =
+                (600f - smallPaint.measureText(outletAddress)) / 2f
+
             canvas.drawText(
                 outletAddress,
-                40f,
+                addressX,
                 y,
                 smallPaint
             )
 
-            y += 35f
+            y += 30f
         }
+
+// ---------- GST ----------
 
         if (gstText.isNotEmpty()) {
 
+            val gstX =
+                (600f - normalPaint.measureText(gstText)) / 2f
+
             canvas.drawText(
                 gstText,
-                40f,
+                gstX,
                 y,
                 normalPaint
             )
@@ -194,7 +217,9 @@ object ReceiptImageGenerator {
             y += 35f
         }
 
-        y += 10f
+// ---------- Divider ----------
+
+        y += 12f
 
         canvas.drawLine(
             40f,
@@ -204,6 +229,50 @@ object ReceiptImageGenerator {
             normalPaint
         )
 
+        y += 38f
+
+// ---------- TAX INVOICE ----------
+
+// Top padding before title
+        y += 20f
+
+// Top divider
+        canvas.drawLine(
+            40f,
+            y,
+            560f,
+            y,
+            normalPaint
+        )
+
+// Space between line and title
+        y += 40f
+
+        val invoicePaint = Paint(boldPaint).apply {
+            textAlign = Paint.Align.CENTER
+        }
+
+        canvas.drawText(
+            "TEST CENTER",
+            300f,
+            y,
+            invoicePaint
+        )
+
+// Space below title
+        y += 35f
+
+// Bottom divider
+        canvas.drawLine(
+            40f,
+            y,
+            560f,
+            y,
+            normalPaint
+        )
+
+// Space after divider
+        y += 35f
         // =========================
         // ORDER INFO
         // =========================
