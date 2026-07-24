@@ -61,7 +61,47 @@ class PrinterManager private constructor(
     private val prefs by lazy { PrinterPreferences(context) }
     fun appContext(): Context = context.applicationContext
 
+//IMAGE PRINT QUE
 
+    fun enqueueImagePrint(
+        role: PrinterRole,
+        bitmap: Bitmap,
+        paymentMode: String? = null,
+        grandTotal: Double? = null
+    ) {
+        scope.launch {
+            queueManager.enqueueImage(
+                role = role,
+                bitmap = bitmap,
+                paymentMode = paymentMode,
+                grandTotal = grandTotal
+            )
+        }
+    }
+
+
+    fun enqueueBillImage(
+        order: PrintOrder,
+        paymentMode: String,
+        outletInfo: OutletInfo
+    ) {
+
+        val receiptBitmap =
+            ReceiptFormatter.billing48_IMAGE(
+                context = context,
+                order = order,
+                outletInfo = outletInfo
+            )
+
+        enqueueImagePrint(
+            role = PrinterRole.BILLING,
+            bitmap = receiptBitmap,
+            paymentMode = paymentMode,
+            grandTotal = order.grandTotal
+        )
+    }
+
+    //TEXT PRINT QUE
     fun enqueuePrint(
         role: PrinterRole,
         text: String,
@@ -112,6 +152,246 @@ class PrinterManager private constructor(
             )
 
         enqueuePrint(PrinterRole.KITCHEN, text)
+    }
+
+    // --------------------------------
+    // SELECT FORMAT DIRECT PRINT
+    // --------------------------------
+    fun printBillImage(
+        role: PrinterRole,
+        order: PrintOrder,
+        onResult: (Boolean) -> Unit = {}
+    ) {
+
+        val config = prefs.getPrinterConfig(role)
+
+        if (config == null) {
+            Log.e("PRINT_IMAGE", "No printer configured")
+            onResult(false)
+            return
+        }
+
+        val info = getOutletInfoOrNull()
+
+        if (info == null) {
+            onResult(false)
+            return
+        }
+
+        // Generate Bitmap Receipt
+        val receiptBitmap = ReceiptFormatter.billing48_IMAGE(
+            context = context,
+            order = order,
+            outletInfo = info
+        )
+
+        Log.d(
+            "PRINT_IMAGE",
+            "Bitmap generated : ${receiptBitmap.width} x ${receiptBitmap.height}"
+        )
+
+        when (config.type) {
+
+            PrinterType.BLUETOOTH -> {
+
+                if (config.bluetoothAddress.isBlank()) {
+                    onResult(false)
+                    return
+                }
+
+//                BluetoothPrinter.printBitmap(
+//                    address = config.bluetoothAddress,
+//                    bitmap = receiptBitmap,
+//                    onResult = onResult
+//                )
+            }
+
+            PrinterType.LAN -> {
+
+                if (config.ip.isBlank()) {
+                    onResult(false)
+                    return
+                }
+
+                LanPrinter.printBitmap(
+                    ip = config.ip,
+                    port = config.port,
+                    bitmap = receiptBitmap,
+                    onResult = onResult
+                )
+            }
+
+            PrinterType.USB -> {
+
+                val usbManager =
+                    context.getSystemService(Context.USB_SERVICE)
+                            as android.hardware.usb.UsbManager
+
+                val saved =
+                    prefs.getUSBPrinter(role)
+
+                if (saved == null) {
+                    onResult(false)
+                    return
+                }
+
+                val (vendorId, productId) = saved
+
+                val device =
+                    usbManager.deviceList.values.find {
+
+                        it.vendorId == vendorId &&
+                                it.productId == productId
+
+                    }
+
+                if (device == null) {
+                    onResult(false)
+                    return
+                }
+
+                if (!usbManager.hasPermission(device)) {
+                    onResult(false)
+                    return
+                }
+
+//                USBPrinter.printBitmap(
+//                    context = context,
+//                    device = device,
+//                    bitmap = receiptBitmap,
+//                    onResult = onResult
+//                )
+            }
+
+            PrinterType.WIFI -> {
+
+                Log.e(
+                    "PRINT_IMAGE",
+                    "WiFi printing not implemented"
+                )
+
+                onResult(false)
+            }
+        }
+    }
+
+    fun printTextNew(
+        role: PrinterRole,
+        order: PrintOrder,
+        onResult: (Boolean) -> Unit = {}
+    ) {
+        //  Log.e("PRINT_NEW", "Printing for role=$role")
+
+        // Get printer configuration and preferences
+        val config = prefs.getPrinterConfig(role)
+
+
+        if (config == null) {
+            Log.e("PPRINTTEST", "No printer configured for role=$role")
+            onResult(false)
+            return
+        }
+
+        // ✅ Select format based on page size
+        val size = prefs.getPrinterSize(role) ?: "80mm"
+
+        // ✅ Auto-load outlet info if not provided
+
+        val info = getOutletInfoOrNull()
+        if (info == null) {
+            onResult(false)
+            return
+        }
+
+
+
+
+        // ✅ Select format based on printer page size
+        val receiptText = when (size) {
+            "80mm" -> ReceiptFormatter.billing48(order, info)
+            else -> ReceiptFormatter.billing(order, info)
+        }
+
+
+        Log.e(
+            "PRINTTEST",
+            "\n================= BILL NEWTEXT =================\n$receiptText\n=================================================="
+        )
+
+        // ✅ Printing logic (kept same as before)
+        when (config.type) {
+            PrinterType.BLUETOOTH -> {
+                if (config.bluetoothAddress.isBlank()) {
+                    Log.e("PRINT_NEW", "Bluetooth address missing")
+                    onResult(false)
+                    return
+                }
+                BluetoothPrinter.printText(
+                    config.bluetoothAddress,
+                    receiptText,
+                    onResult
+                )
+            }
+
+            PrinterType.LAN -> {
+                if (config.ip.isBlank()) {
+                    Log.e("PRINT_NEW", "LAN IP missing")
+                    onResult(false)
+                    return
+                }
+                LanPrinter.printText(
+                    config.ip,
+                    config.port,
+                    receiptText,
+                    onResult
+                )
+            }
+
+            PrinterType.USB -> {
+
+                val usbManager = context.getSystemService(Context.USB_SERVICE) as android.hardware.usb.UsbManager
+
+                val saved = prefs.getUSBPrinter(role)
+
+                if (saved == null) {
+                    Log.e("PRINT_NEW", "No saved USB printer")
+                    onResult(false)
+                    return
+                }
+
+                val (vendorId, productId) = saved
+
+                val device = usbManager.deviceList.values.find {
+                    it.vendorId == vendorId && it.productId == productId
+                }
+
+                if (device == null) {
+                    Log.e("PRINT_NEW", "USB device not found")
+                    onResult(false)
+                    return
+                }
+
+                if (!usbManager.hasPermission(device)) {
+                    Log.e("PRINT_NEW", "USB permission denied")
+                    onResult(false)
+                    return
+                }
+
+                // ✅ CORRECT CALL (with device)
+                USBPrinter.printText(
+                    context,
+                    device,
+
+                    receiptText,
+                    onResult
+                )
+            }
+
+            PrinterType.WIFI -> {
+                Log.e("PRINT_NEW", "WiFi printing not supported yet")
+                onResult(false)
+            }
+        }
     }
 
     // --------------------------------
@@ -632,124 +912,7 @@ class PrinterManager private constructor(
 
 
 
-    fun printTextNew(
-        role: PrinterRole,
-        order: PrintOrder,
-        onResult: (Boolean) -> Unit = {}
-    ) {
-        //  Log.e("PRINT_NEW", "Printing for role=$role")
 
-        // Get printer configuration and preferences
-        val config = prefs.getPrinterConfig(role)
-
-
-        if (config == null) {
-            Log.e("PPRINTTEST", "No printer configured for role=$role")
-            onResult(false)
-            return
-        }
-
-        // ✅ Select format based on page size
-        val size = prefs.getPrinterSize(role) ?: "80mm"
-
-        // ✅ Auto-load outlet info if not provided
-
-        val info = getOutletInfoOrNull()
-        if (info == null) {
-            onResult(false)
-            return
-        }
-
-
-
-
-        // ✅ Select format based on printer page size
-        val receiptText = when (size) {
-            "80mm" -> ReceiptFormatter.billing48(order, info)
-            else -> ReceiptFormatter.billing(order, info)
-        }
-
-
-        Log.e(
-            "PRINTTEST",
-            "\n================= BILL NEWTEXT =================\n$receiptText\n=================================================="
-        )
-
-        // ✅ Printing logic (kept same as before)
-        when (config.type) {
-            PrinterType.BLUETOOTH -> {
-                if (config.bluetoothAddress.isBlank()) {
-                    Log.e("PRINT_NEW", "Bluetooth address missing")
-                    onResult(false)
-                    return
-                }
-                BluetoothPrinter.printText(
-                    config.bluetoothAddress,
-                    receiptText,
-                    onResult
-                )
-            }
-
-            PrinterType.LAN -> {
-                if (config.ip.isBlank()) {
-                    Log.e("PRINT_NEW", "LAN IP missing")
-                    onResult(false)
-                    return
-                }
-                LanPrinter.printText(
-                    config.ip,
-                    config.port,
-                    receiptText,
-                    onResult
-                )
-            }
-
-            PrinterType.USB -> {
-
-                val usbManager = context.getSystemService(Context.USB_SERVICE) as android.hardware.usb.UsbManager
-
-                val saved = prefs.getUSBPrinter(role)
-
-                if (saved == null) {
-                    Log.e("PRINT_NEW", "No saved USB printer")
-                    onResult(false)
-                    return
-                }
-
-                val (vendorId, productId) = saved
-
-                val device = usbManager.deviceList.values.find {
-                    it.vendorId == vendorId && it.productId == productId
-                }
-
-                if (device == null) {
-                    Log.e("PRINT_NEW", "USB device not found")
-                    onResult(false)
-                    return
-                }
-
-                if (!usbManager.hasPermission(device)) {
-                    Log.e("PRINT_NEW", "USB permission denied")
-                    onResult(false)
-                    return
-                }
-
-                // ✅ CORRECT CALL (with device)
-                USBPrinter.printText(
-                    context,
-                    device,
-
-                    receiptText,
-                    onResult
-                )
-            }
-
-            PrinterType.WIFI -> {
-                Log.e("PRINT_NEW", "WiFi printing not supported yet")
-                onResult(false)
-            }
-        }
-    }
 
 
 

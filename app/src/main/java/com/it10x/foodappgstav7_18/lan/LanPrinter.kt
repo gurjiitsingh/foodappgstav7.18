@@ -18,6 +18,97 @@ object LanPrinter {
 
     private val mainHandler = Handler(Looper.getMainLooper())
 
+// -----------------------------
+//FULL BILL AS IMAGE PRINT
+// -----------------------------
+    fun printBitmap(
+        ip: String,
+        port: Int,
+        bitmap: android.graphics.Bitmap,
+        onResult: (Boolean) -> Unit
+    ) {
+
+        CoroutineScope(Dispatchers.IO).launch {
+
+            var socket: Socket? = null
+            var output: OutputStream? = null
+
+            try {
+
+                socket = Socket()
+
+                socket.connect(
+                    InetSocketAddress(ip, port),
+                    TIMEOUT
+                )
+
+                output = socket.getOutputStream()
+
+                // Initialize Printer
+                output.write(byteArrayOf(0x1B, 0x40))
+
+                // Optional Beep
+                output.write(byteArrayOf(0x1B, 0x42, 0x03, 0x02))
+
+                // Center Alignment
+                output.write(byteArrayOf(0x1B, 0x61, 0x01))
+
+                // Print Bitmap
+                printBitmapInChunks(
+                    output,
+                    bitmap
+                )
+
+                // Feed Paper
+                output.write(
+                    byteArrayOf(
+                        0x1B, 0x64, 0x04
+                    )
+                )
+
+                // Cut Paper
+                output.write(
+                    byteArrayOf(
+                        0x1D, 0x56, 0x01
+                    )
+                )
+
+                output.flush()
+
+                withContext(Dispatchers.Main) {
+
+                    onResult(true)
+
+                }
+
+            } catch (e: Exception) {
+
+                Log.e(
+                    TAG,
+                    "LAN bitmap print failed",
+                    e
+                )
+
+                withContext(Dispatchers.Main) {
+
+                    onResult(false)
+
+                }
+
+            } finally {
+
+                try {
+                    output?.close()
+                    socket?.close()
+                } catch (_: Exception) {
+                }
+
+            }
+
+        }
+
+    }
+
     // -----------------------------
     // TEST PRINT
     // -----------------------------

@@ -100,7 +100,8 @@ object ReceiptBitmapGenerator {
 
     private class ReceiptDrawer(
         private val canvas: Canvas
-    ) {
+    )
+    {
 
         var y = START_Y
 
@@ -381,6 +382,175 @@ object ReceiptBitmapGenerator {
             )
 
             y += 20f
+        }
+
+
+        //================================================
+// Draw Single Item
+//================================================
+
+        private fun drawSingleItem(
+            itemName: String,
+            rate: Double,
+            qty: Double,
+            amount: Double
+        ) {
+
+            val maxWidth = xRate - xItem - 10f
+
+            val lines = wrapText(
+                itemName,
+                maxWidth,
+                boldPaint
+            )
+
+            // First line
+            canvas.drawText(
+                lines.first(),
+                xItem,
+                y,
+                boldPaint
+            )
+
+            drawRight(
+                String.format("%.2f", rate),
+                xQty - 10f,
+                boldPaint
+            )
+
+            drawRight(
+                qty.toInt().toString(),
+                xAmount - 10f,
+                boldPaint
+            )
+
+            drawRight(
+                String.format("%.2f", amount),
+                RIGHT,
+                boldPaint
+            )
+
+            // Remaining wrapped lines
+            if (lines.size > 1) {
+
+                lines.drop(1).forEach { line ->
+
+                    y += 24f
+
+                    canvas.drawText(
+                        line,
+                        xItem,
+                        y,
+                        boldPaint
+                    )
+
+                }
+            }
+
+            y += 30f
+
+            // Row separator
+            canvas.drawLine(
+                LEFT,
+                y,
+                RIGHT,
+                y,
+                linePaint
+            )
+
+            y += 15f
+        }
+
+        //================================================
+// Wrap Text
+//================================================
+
+        private fun wrapText(
+            text: String,
+            maxWidth: Float,
+            paint: Paint
+        ): List<String> {
+
+            val words = text.split(" ")
+
+            val lines = mutableListOf<String>()
+
+            var current = ""
+
+            words.forEach { word ->
+
+                val test =
+                    if (current.isEmpty())
+                        word
+                    else
+                        "$current $word"
+
+                if (paint.measureText(test) <= maxWidth) {
+
+                    current = test
+
+                } else {
+
+                    lines.add(current)
+
+                    current = word
+
+                }
+
+            }
+
+            if (current.isNotEmpty()) {
+
+                lines.add(current)
+
+            }
+
+            return lines
+        }
+
+
+        //================================================
+// Draw Modifier
+//================================================
+
+        private fun drawModifier(
+            modifier: String
+        ) {
+
+            canvas.drawText(
+                "+ $modifier",
+                xItem + 20f,
+                y,
+                normalPaint
+            )
+
+            y += 24f
+        }
+
+//================================================
+// Draw Note
+//================================================
+
+        private fun drawNote(
+            note: String
+        ) {
+
+            val notePaint = Paint(normalPaint).apply {
+                textSize = 18f
+                typeface = Typeface.create(
+                    Typeface.DEFAULT,
+                    Typeface.ITALIC
+                )
+            }
+
+            canvas.drawText(
+                "* $note",
+                xItem + 20f,
+                y,
+                notePaint
+            )
+
+            y += 24f
         }
 
         //================================================

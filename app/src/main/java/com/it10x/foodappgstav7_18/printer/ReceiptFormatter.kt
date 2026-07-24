@@ -7,6 +7,7 @@ import android.util.Log
 import com.it10x.foodappgstav7_18.data.PrinterRole
 import com.it10x.foodappgstav7_18.data.pos.entities.PosKotItemEntity
 import com.it10x.foodappgstav7_18.data.print.OutletInfo
+import com.it10x.foodappgstav7_18.printer.billimage.ReceiptBitmapGenerator
 import com.it10x.foodappgstav7_18.ui.sales.SalesUiState
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -172,9 +173,9 @@ Thank You!
     }
 
     fun billing48_IMAGE(
-        context: Context,
         order: PrintOrder,
-        outletInfo: OutletInfo
+        outletInfo: OutletInfo,
+        context: Context,
     ): Bitmap {
 
         return ReceiptBitmapGenerator.billing48Image(
