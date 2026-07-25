@@ -344,12 +344,20 @@ class KitchenViewModel(
                     val printItems = lockAndFetchBatch(batchId)
 
                     if (printItems.isNotEmpty()) {
-                        printerManager.enqueueKitchen(
+//                        printerManager.enqueueKitchen(
+//                            sessionKey = tableNo,
+//                            orderType = orderType,
+//                            kotNumber = kotNumber,
+//                            items = printItems
+//                        )
+                        printerManager.enqueueKitchenImage(
                             sessionKey = tableNo,
                             orderType = orderType,
                             kotNumber = kotNumber,
                             items = printItems
                         )
+
+
                     }
 
                     tableKotSyncService.syncTableSnapshot(

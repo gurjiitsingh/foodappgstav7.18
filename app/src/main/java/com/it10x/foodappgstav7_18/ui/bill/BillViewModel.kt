@@ -1788,9 +1788,7 @@ class BillViewModel(
         items: List<PosOrderItemEntity>,
 
     ) = withContext(Dispatchers.IO) {
-//        Log.d("PRINTTEST", "discount1 = ${order.discountTotal}")
-//        Log.d("PRINTTEST", "delivery1 = ${order.deliveryFee}")
-//        Log.d("PRINTTEST", "grandTotal1 = ${order.grandTotal}")
+
         val printOrder = PrintOrderBuilder.build(order, items)
 
         val outlet = outletDao.getOutlet()

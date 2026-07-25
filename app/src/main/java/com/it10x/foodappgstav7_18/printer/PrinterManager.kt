@@ -22,6 +22,7 @@ import kotlin.coroutines.resume
 import com.it10x.foodappgstav7_18.printer.PrintJob
 import kotlinx.coroutines.runBlocking
 import com.it10x.foodappgstav7_18.data.printqueue.PrintQueueDao
+import com.it10x.foodappgstav7_18.printer.kotImage.KitchenBitmapGenerator
 import com.it10x.foodappgstav7_18.printer.queue.PrintQueueManager
 import com.it10x.foodappgstav7_18.printer.utils.QrUtils
 import kotlinx.coroutines.CoroutineScope
@@ -63,8 +64,50 @@ class PrinterManager private constructor(
     fun appContext(): Context = context.applicationContext
 
 //IMAGE PRINT QUE
+fun enqueueImagePrint(
+    role: PrinterRole,
+    bitmap: Bitmap,
+    paymentMode: String? = null,
+    grandTotal: Double? = null
+) {
 
-    fun enqueueImagePrint(
+    scope.launch {
+
+        try {
+            val imageFile = File(
+                context.cacheDir,
+                "kot_preview1.png"
+            )
+
+            Log.d("IMAGE_TEST", "Saving file at: ${imageFile.absolutePath}")
+
+            imageFile.outputStream().use { stream ->
+                val success = bitmap.compress(
+                    Bitmap.CompressFormat.PNG,
+                    100,
+                    stream
+                )
+
+                Log.d("IMAGE_TEST", "Bitmap compress success: $success")
+            }
+
+            Log.d("IMAGE_TEST", "Saved image: ${imageFile.absolutePath}")
+
+            queueManager.enqueueImage(
+                role = role,
+                imagePath = imageFile.absolutePath,
+                paymentMode = paymentMode,
+                grandTotal = grandTotal
+            )
+
+        } catch (e: Exception) {
+            Log.e("IMAGE_TEST", "Failed to save or enqueue image", e)
+        }
+    }
+}
+
+
+    fun enqueueImagePrint_old(
         role: PrinterRole,
         bitmap: Bitmap,
         paymentMode: String? = null,
@@ -78,10 +121,30 @@ class PrinterManager private constructor(
 //                "receipt_${System.currentTimeMillis()}.png"
 //            )
 
-            val imageFile = File(
+//            val imageFile = File(
+//                context.cacheDir,
+//                "receipt_preview.png"
+//            )
+
+                        val imageFile = File(
                 context.cacheDir,
-                "receipt_preview.png"
-            )
+                "kot_preview1.png")
+
+//            val imageFile = File(
+//                context.cacheDir,
+//                "kot_${System.currentTimeMillis()}.png"
+//            )
+
+//            val fileName = when (role) {
+//                PrinterRole.KITCHEN -> "kot_preview.png"      // ✅ KOT file
+//                PrinterRole.BILLING -> "receipt_preview.png"  // ✅ BILL file
+//                else -> "receipt_preview.png"
+//            }
+//
+//            val imageFile = File(
+//                context.cacheDir,
+//                fileName
+//            )
 
             imageFile.outputStream().use {
                 bitmap.compress(
@@ -106,32 +169,12 @@ class PrinterManager private constructor(
     }
 
 
-//    fun enqueueBillImage1(
-//        order: PrintOrder,
-//        paymentMode: String,
-//        outletInfo: OutletInfo
-//    ) {
-//
-//        val receiptBitmap =
-//            ReceiptFormatter.billing48_IMAGE(
-//                context = context,
-//                order = order,
-//                outletInfo = outletInfo
-//            )
-//
-//        enqueueImagePrint(
-//            role = PrinterRole.BILLING,
-//            bitmap = receiptBitmap,
-//            paymentMode = paymentMode,
-//            grandTotal = order.grandTotal
-//        )
-//    }
-
     fun enqueueBillImage(
         order: PrintOrder,
         paymentMode: String,
         outletInfo: OutletInfo
     ) {
+
 
         //----------------------------------
         // ✅ ADD THIS LINE (LOAD LOGO)
@@ -148,10 +191,22 @@ class PrinterManager private constructor(
             logo = logoBitmap   // ✅ IMPORTANT
         )
 
-        Log.d(
-            "IMAGE_TEST",
-            "Bitmap: ${bitmap.width} x ${bitmap.height}"
-        )
+//        val size = prefs.getPrinterSize(PrinterRole.BILLING) ?: "80mm"
+//
+//        val bitmap = when (size) {
+//            "80mm" -> ReceiptFormatter.billing48_IMAGE(
+//                context = context,
+//                order = order,
+//                outletInfo = outletInfo,
+//                logo = logoBitmap   // ✅ IMPORTANT
+//            )
+//            else -> ReceiptFormatter.billing32_IMAGE(
+//                context = context,
+//                order = order,
+//                outletInfo = outletInfo,
+//                logo = logoBitmap   // ✅ IMPORTANT
+//            )
+//        }
 
         enqueueImagePrint(
             role = PrinterRole.BILLING,
@@ -162,18 +217,6 @@ class PrinterManager private constructor(
     }
 
     //TEXT PRINT QUE
-    fun enqueuePrint(
-        role: PrinterRole,
-        text: String,
-        paymentMode: String? = null,
-        grandTotal: Double? = null
-    ) {
-       // Log.e("PRINT_DEBUG", "🔥 enqueuePrint CALLED role=$role")
-        scope.launch {
-            queueManager.enqueue(role, text, paymentMode, grandTotal)
-        }
-    }
-
     fun enqueueBill(
         order: PrintOrder,
         paymentMode: String,
@@ -186,7 +229,7 @@ class PrinterManager private constructor(
             else -> ReceiptFormatter.billing(order, outletInfo)
         }
 
-       // enqueuePrint(PrinterRole.BILLING, receiptText)
+        // enqueuePrint(PrinterRole.BILLING, receiptText)
 
         enqueuePrint(
             role = PrinterRole.BILLING,
@@ -195,6 +238,19 @@ class PrinterManager private constructor(
             grandTotal = order.grandTotal
         )
     }
+    fun enqueuePrint(
+        role: PrinterRole,
+        text: String,
+        paymentMode: String? = null,
+        grandTotal: Double? = null
+    ) {
+       // Log.e("PRINT_DEBUG", "🔥 enqueuePrint CALLED role=$role")
+        scope.launch {
+            queueManager.enqueue(role, text, paymentMode, grandTotal)
+        }
+    }
+
+
 
 
 
@@ -1246,7 +1302,39 @@ class PrinterManager private constructor(
     }
 
 
+//IMAGE PRINT OF KOT
 
+    fun enqueueKitchenImage(
+        sessionKey: String,
+        orderType: String,
+        items: List<PosKotItemEntity>,
+        kotNumber: String,
+    ) {
+
+        Log.d("IMAGE_TEST", "before formatter---------")
+
+        try {
+            val bitmap = KitchenBitmapGenerator.generate(
+                context = context,
+                sessionKey = sessionKey,
+                orderType = orderType,
+                items = items,
+                kotNumber = kotNumber,
+            )
+
+            Log.d("IMAGE_TEST", "before enqueue---------")
+
+            enqueueImagePrint(
+                role = PrinterRole.KITCHEN,
+                bitmap = bitmap,
+                paymentMode = "",
+                grandTotal = 0.0
+            )
+
+        } catch (e: Exception) {
+            Log.e("IMAGE_TEST", "KOT generation failed", e)
+        }
+    }
 
 
 

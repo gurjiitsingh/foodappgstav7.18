@@ -2,12 +2,17 @@ package com.it10x.foodappgstav7_18.printer
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.Typeface
 import android.text.Layout
 import android.util.Log
 import com.it10x.foodappgstav7_18.data.PrinterRole
 import com.it10x.foodappgstav7_18.data.pos.entities.PosKotItemEntity
 import com.it10x.foodappgstav7_18.data.print.OutletInfo
 import com.it10x.foodappgstav7_18.printer.billimage.ReceiptBitmapGenerator
+import com.it10x.foodappgstav7_18.printer.kotImage.KitchenBitmapGenerator
 import com.it10x.foodappgstav7_18.ui.sales.SalesUiState
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -1195,4 +1200,143 @@ $itemsBlock
     }
 
 
-}
+
+
+    fun posKitchen_IMAGE(
+        context: Context,
+        sessionKey: String,
+        orderType: String,
+        items: List<PosKotItemEntity>,
+        kotNumber: String,
+    ): Bitmap {
+
+        val width = 384
+        val padding = 16
+        val lineHeight = 36
+
+        val paint = Paint().apply {
+            color = Color.BLACK
+            textSize = 24f
+            isAntiAlias = true
+        }
+
+        val boldPaint = Paint(paint).apply {
+            typeface = Typeface.DEFAULT_BOLD
+        }
+
+        val boxPaint = Paint().apply {
+            color = Color.BLACK
+            style = Paint.Style.STROKE
+            strokeWidth = 2f
+        }
+
+        val bitmap = Bitmap.createBitmap(width, 1200, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+
+        canvas.drawColor(Color.WHITE)
+
+        var y = padding + 20
+
+        // =========================
+        // HEADER BOX (K.No + Date)
+        // =========================
+        val boxHeight = 60
+
+        canvas.drawRect(
+            padding.toFloat(),
+            y.toFloat(),
+            (width - padding).toFloat(),
+            (y + boxHeight).toFloat(),
+            boxPaint
+        )
+
+        canvas.drawText("K.No.", padding + 10f, y + 35f, boldPaint)
+        canvas.drawText(kotNumber, padding + 120f, y + 35f, paint)
+
+        val time = SimpleDateFormat("dd-MM-yyyy HH:mm", Locale.getDefault()).format(Date())
+        canvas.drawText("Date: $time", width - 220f, y + 35f, paint)
+
+        y += boxHeight + 10
+
+        // =========================
+        // TABLE INFO
+        // =========================
+        canvas.drawText("Table No : $orderType", padding.toFloat(), y.toFloat(), boldPaint)
+        y += lineHeight
+
+        canvas.drawText("Steward : NONAME", padding.toFloat(), y.toFloat(), boldPaint)
+        y += lineHeight
+
+        // =========================
+        // HEADER ROW
+        // =========================
+        canvas.drawLine(padding.toFloat(), y.toFloat(), (width - padding).toFloat(), y.toFloat(), boxPaint)
+        y += 10
+
+        canvas.drawText("Item Name", padding.toFloat(), y.toFloat(), boldPaint)
+        canvas.drawText("Qty", width - 70f, y.toFloat(), boldPaint)
+
+        y += 10
+        canvas.drawLine(padding.toFloat(), y.toFloat(), (width - padding).toFloat(), y.toFloat(), boxPaint)
+        y += lineHeight
+
+        // =========================
+        // ITEMS
+        // =========================
+        items.forEach { item ->
+
+            val words = item.name.split(" ")
+            var line = ""
+
+            words.forEach { word ->
+                val testLine = "$line $word"
+                if (paint.measureText(testLine) > width - 100) {
+                    canvas.drawText(line.trim(), padding.toFloat(), y.toFloat(), paint)
+                    y += lineHeight
+                    line = word
+                } else {
+                    line += " $word"
+                }
+            }
+
+            // last line
+            canvas.drawText(line.trim(), padding.toFloat(), y.toFloat(), paint)
+
+            // qty (only on first line visually aligned)
+            canvas.drawText(
+                String.format("%.3f", item.quantity),
+                width - 70f,
+                y.toFloat(),
+                boldPaint
+            )
+
+            y += lineHeight
+
+            // note (if any)
+            if (!item.note.isNullOrEmpty()) {
+                canvas.drawText(
+                    "• ${item.note}",
+                    padding + 20f,
+                    y.toFloat(),
+                    paint
+                )
+                y += lineHeight
+            }
+
+            canvas.drawLine(
+                padding.toFloat(),
+                y.toFloat(),
+                (width - padding).toFloat(),
+                y.toFloat(),
+                boxPaint
+            )
+
+            y += 10
+        }
+
+        return Bitmap.createBitmap(bitmap, 0, 0, width, y + 20)
+    }
+
+
+
+}//END OF FILE

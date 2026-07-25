@@ -100,98 +100,158 @@ class PrintQueueManager(
 
     private suspend fun processJob(job: PrintQueueEntity) {
 
-        Log.d(
-            "IMAGE_TEST",
-            "Job Type = ${job.jobType}"
-        )
+        val role = PrinterRole.valueOf(job.role)
+
+        Log.d("PRINT_QUEUE", "START ${job.id} (${job.jobType})")
 
         dao.updateStatus(job.id, "PRINTING", job.retryCount)
 
-        Log.d(
-            "PRINT_QUEUE",
-            "Printing ${job.jobType} job ${job.id}"
-        )
+        try {
 
-        suspendCancellableCoroutine<Unit> { cont ->
+            // ⏱ Prevent infinite waiting if printer never responds
+            withTimeout(15000) {
 
-            when (job.jobType) {
+                suspendCancellableCoroutine<Unit> { cont ->
 
-                "TEXT" -> {
+                    when (job.jobType) {
 
-                    printerManager.printText(
-                        PrinterRole.valueOf(job.role),
-                        requireNotNull(job.text) {
-                            "Text job has no text."
-                        },
-                        job.paymentMode,
-                        job.grandTotal
-                    ) {
-                        if (cont.isActive) {
-                            cont.resume(Unit)
+                        "TEXT" -> {
+                            printerManager.printText(
+                                role,
+                                requireNotNull(job.text) {
+                                    "Text job has no text."
+                                },
+                                job.paymentMode,
+                                job.grandTotal
+                            ) {
+                                if (cont.isActive) cont.resume(Unit)
+                            }
                         }
-                    }
-                }
 
-                "IMAGE" -> {
-
-                    printerManager.printBitmap(
-                        role = PrinterRole.valueOf(job.role),
-                        imagePath = requireNotNull(job.imagePath) {
-                            "Image job has no image path."
+                        "IMAGE" -> {
+                            printerManager.printBitmap(
+                                role = role,
+                                imagePath = requireNotNull(job.imagePath) {
+                                    "Image job has no image path."
+                                }
+                            ) {
+                                if (cont.isActive) cont.resume(Unit)
+                            }
                         }
-                    ) {
-                        if (cont.isActive) {
-                            cont.resume(Unit)
+
+                        else -> {
+                            throw IllegalArgumentException(
+                                "Unknown job type ${job.jobType}"
+                            )
                         }
-                    }
-                }
-
-                else -> {
-
-                    Log.e(
-                        "PRINT_QUEUE",
-                        "Unknown job type ${job.jobType}"
-                    )
-
-                    if (cont.isActive) {
-                        cont.resume(Unit)
                     }
                 }
             }
+
+            // ✅ Success → remove from queue
+            dao.delete(job.id)
+
+            Log.d("PRINT_QUEUE", "SUCCESS ${job.id}")
+
+        } catch (e: Exception) {
+
+            Log.e("PRINT_QUEUE", "FAILED ${job.id}: ${e.message}")
+
+            val newRetry = job.retryCount + 1
+
+            // 🔁 Retry logic (max 3 attempts)
+            if (newRetry <= 3) {
+
+                dao.updateStatus(job.id, "PENDING", newRetry)
+
+                Log.d("PRINT_QUEUE", "RETRY $newRetry for ${job.id}")
+
+                // Requeue job
+                channels[role]?.send(
+                    job.copy(retryCount = newRetry)
+                )
+
+            } else {
+
+                // ❌ Permanent failure
+                dao.updateStatus(job.id, "FAILED", newRetry)
+
+                Log.e("PRINT_QUEUE", "GAVE UP ${job.id}")
+            }
         }
 
-        dao.delete(job.id)
-
-        Log.d(
-            "PRINT_QUEUE",
-            "DONE ${job.id}"
-        )
+        Log.d("PRINT_QUEUE", "END ${job.id}")
     }
-
 
 //    private suspend fun processJob(job: PrintQueueEntity) {
 //
+//
+//
 //        dao.updateStatus(job.id, "PRINTING", job.retryCount)
 //
-//        Log.d("PRINT_QUEUE", "Printing job ${job.id}")
 //
-//        suspendCancellableCoroutine<Unit> { cont ->
+//        try {
+//            suspendCancellableCoroutine<Unit> { cont ->
 //
-//            printerManager.printText(
-//                PrinterRole.valueOf(job.role),
-//                requireNotNull(job.text) { "Text job has no text." },
-//                job.paymentMode,
-//                job.grandTotal
-//            ) {
-//                if (cont.isActive) cont.resume(Unit)
+//                when (job.jobType) {
+//
+//                    "TEXT" -> {
+//
+//                        printerManager.printText(
+//                            PrinterRole.valueOf(job.role),
+//                            requireNotNull(job.text) {
+//                                "Text job has no text."
+//                            },
+//                            job.paymentMode,
+//                            job.grandTotal
+//                        ) {
+//                            if (cont.isActive) {
+//                                cont.resume(Unit)
+//                            }
+//                        }
+//                    }
+//
+//                    "IMAGE" -> {
+//
+//                        printerManager.printBitmap(
+//                            role = PrinterRole.valueOf(job.role),
+//                            imagePath = requireNotNull(job.imagePath) {
+//                                "Image job has no image path."
+//                            }
+//                        ) {
+//                            if (cont.isActive) {
+//                                cont.resume(Unit)
+//                            }
+//                        }
+//                    }
+//
+//                    else -> {
+//
+//                        Log.e(
+//                            "PRINT_QUEUE",
+//                            "Unknown job type ${job.jobType}"
+//                        )
+//
+//                        if (cont.isActive) {
+//                            cont.resume(Unit)
+//                        }
+//                    }
+//                }
 //            }
+//
+//            dao.delete(job.id)
+//        } catch (e: Exception) {
+//            dao.updateStatus(job.id, "FAILED", job.retryCount + 1)
 //        }
 //
-//        // ✅ ALWAYS mark success after first attempt
-//        dao.delete(job.id)
 //
-//        Log.d("PRINT_QUEUE", "DONE ${job.id}")
+//        Log.d(
+//            "PRINT_QUEUE",
+//            "DONE ${job.id}"
+//        )
 //    }
+
+
 
     private suspend fun loadPendingJobs() {
         val jobs = dao.getPending()
