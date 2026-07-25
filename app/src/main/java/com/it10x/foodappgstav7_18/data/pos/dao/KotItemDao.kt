@@ -19,7 +19,16 @@ interface KotItemDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(items: List<PosKotItemEntity>)
 
-
+    // -------------------------
+    // GET KOT NUMBER
+    // -------------------------
+    @Query("""
+SELECT kotNumber
+FROM pos_kot_batch
+ORDER BY createdAt DESC
+LIMIT 1
+""")
+    suspend fun getLastKotNumber(): String?
     // -------------------------
     // INSERT SINGLE ITEM (NEW)
     // -------------------------

@@ -30,6 +30,7 @@ object PosOrderToKotMapper {
         return orderItems.map { item ->
             PosKotItemEntity(
                 id = UUID.randomUUID().toString(),
+                kotNumber = "",
                 sessionId = "dummySessionId",
                 kotBatchId = kotBatchId,
                 tableNo = tableNo ?: "POS",

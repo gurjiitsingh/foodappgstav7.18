@@ -41,6 +41,7 @@ class TableSnapshotListener(
 
                             PosKotItemEntity(
                                 id = doc.id,
+                                kotNumber = "",
                                 sessionId = doc.getString("sessionId") ?: "",
                                 kotBatchId = "SNAPSHOT",
                                 tableNo = doc.getString("tableNo") ?: "",

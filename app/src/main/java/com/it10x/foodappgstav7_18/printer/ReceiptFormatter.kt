@@ -421,7 +421,8 @@ $itemsBlock
         sessionKey: String,
         orderType: String,
         items: List<PosKotItemEntity>,
-        title: String = "KITCHEN"
+        kotNumber: String,
+        title: String = "KITCHEN",
     ): String {
 
         val time = java.text.SimpleDateFormat(
@@ -430,28 +431,33 @@ $itemsBlock
         ).format(java.util.Date())
 
         val header = buildString {
-            append("******** $title ********\n")
-            append("Type  : $orderType\n")
-            append("Ref   : $sessionKey\n")
-            append("Time  : $time\n")
-            append("------------------------\n")
+            appendLine("******** $title ********")
+            appendLine("KOT   : $kotNumber")
+            appendLine("Type  : $orderType")
+            appendLine("Ref   : $sessionKey")
+            appendLine("Time  : $time")
+            appendLine("------------------------")
         }
-
-
 
         val itemsBlock =
             if (items.isEmpty()) {
+
                 "No items\n"
+
             } else {
+
                 buildString {
+
                     items.forEach { item ->
 
-                        // 🔹 Main item line
-                        append("${item.quantity.toString().padEnd(3)} ${item.name}\n")
+                        // Main Item
+                        appendLine("${item.quantity.toString().padEnd(3)} ${item.name}")
 
-                        // 🔹 Modifiers (if any)
-                        if (item.modifiersJson.isNotEmpty()) {
+                        // Modifiers
+                        if (item.modifiersJson.isNotBlank()) {
+
                             try {
+
                                 val modifiers = item.modifiersJson
                                     .removePrefix("[")
                                     .removeSuffix("]")
@@ -460,33 +466,31 @@ $itemsBlock
                                     .filter { it.isNotBlank() }
 
                                 modifiers.forEach { modifier ->
-                                    append("      + $modifier\n")
+                                    appendLine("      + $modifier")
                                 }
+
                             } catch (_: Exception) {
-                                append("      + ${item.modifiersJson}\n")
+
+                                appendLine("      + ${item.modifiersJson}")
+
                             }
                         }
 
-                        // 🔹 Note (if any)
-                        if (item.note.isNotEmpty()) {
-                            append("   ${item.note}\n")
+                        // Note
+                        if (item.note.isNotBlank()) {
+                            appendLine("      NOTE: ${item.note}")
                         }
 
-//                        if (item != items.last()) {
-//                            append("\n")
-//                        }
+                        appendLine()
                     }
                 }
             }
-
-
-
 
         return buildString {
             append(ALIGN_LEFT)
             append(header)
             append(itemsBlock)
-            append("------------------------\n")
+            appendLine("------------------------")
         }
     }
 

@@ -65,7 +65,9 @@ class AutoPrintManager(
                     PrinterRole.KITCHEN,
                     sessionKey = order.srno.toString(),
                     orderType = "Online order",
-                    kotItems ){
+                    kotItems,
+                    kotNumber = "dummykot",
+                ){
                     Log.d("PRINT", "Kitchen print success=$it")
                               }
 

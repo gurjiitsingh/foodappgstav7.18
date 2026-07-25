@@ -142,7 +142,8 @@ class KitchenViewModel(
         deviceName: String?,
         appVersion: String?,
         role: String,
-    ) {
+    )
+    {
         viewModelScope.launch {
 
             if (_isSending.value) return@launch
@@ -268,8 +269,10 @@ class KitchenViewModel(
 
             val batchId = UUID.randomUUID().toString()
             val now = System.currentTimeMillis()
+            val kotNumber = kotRepository.generateNextKotNumber()
             val batch = PosKotBatchEntity(
                 id = batchId,
+                kotNumber = kotNumber,
                 sessionId = sessionId,
                 tableNo = tableNo,
                 orderType = orderType,
@@ -295,6 +298,7 @@ class KitchenViewModel(
 
                 PosKotItemEntity(
                     id = UUID.randomUUID().toString(),
+                    kotNumber = kotNumber,
                     sessionId = sessionId,
                     kotBatchId = batchId,
                     tableNo = tableNo,
@@ -343,6 +347,7 @@ class KitchenViewModel(
                         printerManager.enqueueKitchen(
                             sessionKey = tableNo,
                             orderType = orderType,
+                            kotNumber = kotNumber,
                             items = printItems
                         )
                     }
@@ -488,9 +493,11 @@ class KitchenViewModel(
             val now = System.currentTimeMillis()
 
             repository.markAllSent(tableNo)
+            val kotNumber = kotRepository.generateNextKotNumber()
 
             val batch = PosKotBatchEntity(
                 id = batchId,
+                kotNumber = kotNumber,
                 sessionId = sessionId,
                 tableNo = tableNo,
                 orderType = orderType,
@@ -505,7 +512,7 @@ class KitchenViewModel(
 
             kotBatchDao.insert(batch)
 
-            Log.d("KOT_DEBUG", "--- WaiterKitchenViewmodel----")
+         //   Log.d("KOT_DEBUG", "--- WaiterKitchenViewmodel----")
 
 
 
@@ -513,6 +520,7 @@ class KitchenViewModel(
                 //    Log.d("KOT_DEBUG", "Saving item: ${cart.name} qty=${cart.quantity}")
                 PosKotItemEntity(
                     id = UUID.randomUUID().toString(),
+                    kotNumber = kotNumber,
                     sessionId = sessionId,
                     kotBatchId = batchId,
                     tableNo = tableNo,

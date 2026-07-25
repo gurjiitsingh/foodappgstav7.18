@@ -203,4 +203,22 @@ class KotRepository(
         )
     }
 
+
+    suspend fun generateNextKotNumber(): String {
+
+        val last = kotItemDao.getLastKotNumber()
+
+        if (last == null) {
+            return "KOT-1"
+        }
+
+        val next = last
+            .removePrefix("KOT-")
+            .toIntOrNull()
+            ?.plus(1)
+            ?: 1
+
+        return "KOT-$next"
+    }
+
 }

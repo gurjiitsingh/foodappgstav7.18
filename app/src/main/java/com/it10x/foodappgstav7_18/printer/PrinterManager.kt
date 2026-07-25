@@ -201,14 +201,15 @@ class PrinterManager private constructor(
     fun enqueueKitchen(
         sessionKey: String,
         orderType: String,
-        items: List<PosKotItemEntity>
+        items: List<PosKotItemEntity>,
+        kotNumber: String,
     ) {
 
         val text = ReceiptFormatter.posKitchen(
             sessionKey = sessionKey,
             orderType = orderType,
             items = items,
-
+            kotNumber = kotNumber,
             )
 
         enqueuePrint(PrinterRole.KITCHEN, text)
@@ -219,7 +220,8 @@ class PrinterManager private constructor(
         role: PrinterRole,
         imagePath: String,
         onResult: (Boolean) -> Unit = {}
-    ) {
+    )
+    {
         Log.d(
             "IMAGE_TEST",
             "PrinterManager.printBitmap()"
@@ -349,7 +351,8 @@ class PrinterManager private constructor(
         role: PrinterRole,
         order: PrintOrder,
         onResult: (Boolean) -> Unit = {}
-    ) {
+    )
+    {
 
         val config = prefs.getPrinterConfig(role)
 
@@ -473,7 +476,8 @@ class PrinterManager private constructor(
         role: PrinterRole,
         order: PrintOrder,
         onResult: (Boolean) -> Unit = {}
-    ) {
+    )
+    {
         //  Log.e("PRINT_NEW", "Printing for role=$role")
 
         // Get printer configuration and preferences
@@ -1117,10 +1121,12 @@ class PrinterManager private constructor(
         sessionKey: String,
         orderType: String,
         items: List<PosKotItemEntity>,
+        kotNumber: String,
         onResult: (Boolean) -> Unit = {}
     ) {
 
         val config = prefs.getPrinterConfig(role)
+
         if (config == null) {
             Log.e("PRINTTEST", "No printer configured for role=$role")
             onResult(false)
@@ -1128,9 +1134,10 @@ class PrinterManager private constructor(
         }
 
         val text = ReceiptFormatter.posKitchen(
-            sessionKey ,
-            orderType,
-            items
+            sessionKey = sessionKey,
+            orderType = orderType,
+            items = items,
+            kotNumber = kotNumber
         )
 
         Log.e(
@@ -1138,15 +1145,15 @@ class PrinterManager private constructor(
             "\n================= KITCHEN RECEIPT =================\n$text\n=================================================="
         )
 
-        //Log.d("PRINT", "Printing role=$role type=${config.type}")
-        //  var  text1="kljkl"
         when (config.type) {
 
             PrinterType.BLUETOOTH -> {
+
                 if (config.bluetoothAddress.isBlank()) {
                     onResult(false)
                     return
                 }
+
                 BluetoothPrinter.printText(
                     config.bluetoothAddress,
                     text,
@@ -1155,10 +1162,12 @@ class PrinterManager private constructor(
             }
 
             PrinterType.LAN -> {
+
                 if (config.ip.isBlank()) {
                     onResult(false)
                     return
                 }
+
                 LanPrinter.printText(
                     config.ip,
                     config.port,
@@ -1167,10 +1176,10 @@ class PrinterManager private constructor(
                 )
             }
 
-
             PrinterType.USB -> {
 
-                val usbManager = context.getSystemService(Context.USB_SERVICE) as android.hardware.usb.UsbManager
+                val usbManager =
+                    context.getSystemService(Context.USB_SERVICE) as android.hardware.usb.UsbManager
 
                 val saved = prefs.getUSBPrinter(role)
 
@@ -1183,7 +1192,8 @@ class PrinterManager private constructor(
                 val (vendorId, productId) = saved
 
                 val device = usbManager.deviceList.values.find {
-                    it.vendorId == vendorId && it.productId == productId
+                    it.vendorId == vendorId &&
+                            it.productId == productId
                 }
 
                 if (device == null) {
@@ -1198,7 +1208,6 @@ class PrinterManager private constructor(
                     return
                 }
 
-                // ✅ CORRECT CALL (with device)
                 USBPrinter.printText(
                     context,
                     device,
@@ -1207,20 +1216,9 @@ class PrinterManager private constructor(
                 )
             }
 
-//            PrinterType.USB -> {
-//                val device = config.usbDevice ?: run {
-//                    onResult(false)
-//                    return
-//                }
-//                USBPrinter.printText(
-//                    text,
-//                    onResult
-//                )
-//
-//
-//            }
-
-            PrinterType.WIFI -> onResult(false)
+            PrinterType.WIFI -> {
+                onResult(false)
+            }
         }
     }
 

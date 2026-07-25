@@ -279,6 +279,7 @@ class WaiterKitchenViewModel(
 
             val batch = PosKotBatchEntity(
                 id = batchId,
+                kotNumber = "",
                 sessionId = sessionId,
                 tableNo = tableNo,
                 orderType = orderType,
@@ -306,6 +307,7 @@ class WaiterKitchenViewModel(
           //    Log.d("KOT_DEBUG", "Saving item: ${cart.name} qty=${cart.quantity}")
                 PosKotItemEntity(
                     id = UUID.randomUUID().toString(),
+                    kotNumber = "",
                     sessionId = sessionId,
                     kotBatchId = batchId,
                     tableNo = tableNo,

@@ -131,7 +131,7 @@ object ReceiptBitmapGenerator {
 
         // Column separators
         private val line1 = 255f    // End of Item Name
-        private val line2 = 380f    // End of Rate
+        private val line2 = 363f    // End of Rate
         private val line3 = 430f   // End of Qty
 
         // Item column width (used for wrapping)
@@ -168,6 +168,12 @@ object ReceiptBitmapGenerator {
         private val boldPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = Color.BLACK
             textSize = 26f
+            typeface = Typeface.DEFAULT_BOLD
+        }
+
+        private val boldPaintItem = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.BLACK
+            textSize = 24f
             typeface = Typeface.DEFAULT_BOLD
         }
 
@@ -549,25 +555,24 @@ object ReceiptBitmapGenerator {
             val maxWidth = itemRight - xItem - 10f
 
             val lines = wrapText(
-                itemName.uppercase(),
+                itemName,
                 maxWidth,
-                boldPaint
+                boldPaintItem
             )
 
-            // First line
+            // ---------- First Line ----------
 
             canvas.drawText(
                 lines.first(),
                 xItem,
                 y,
-                boldPaint, //normalPaint,//
+                boldPaintItem
             )
-
 
             drawRight(
                 String.format("%.2f", rate),
                 xRate,
-                boldPaint
+                boldPaintItem
             )
 
             drawRight(
@@ -579,7 +584,71 @@ object ReceiptBitmapGenerator {
             drawRight(
                 String.format("%.2f", amount),
                 xAmount,
+                boldPaintItem
+            )
+
+            // ---------- Remaining Lines ----------
+
+            if (lines.size > 1) {
+
+                lines.drop(1).forEach { line ->
+
+                    y += 24f          // spacing between wrapped lines
+
+                    canvas.drawText(
+                        line,
+                        xItem,
+                        y,
+                        boldPaintItem
+                    )
+                }
+            }
+
+            // Gap after item
+            y += 28f
+        }
+
+        private fun drawSingleItem1(
+            itemName: String,
+            rate: Double,
+            qty: Double,
+            amount: Double
+        ) {
+
+            val maxWidth = itemRight - xItem - 10f
+
+            val lines = wrapText(
+                itemName.uppercase(),
+                maxWidth,
+                boldPaintItem
+            )
+
+            // First line
+
+            canvas.drawText(
+                lines.first(),
+                xItem,
+                y,
+                boldPaintItem, //normalPaint,//
+            )
+
+
+            drawRight(
+                String.format("%.2f", rate),
+                xRate,
+                boldPaintItem
+            )
+
+            drawRight(
+                qty.toInt().toString(),
+                xQty,
                 boldPaint
+            )
+
+            drawRight(
+                String.format("%.2f", amount),
+                xAmount,
+                boldPaintItem
             )
 
             // Remaining wrapped lines
@@ -772,7 +841,7 @@ object ReceiptBitmapGenerator {
             //==============================
             drawRightY(
                 String.format("%.2f", order.grandTotal),
-                rightMargin - 60f,   // 👈 move closer to edge (more right)
+                rightMargin - 45f,   //
                 textY,
                 grandPaint
             )

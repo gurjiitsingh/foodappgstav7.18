@@ -55,6 +55,7 @@ class OutletSyncRepository(
             // ---------- TAX ----------
             taxType = data["taxType"] as? String,
             gstVatNumber = data["gstVatNumber"] as? String,
+            fssaiNumber = data["fssaiNumber"] as? String ?: "",
 
             // ---------- CONTACT ----------
             phone = data["phone"] as? String ?: "",
@@ -67,6 +68,8 @@ class OutletSyncRepository(
                 58 -> 58
                 else -> 80
             },
+            printerIPBill = data["printerIPBill"] as? String ?: "",
+            printerIPKitchen = data["printerIPKitchen"] as? String ?: "",
             printerName = data["printerName"] as? String,
             footerNote = data["footerNote"] as? String,
 
@@ -172,7 +175,7 @@ Printer    = ${outlet.printerWidth}mm
             }
         }
 
-        Log.d("QR_DEBUG","me ${outlet.qrText}  ${outlet.qrEnabled}")
+        Log.d("QR_DEBUG","me ${outlet.upiId}  ${outlet.qrEnabled}")
         // --------------------------------------------
 // ✅ GENERATE & SAVE QR PNG
 // --------------------------------------------
@@ -180,7 +183,7 @@ Printer    = ${outlet.printerWidth}mm
 
         if (
             outlet.qrEnabled &&
-            !outlet.qrText.isNullOrBlank()
+            !outlet.upiId.isNullOrBlank()
         ) {
 
             try {
@@ -188,7 +191,7 @@ Printer    = ${outlet.printerWidth}mm
                 Log.d("QR_DEBUG", "Generating QR")
 
                 val qrBitmap = QrUtils.generateQr(
-                    outlet.qrText,
+                    outlet.upiId,
                     256
                 )
 

@@ -19,6 +19,7 @@ data class PosKotItemEntity(
 
     @PrimaryKey
     val id: String,
+    val kotNumber: String,
     val categoryName: String,
     val productMode: String,
     val currentStock: Double = 0.0,

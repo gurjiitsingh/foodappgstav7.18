@@ -29,7 +29,7 @@ data class OutletEntity(
 
     val taxType: String?,
     val gstVatNumber: String?,
-
+val fssaiNumber: String?,
     // ---------- CONTACT ----------
     val phone: String,
     val phone2: String?,           // ⭐ already there
@@ -42,7 +42,8 @@ data class OutletEntity(
     val printerWidth: Int,
     val printerName: String?,
     val footerNote: String?,
-
+    val printerIPKitchen: String?,
+    val printerIPBill: String?,
     // QR
     val qrEnabled: Boolean = false,
 

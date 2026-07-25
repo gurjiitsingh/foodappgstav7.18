@@ -47,7 +47,7 @@ object OnlineOrderMapper {
 
                 taxRate = (item.taxRate as? Number)?.toDouble() ?: 0.0,
                 taxType = "exclusive", // assume online prices are exclusive
-
+                kotNumber = "",
                 status = "DONE",
                 kitchenPrinted = false,
 

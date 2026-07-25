@@ -117,7 +117,9 @@ class OnlineOrdersViewModel(
                 PrinterRole.KITCHEN,
                 sessionKey = order.srno.toString(),
                 orderType = "Online order",
-                kotItems ){
+                kotItems,
+                kotNumber = "",
+            ){
                 Log.d("PRINT", "Kitchen print success=$it")
             }
 
@@ -180,7 +182,8 @@ class OnlineOrdersViewModel(
                         PrinterRole.KITCHEN,
                         sessionKey = order.srno.toString(),
                         orderType = "Online order",
-                        kotItems
+                        kotItems,
+                        kotNumber = "",
                     ) {
                         Log.d("ONLINE_PRINT", "Kitchen print success=$it")
                     }

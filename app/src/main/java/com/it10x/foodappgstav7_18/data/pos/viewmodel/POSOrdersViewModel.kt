@@ -150,7 +150,8 @@ if(role == "bill") {
                     PrinterRole.KITCHEN,
                     sessionKey = order.srno.toString(),
                     orderType = order.orderType,
-                    items = kotItems
+                    items = kotItems,
+                    kotNumber = "",
                 )
             }
 
