@@ -1311,7 +1311,7 @@ fun enqueueImagePrint(
         kotNumber: String,
     ) {
 
-        Log.d("IMAGE_TEST", "before formatter---------")
+       // Log.d("IMAGE_TEST", "before formatter---------")
 
         try {
             val bitmap = KitchenBitmapGenerator.generate(
@@ -1322,7 +1322,7 @@ fun enqueueImagePrint(
                 kotNumber = kotNumber,
             )
 
-            Log.d("IMAGE_TEST", "before enqueue---------")
+         //   Log.d("IMAGE_TEST", "before enqueue---------")
 
             enqueueImagePrint(
                 role = PrinterRole.KITCHEN,

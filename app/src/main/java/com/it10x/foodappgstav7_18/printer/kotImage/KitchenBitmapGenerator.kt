@@ -19,10 +19,10 @@ object KitchenBitmapGenerator {
 
         return try {
 
-            val width = 384
+            val width = 576
 
             // 🔥 Dynamic height (better than fixed 2000)
-            val estimatedHeight = 300 + (items.size * 80)
+            val estimatedHeight = 700 + (items.size * 80)
             val height = estimatedHeight.coerceAtLeast(600)
 
             val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
@@ -34,8 +34,8 @@ object KitchenBitmapGenerator {
 
             val drawer = KitchenDrawer(canvas)
 
-            Log.d("KOT_DEBUG", "Drawing header...")
-            drawer.drawHeader(kotNumber, orderType)
+            drawer.drawTopBox(orderType)
+            drawer.drawHeader(kotNumber,orderType,tableNo=sessionKey, items )
 
             Log.d("KOT_DEBUG", "Drawing items...")
             drawer.drawItems(items)

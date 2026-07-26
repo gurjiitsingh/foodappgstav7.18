@@ -344,6 +344,7 @@ class KitchenViewModel(
                     val printItems = lockAndFetchBatch(batchId)
 
                     if (printItems.isNotEmpty()) {
+
 //                        printerManager.enqueueKitchen(
 //                            sessionKey = tableNo,
 //                            orderType = orderType,
