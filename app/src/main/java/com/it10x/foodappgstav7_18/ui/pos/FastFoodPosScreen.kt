@@ -227,7 +227,7 @@ fun FastFoodPosScreen(
 
     LaunchedEffect(orderType, tableId) {
         if (!tableId.isNullOrBlank()) {
-            cartViewModel.initSession(orderType, tableId)
+            cartViewModel.initSession(orderType, tableId, tableName)
         }
     }
 

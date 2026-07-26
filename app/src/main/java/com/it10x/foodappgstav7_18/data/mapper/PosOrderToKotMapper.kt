@@ -32,6 +32,7 @@ object PosOrderToKotMapper {
                 id = UUID.randomUUID().toString(),
                 kotNumber = "",
                 sessionId = "dummySessionId",
+                tableName = "ONLINE",
                 kotBatchId = kotBatchId,
                 tableNo = tableNo ?: "POS",
 

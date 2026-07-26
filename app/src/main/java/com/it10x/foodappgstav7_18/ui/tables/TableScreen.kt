@@ -99,6 +99,7 @@ fun TableScreen(
 
     val sessionId by cartViewModel.sessionKey.collectAsState()
     val tableId1 by posSessionViewModel.tableId.collectAsState()
+    val tableName by posSessionViewModel.tableName.collectAsState()
     val tableId =  tableId1 ?:""
     // val tables by tableVm.tables.collectAsState()
     val tables by posTableViewModel.tables.collectAsState()
@@ -157,7 +158,7 @@ fun TableScreen(
 
 
 
-    val tableName by posSessionViewModel.tableName.collectAsState()
+
 
     val categories by db.categoryDao().getAll().collectAsState(initial = emptyList())
 
@@ -197,7 +198,7 @@ fun TableScreen(
     var showCategorySelector by remember { mutableStateOf(false) }
     LaunchedEffect(orderType, tableId) {
         if (orderType == "DINE_IN" && !tableId.isNullOrBlank()) {
-            cartViewModel.initSession("DINE_IN", tableId)
+            cartViewModel.initSession("DINE_IN", tableId, tableName)
         } else {
             cartViewModel.initSession(orderType)
         }
@@ -242,7 +243,7 @@ fun TableScreen(
 
                         // ✅ Init session properly
                         if (orderType == "DINE_IN") {
-                            cartViewModel.initSession("DINE_IN", table.id)
+                            cartViewModel.initSession("DINE_IN", table.id,table.tableName)
                         }
                     },
                     onTransferClick = { tableId ->
@@ -490,7 +491,7 @@ else{
                 )
 
                 // 🟢 START SESSION FOR NEW TABLE
-                cartViewModel.initSession("DINE_IN", newTable.id)
+                cartViewModel.initSession("DINE_IN", newTable.id,newTable.tableName)
 
                 Toast.makeText(
                     context,

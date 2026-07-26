@@ -44,12 +44,13 @@ object ReceiptBitmapGenerator {
         context: Context,
         order: PrintOrder,
         outletInfo: OutletInfo,
-        logo: Bitmap?
+        logo: Bitmap?,
+        kotNumberText: String,
     ): Bitmap {
 
         val bitmap = Bitmap.createBitmap(
             RECEIPT_WIDTH,
-            2200,
+            3200,
             Bitmap.Config.ARGB_8888
         )
 
@@ -67,7 +68,7 @@ object ReceiptBitmapGenerator {
         drawer.drawHeader(order, outletInfo)
 
         // Order Info
-        drawer.drawOrderInfo(order)
+        drawer.drawOrderInfo(order, kotNumberText)
 
         // Table Header
         drawer.drawItemsHeader()
@@ -90,23 +91,31 @@ object ReceiptBitmapGenerator {
 //                null
 //            }
 
-        if (qrBitmap == null) {
-            Log.d("QR_DEBUG", "QR Bitmap is NULL")
-        } else {
-            Log.d("QR_DEBUG", "QR Bitmap loaded: ${qrBitmap.width}x${qrBitmap.height}")
-        }
+
 
         drawer.drawQrCode(qrBitmap)
 
         val finalHeight = drawer.y.toInt() + 20
 
-        return Bitmap.createBitmap(
+        val finalBitmap = Bitmap.createBitmap(
             bitmap,
             0,
             0,
             bitmap.width,
             finalHeight
         )
+
+        bitmap.recycle()
+
+        return finalBitmap
+
+//        return Bitmap.createBitmap(
+//            bitmap,
+//            0,
+//            0,
+//            bitmap.width,
+//            finalHeight
+//        )
     }
 
     //================================================
@@ -168,6 +177,12 @@ object ReceiptBitmapGenerator {
         private val boldPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = Color.BLACK
             textSize = 26f
+            typeface = Typeface.DEFAULT_BOLD
+        }
+
+        private val boldPaintLarge = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.BLACK
+            textSize = 33f
             typeface = Typeface.DEFAULT_BOLD
         }
 
@@ -310,8 +325,19 @@ object ReceiptBitmapGenerator {
                 }
             )
 
+            y += 20f
+
+            // TAX INVOICE
+            val cleanOrderType = order.orderType?.replace("_", " ")
+            drawCenter(
+                "${cleanOrderType}",
+                Paint(boldPaintLarge).apply {
+                    textAlign = Paint.Align.CENTER
+                }
+            )
+
             // Padding below title
-            y += 10f
+            y += 5f
 
             // Bottom divider
             canvas.drawLine(
@@ -330,7 +356,7 @@ object ReceiptBitmapGenerator {
 //================================================
 
         fun drawOrderInfo(
-            order: PrintOrder
+            order: PrintOrder, kotNumberText: String,
         ) {
 
             drawLeft(
@@ -345,7 +371,7 @@ object ReceiptBitmapGenerator {
                 normalPaint
             )
 
-            y += 36f
+            y += 40f
 
             drawLeft(
                 "Table : ${order.tableNo ?: "-"}",
@@ -354,8 +380,8 @@ object ReceiptBitmapGenerator {
             )
 
             drawRight(
-                "Token : ${order.tableNo ?: "-"}",
-                rightMargin,
+                "KOT(s) : ${kotNumberText}",
+                rightMargin-70f,
                 normalPaint
             )
 

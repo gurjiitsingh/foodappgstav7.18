@@ -44,7 +44,8 @@ class TableSnapshotListener(
                                 kotNumber = "",
                                 sessionId = doc.getString("sessionId") ?: "",
                                 kotBatchId = "SNAPSHOT",
-                                tableNo = doc.getString("tableNo") ?: "",
+                                tableNo = doc.getString("tableName") ?: "",
+                                tableName = doc.getString("tableNo") ?: "",
                                 productId = doc.getString("productId") ?: "",
                                 name = doc.getString("productName") ?: "",
                                 productMode =

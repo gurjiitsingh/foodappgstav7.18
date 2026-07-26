@@ -970,12 +970,19 @@ class BillViewModel(
                     .getItemsForTableSync(tableId)
                     .filter { it.status == "DONE" }
 
-                kotItems.forEach {
-                    Log.d(
-                        "CREATED_BY",
-                        "Item=${it.name}, createdById=${it.createdById}, createdByName=${it.createdByName}"
-                    )
-                }
+                val kotNumbers = kotItems
+                    .map { it.kotNumber }
+                    .filter { it.isNotBlank() }
+                    .distinct()
+
+                val kotNumberText = kotNumbers.joinToString(", ")
+
+//                kotItems.forEach {
+//                    Log.d(
+//                        "CREATED_BY",
+//                        "Item=${it.name}, createdById=${it.createdById}, createdByName=${it.createdByName}"
+//                    )
+//                }
 
                 if (kotItems.isEmpty()) {
                     sendEvent("No items to print")
@@ -1188,7 +1195,7 @@ class BillViewModel(
                 // =========================
                 // PRINT
                 // =========================
-               printOrder(orderMaster, orderItems)
+               printOrder(orderMaster, orderItems, kotNumberText)
 
                 sendEvent("Printed successfully")
 
@@ -1786,6 +1793,7 @@ class BillViewModel(
     private suspend fun printOrder(
         order: PosOrderMasterEntity,
         items: List<PosOrderItemEntity>,
+        kotNumberText: String="",
 
     ) = withContext(Dispatchers.IO) {
 
@@ -1801,7 +1809,7 @@ class BillViewModel(
         val outletInfo = OutletMapper.fromEntity(outlet)
 
        // printerManager.printTextNewSuspend(PrinterRole.BILLING, printOrder, outletInfo)
-        printerManager.enqueueBill(printOrder,order.paymentMode, outletInfo)
+ //       printerManager.enqueueBill(printOrder,order.paymentMode, outletInfo)
 //        val bitmap = ReceiptFormatter.billing48_IMAGE(
 //            context = context,
 //            order = printOrder,
@@ -1818,7 +1826,8 @@ class BillViewModel(
         printerManager.enqueueBillImage(
             order = printOrder,
             paymentMode = order.paymentMode,
-            outletInfo = outletInfo
+            outletInfo = outletInfo,
+            kotNumberText
         )
 
           }

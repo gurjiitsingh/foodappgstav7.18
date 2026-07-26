@@ -172,7 +172,8 @@ fun enqueueImagePrint(
     fun enqueueBillImage(
         order: PrintOrder,
         paymentMode: String,
-        outletInfo: OutletInfo
+        outletInfo: OutletInfo,
+        kotNumberText: String,
     ) {
 
 
@@ -184,11 +185,12 @@ fun enqueueImagePrint(
         //----------------------------------
         // ✅ PASS LOGO HERE
         //----------------------------------
-        val bitmap = ReceiptFormatter.billing48_IMAGE(
+        val bitmap = ReceiptFormatter.billing48IMAGE(
             context = context,
             order = order,
             outletInfo = outletInfo,
-            logo = logoBitmap   // ✅ IMPORTANT
+            logo = logoBitmap,   // ✅ IMPORTANT
+            kotNumberText= kotNumberText,
         )
 
 //        val size = prefs.getPrinterSize(PrinterRole.BILLING) ?: "80mm"
@@ -431,7 +433,7 @@ fun enqueueImagePrint(
         }
 
         // Generate Bitmap Receipt
-        val receiptBitmap = ReceiptFormatter.billing48_IMAGE(
+        val receiptBitmap = ReceiptFormatter.billing48IMAGE(
             context = context,
             order = order,
             outletInfo = info,
@@ -1306,6 +1308,7 @@ fun enqueueImagePrint(
 
     fun enqueueKitchenImage(
         sessionKey: String,
+        tableName: String,
         orderType: String,
         items: List<PosKotItemEntity>,
         kotNumber: String,
@@ -1317,6 +1320,7 @@ fun enqueueImagePrint(
             val bitmap = KitchenBitmapGenerator.generate(
                 context = context,
                 sessionKey = sessionKey,
+                tableName,
                 orderType = orderType,
                 items = items,
                 kotNumber = kotNumber,

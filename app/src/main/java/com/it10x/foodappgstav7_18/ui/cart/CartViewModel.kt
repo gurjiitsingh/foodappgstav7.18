@@ -39,7 +39,8 @@ class CartViewModel(
 
     private val currentTableId =
         savedStateHandle.getStateFlow<String?>("tableId", null)
-
+    private val currentTableName =
+        savedStateHandle.getStateFlow<String?>("tableName", null)
     private val currentOrderType =
         savedStateHandle.getStateFlow("orderType", "DINE_IN")
 
@@ -128,7 +129,15 @@ class CartViewModel(
                     ?: category?.kitchenPrintReq
                     ?: true
 
-
+//            Log.d(
+//                "TABLE_NAME_DEBUG",
+//                """
+//    currentTableId   = ${currentTableId.value}
+//    currentTableName = ${currentTableName.value}
+//    sessionId        = ${sessionId.value}
+//    orderType        = ${currentOrderType.value}
+//    """.trimIndent()
+//            )
 
             val cartItem = PosCartEntity(
                 productId = product.id,
@@ -151,7 +160,8 @@ class CartViewModel(
                 createdById = createdById.value ?: "",
                 createdByName = createdByName.value ?: "",
                 sessionId = sessionId.value!!,
-                tableId = currentTableId.value
+                tableId = currentTableId.value,
+                tableName = currentTableName.value,
             )
 
 
@@ -199,7 +209,9 @@ class CartViewModel(
 
 
 
-    fun initSession(orderType: String, tableId: String? = null) {
+    fun initSession(orderType: String, tableId: String? = null, tableName: String? = null) {
+
+
 
         val resolvedTableId = when (orderType) {
             "DINE_IN" -> tableId
@@ -208,38 +220,49 @@ class CartViewModel(
             else -> null
         }
 
+
         if (resolvedTableId.isNullOrBlank()) {
-            Log.e("CART_DEBUG", "initSession FAILED: tableId null for $orderType")
+            Log.e(
+                "SESSION_DEBUG",
+                "initSession FAILED: tableId is null for orderType=$orderType"
+            )
             return
         }
 
-        // ✅ PREVENT DUPLICATE SESSION
+        // Prevent duplicate session
         if (
             sessionId.value != null &&
             currentOrderType.value == orderType &&
             currentTableId.value == resolvedTableId
         ) {
+            Log.d(
+                "SESSION_DEBUG",
+                "Session already active. sessionId=${sessionId.value}"
+            )
             return
         }
-
 
         val sid = "$orderType-$resolvedTableId-${System.currentTimeMillis()}"
 
         savedStateHandle["orderType"] = orderType
         savedStateHandle["tableId"] = resolvedTableId
         savedStateHandle["sessionId"] = sid
+        savedStateHandle["tableName"] = tableName
 
-        savedStateHandle.set<String?>(
-            "createdById",
-            PosSessionManager.getUserId(app)
+        savedStateHandle["createdById"] = PosSessionManager.getUserId(app)
+        savedStateHandle["createdByName"] = PosSessionManager.getFullName(app)
+
+        Log.d(
+            "SESSION_DEBUG",
+            """
+        Session created
+        sessionId = $sid
+        orderType = ${savedStateHandle.get<String>("orderType")}
+        tableId   = ${savedStateHandle.get<String>("tableId")}
+         tableName   = ${savedStateHandle.get<String>("tableName")}
+        createdBy = ${savedStateHandle.get<String>("createdByName")}
+        """.trimIndent()
         )
-
-        savedStateHandle.set<String?>(
-            "createdByName",
-            PosSessionManager.getFullName(app)
-        )
-
-
     }
 
     fun getCreatedById(): String? =

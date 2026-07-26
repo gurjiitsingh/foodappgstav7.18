@@ -177,18 +177,21 @@ Thank You!
         )
     }
 
-    fun billing48_IMAGE(
+    fun billing48IMAGE(
         order: PrintOrder,
         outletInfo: OutletInfo,
         context: Context,
         logo: Bitmap?,
+        kotNumberText: String="",
+
     ): Bitmap {
 
         return ReceiptBitmapGenerator.billing48Image(
             context,
             order,
             outletInfo,
-            logo   // ✅ IMPORTANT: pass here
+            logo,   // ✅ IMPORTANT: pass here
+                    kotNumberText,
         )
     }
 

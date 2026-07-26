@@ -108,7 +108,7 @@ fun WaiterTableViewScreen(
                     tableName = table.tableName
                 )
 
-                cartViewModel.initSession("DINE_IN", table.id)
+                cartViewModel.initSession("DINE_IN", table.id, table.tableName)
 
                 navController.navigate("pos") {
                     launchSingleTop = true

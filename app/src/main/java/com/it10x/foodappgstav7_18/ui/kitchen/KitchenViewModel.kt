@@ -46,10 +46,6 @@ class KitchenViewModel(
 
     ) : AndroidViewModel(app) {
 
-
-
-
-
     //  var isFromFirestore = false
     private val firestore = FirebaseFirestore.getInstance()
     private val _loading = MutableStateFlow(false)
@@ -136,6 +132,7 @@ class KitchenViewModel(
     fun cartToKotMainPOS(
         orderType: String,
         tableNo: String,
+        tableName: String,
         sessionId: String,
         paymentType: String,
         deviceId: String,
@@ -167,6 +164,7 @@ class KitchenViewModel(
                         orderType = orderType,
                         sessionId = sessionId,
                         tableNo = tableNo,
+                        tableName = tableName,
                         cartItems = cartList,
                         deviceId = deviceId,
                         deviceName = deviceName,
@@ -216,6 +214,7 @@ class KitchenViewModel(
             return
         }
 
+
         _loading.value = true
 
         try {
@@ -223,6 +222,7 @@ class KitchenViewModel(
                 orderType = orderType,
                 sessionId = sessionId,
                 tableNo = tableNo,
+                tableName = tableName,
                 cartItems = cartItems,
                 deviceId = deviceId,
                 deviceName = deviceName,
@@ -251,6 +251,7 @@ class KitchenViewModel(
         orderType: String,
         sessionId: String,
         tableNo: String?,
+        tableName: String,
         cartItems: List<PosCartEntity>,
         deviceId: String,
         deviceName: String?,
@@ -261,6 +262,7 @@ class KitchenViewModel(
         //  Log.d("KOT", "saveKotAndPrintKitchen Called from: ${Throwable().stackTrace[1]}")
         //FROM MAIN POS AND
         //FROM FIRESTORE WAITER POS
+
         val tableNo = tableNo ?: "";
         try {
             val db = AppDatabaseProvider.get(printerManager.appContext())
@@ -275,6 +277,7 @@ class KitchenViewModel(
                 kotNumber = kotNumber,
                 sessionId = sessionId,
                 tableNo = tableNo,
+                tableName = tableName,
                 orderType = orderType,
                 deviceId = deviceId,
                 deviceName = deviceName,
@@ -302,6 +305,7 @@ class KitchenViewModel(
                     sessionId = sessionId,
                     kotBatchId = batchId,
                     tableNo = tableNo,
+                    tableName = tableName,
                     productId = cart.productId,
                     name = cart.name,
                     productMode = cart.productMode,
@@ -353,6 +357,7 @@ class KitchenViewModel(
 //                        )
                         printerManager.enqueueKitchenImage(
                             sessionKey = tableNo,
+                            tableName = tableName,
                             orderType = orderType,
                             kotNumber = kotNumber,
                             items = printItems
@@ -440,6 +445,7 @@ class KitchenViewModel(
                 PosCartEntity(
                     sessionId = sessionId,
                     tableId = tableId,
+                    tableName = tableName,
                     productId = item["productId"]?.toString() ?: "",
                     name = item["name"]?.toString() ?: "",
                     productMode =
@@ -509,6 +515,7 @@ class KitchenViewModel(
                 kotNumber = kotNumber,
                 sessionId = sessionId,
                 tableNo = tableNo,
+                tableName = tableName,
                 orderType = orderType,
                 deviceId = deviceId,
                 deviceName = deviceName,
@@ -533,6 +540,7 @@ class KitchenViewModel(
                     sessionId = sessionId,
                     kotBatchId = batchId,
                     tableNo = tableNo,
+                    tableName = tableName,
                     productId = cart.productId,
                     name = cart.name,
                     productMode = cart.productMode,

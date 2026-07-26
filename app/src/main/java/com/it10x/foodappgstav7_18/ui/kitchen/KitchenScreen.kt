@@ -2,6 +2,7 @@ package com.it10x.foodappgstav7_18.ui.kitchen
 
 import android.os.Build
 import android.provider.Settings
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -34,6 +35,8 @@ fun KitchenScreen(
     outletInfo: OutletInfo,
     onKitchenEmpty: () -> Unit
 ) {
+
+
     val cartItems by cartViewModel.cart.collectAsState(initial = emptyList())
     val context = LocalContext.current
 
@@ -115,6 +118,7 @@ fun KitchenScreen(
                         cartViewModel = cartViewModel,
                         tableNo = tableNo,
 
+
                     )
                 }
             }
@@ -166,9 +170,12 @@ fun KitchenScreen(
                             context.contentResolver,
                             Settings.Secure.ANDROID_ID
                         )
+
+
                         kitchenViewModel.cartToKotMainPOS(
                             orderType = orderType,
                             tableNo = tableNo!!,
+                            tableName = tableName,
                             sessionId = sessionId,
                             paymentType = "UNPAID",
                             deviceId = deviceId,

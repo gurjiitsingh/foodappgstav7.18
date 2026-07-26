@@ -19,7 +19,7 @@ class TableSyncManager(
 
     suspend fun syncCart(tableId: String, orderType: String) {
 
-        Log.d("TableSyncManager", "syncCart -> tableId: $tableId, type: $orderType")
+       // Log.d("TableSyncManager", "syncCart -> tableId: $tableId, type: $orderType")
 
         when (orderType) {
 

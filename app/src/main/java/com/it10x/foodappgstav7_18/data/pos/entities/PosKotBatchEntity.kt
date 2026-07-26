@@ -19,6 +19,7 @@ data class PosKotBatchEntity(
     val kotNumber: String,
     val sessionId: String,
     val tableNo: String?,          // DINE_IN
+    val tableName: String?,
     val orderType: String,         // DINE_IN | TAKEAWAY | DELIVERY
 
     val deviceId: String?,

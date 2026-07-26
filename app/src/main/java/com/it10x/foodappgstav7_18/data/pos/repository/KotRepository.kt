@@ -209,16 +209,16 @@ class KotRepository(
         val last = kotItemDao.getLastKotNumber()
 
         if (last == null) {
-            return "KOT-1"
+            return "K1"
         }
 
         val next = last
-            .removePrefix("KOT-")
+            .removePrefix("K")
             .toIntOrNull()
             ?.plus(1)
             ?: 1
 
-        return "KOT-$next"
+        return "K$next"
     }
 
 }

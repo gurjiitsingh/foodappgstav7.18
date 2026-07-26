@@ -223,7 +223,7 @@ fun WaiterPosScreen(
 
     LaunchedEffect(orderType, tableId) {
         if (orderType == "DINE_IN" && !tableId.isNullOrBlank()) {
-            cartViewModel.initSession("DINE_IN", tableId)
+            cartViewModel.initSession("DINE_IN", tableId, tableName)
         } else {
             cartViewModel.initSession(orderType)
         }

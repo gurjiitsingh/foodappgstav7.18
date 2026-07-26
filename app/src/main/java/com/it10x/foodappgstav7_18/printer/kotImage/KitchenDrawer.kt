@@ -101,6 +101,7 @@ class KitchenDrawer(private val canvas: Canvas) {
         kotNumber: String,
         orderType: String,
         tableNo: String,
+        tableName: String,
         items: List<PosKotItemEntity>
     ){
 
@@ -184,9 +185,15 @@ class KitchenDrawer(private val canvas: Canvas) {
 
         val cleanTableNo = tableNo.replace("_", " ")
 
+        val referenceLabel = if (orderType == "DINE_IN") {
+            "Table No."
+        } else {
+            "Ref No."
+        }
+
         canvas.drawText(
-            "Table No. : $cleanTableNo",
-            padding + 10f,                // ✅ LEFT aligned inside box
+            "$referenceLabel : $tableName",
+            padding + 10f,
             y + 32f * scale,
             boldPaint
         )
@@ -227,8 +234,16 @@ class KitchenDrawer(private val canvas: Canvas) {
 
 
         // 🔲 TABLE HEADER
-        canvas.drawText("Item Name", padding, y, boldPaint)
-        canvas.drawText("Qty", canvas.width - padding, y, rightPaintBold)
+        val leftMargin = padding + 20f
+        val rightMargin = padding + 20f
+
+        canvas.drawText("Item Name", leftMargin, y, boldPaint)
+        canvas.drawText(
+            "Qty",
+            canvas.width - rightMargin,
+            y,
+            rightPaintBold
+        )
 
         y += 20f * scale
 
@@ -440,7 +455,7 @@ class KitchenDrawer(private val canvas: Canvas) {
 
         canvas.drawText("---- END ----", centerX, y, centerPaint)
 
-        y += 40f * scale
+        y += 10f * scale
     }
 }
 

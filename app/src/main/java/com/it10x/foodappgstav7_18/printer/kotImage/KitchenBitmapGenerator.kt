@@ -12,6 +12,7 @@ object KitchenBitmapGenerator {
     fun generate(
         context: Context,
         sessionKey: String,
+        tableName: String,
         orderType: String,
         items: List<PosKotItemEntity>,
         kotNumber: String,
@@ -35,7 +36,7 @@ object KitchenBitmapGenerator {
             val drawer = KitchenDrawer(canvas)
 
             drawer.drawTopBox(orderType)
-            drawer.drawHeader(kotNumber,orderType,tableNo=sessionKey, items )
+            drawer.drawHeader(kotNumber,orderType,tableNo=sessionKey,tableName, items )
 
             Log.d("KOT_DEBUG", "Drawing items...")
             drawer.drawItems(items)

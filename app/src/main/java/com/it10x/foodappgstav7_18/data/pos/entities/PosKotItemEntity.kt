@@ -27,6 +27,7 @@ data class PosKotItemEntity(
     val kotBatchId: String,
 
     val tableNo: String?,               // UI / print only
+    val tableName: String?,
 
     val productId: String,
     val name: String,

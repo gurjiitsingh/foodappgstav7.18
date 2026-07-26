@@ -115,6 +115,7 @@ private fun startMainPosListener() {
                 if (change.type != DocumentChange.Type.ADDED) return@forEach
 
                 val tableNo = orderDoc.getString("tableNo") ?: ""
+                val tableName = orderDoc.getString("tableName") ?: ""
                 val sessionId = orderDoc.getString("sessionId") ?: ""
                 val source = orderDoc.getString("source") ?: "UNKNOWN"
 
@@ -138,6 +139,7 @@ private fun startMainPosListener() {
                             PosCartEntity(
                                 sessionId = sessionId,
                                 tableId = tableNo,
+                                tableName = tableName,
                                 productId = itemDoc.getString("productId") ?: "",
                                 name = itemDoc.getString("productName") ?: "",
                                 productMode =

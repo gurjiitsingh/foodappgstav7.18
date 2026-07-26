@@ -454,7 +454,7 @@ fun LocalPosOrderTableRow(
         // Type / Table
         val shortType = when (order.orderType.lowercase()) {
             "delivery" -> "DV"
-            "takeaway" -> "TA"
+            "takeaway" -> "TW"
             "dine_in", "dine-in", "dinein" -> order.tableNo ?: "DINE"
             else -> order.orderType.take(2).uppercase()
         }

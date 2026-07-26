@@ -42,6 +42,7 @@ data class PosCartEntity(
 
     // 🪑 Only for DINE_IN
     val tableId: String?,
+    val tableName: String?,
     val createdById : String = "",
     val createdByName: String = "",
     // 📝 Free text kitchen instruction

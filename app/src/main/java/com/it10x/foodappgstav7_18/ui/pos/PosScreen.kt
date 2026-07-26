@@ -1,6 +1,7 @@
 package com.it10x.foodappgstav7_18.ui.pos
 
 
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -113,14 +114,13 @@ fun PosScreen(
         .firstOrNull { it.table.id == tableId }
         ?.table
         ?.tableName
- var selectedTableName = selectedTableName1 ?: ""
+ val selectedTableName = selectedTableName1 ?: ""
 
     var showTableSelector by rememberSaveable() {
         mutableStateOf(false)
     }
 
-//    var selectedTable by remember { mutableStateOf<VirtualTableEntity?>(null) }
-//    var showTableSelector by remember { mutableStateOf(false) }
+
 
 
 
@@ -228,7 +228,14 @@ fun PosScreen(
 
     LaunchedEffect(orderType, tableId) {
         if (!tableId.isNullOrBlank()) {
-            cartViewModel.initSession(orderType, tableId)
+          //  cartViewModel.initSession(orderType, tableId)
+
+            cartViewModel.initSession(
+                orderType = orderType,
+                tableId = tableId,
+                tableName = tableName,
+            )
+
         }
     }
 
@@ -965,10 +972,11 @@ fun PosScreen(
                             .heightIn(min = 300.dp, max = 600.dp)
                             .padding(top = 4.dp)
                     ) {
+
                         KitchenScreen(
                             sessionId = sessionId!!,
                             tableNo = tableId ?: orderType,
-                            tableName = selectedTableName ?: "",
+                            tableName = tableName ?: "",
                             kitchenViewModel = kitchenViewModel,
                             cartViewModel = cartViewModel,
                             onKitchenEmpty = { showKitchen = false },

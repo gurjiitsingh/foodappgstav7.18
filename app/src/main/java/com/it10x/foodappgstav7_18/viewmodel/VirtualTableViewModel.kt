@@ -45,7 +45,7 @@ class VirtualTableViewModel(app: Application) : AndroidViewModel(app) {
     // 🔹 Create new virtual table
     fun createNew(type: String): VirtualTableEntity {
 
-        val prefix = if (type == "TAKEAWAY") "TA" else "DL"
+        val prefix = if (type == "TAKEAWAY") "TW" else "DL"
 
         val newTable = VirtualTableEntity(
             id = UUID.randomUUID().toString(),

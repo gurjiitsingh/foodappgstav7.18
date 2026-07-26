@@ -32,7 +32,7 @@ object OnlineOrderMapper {
                 sessionId = "",
                 kotBatchId = kotBatchId,
                 tableNo = tableNo ?: "ONLINE",
-
+               tableName = "ONLINE",
                 productId = item.id, // or another product identifier if you have one
                 name = item.name,
                 categoryId = item.productCat.ifBlank { "ONLINE" },
