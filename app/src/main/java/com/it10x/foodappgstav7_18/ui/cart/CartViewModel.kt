@@ -69,20 +69,6 @@ class CartViewModel(
 
 
     // ---------- SETTERS ----------
-    fun setTableId(id: String?) {
-        savedStateHandle["tableId"] = id
-    }
-
-    fun setOrderType(type: String) {
-        savedStateHandle["orderType"] = type
-    }
-
-    // ---------- POS ORDER GUARD ----------
-
-
-//    private fun canMutateCart(): Boolean {
-//        return !sessionId.value.isNullOrBlank()
-//    }
     private fun canMutateCart(): Boolean {
 
 //    Log.d(
@@ -182,41 +168,7 @@ class CartViewModel(
     }
 
 
-    fun addToCart(product: PosCartEntity) {
 
-        viewModelScope.launch {
-
-            if (sessionId.value.isNullOrBlank()) {
-                _uiEvent.emit(CartUiEvent.SessionRequired)
-                initSession(currentOrderType.value, currentTableId.value)
-            }
-
-            if (!canMutateCart()) {
-                _uiEvent.emit(CartUiEvent.TableRequired)
-                return@launch
-            }
-
-            repository.addToCart(
-
-                product.copy(
-                    sessionId = sessionId.value!!,
-                    tableId = currentTableId.value,
-                    createdById = createdById.value ?: "",
-                    createdByName = createdByName.value ?: ""
-                ),
-                tableNo =  currentTableId.value!!,
-            )
-
-
-
-         //   repository.syncCartCount(tableNo)
-            val tableNo = currentTableId.value ?: return@launch
-            val type = currentOrderType.value
-
-            tableSyncManager.syncCart(tableNo, type)
-            tableSyncManager.syncBill(tableNo, type)
-        }
-    }
 
 
     fun increase(item: PosCartEntity) {
@@ -244,17 +196,6 @@ class CartViewModel(
             tableSyncManager.syncBill(currentTable, type)
         }
     }
-
-
-    fun removeFromCart(productId: String, tableNo: String) {
-        if (!canMutateCart()) return
-
-        viewModelScope.launch {
-            repository.remove(productId, tableNo)
-           // tableReleaseUseCase.releaseIfOrderingAndCartEmpty(tableNo)
-        }
-    }
-
 
 
 
