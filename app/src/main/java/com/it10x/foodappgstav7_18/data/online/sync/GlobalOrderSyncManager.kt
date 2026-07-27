@@ -92,7 +92,7 @@ private fun startMainPosListener() {
                 }
 
                 val orderRef = firestore.collection("waiter_orders").document(orderId)
-
+                Log.d("KOT_DEBUG","GlobalOrderSyncManager is listening Waiter kot in startMainPosListener--------------")
                 // ---------------- CLEANUP OLD ORDERS ----------------
                 if (createdAt < cutoff) {
                     scope.launch(Dispatchers.IO) {
@@ -182,10 +182,10 @@ private fun startMainPosListener() {
                         )
 
                         // Delete after processing
-                        val batch = firestore.batch()
-                        itemsSnapshot.documents.forEach { batch.delete(it.reference) }
-                        batch.delete(orderRef)
-                        batch.commit().await()
+//                        val batch = firestore.batch()
+//                        itemsSnapshot.documents.forEach { batch.delete(it.reference) }
+//                        batch.delete(orderRef)
+//                        batch.commit().await()
 
 
 
@@ -204,7 +204,7 @@ private fun startMainPosListener() {
     // Listen to only MAIN POS orders
 
 private fun startWaiterListener() {
-        Log.d("TABLE_SYNC", "✅ waiter is runn on time")
+        Log.d("SYNC", "✅ waiter is run on time")
         waiterListener?.remove()
         waiterListener = null
 
@@ -285,7 +285,7 @@ private fun startWaiterListener() {
                             }
 
                             Log.d(
-                                "SYNC_ORDER",
+                                "SYNC",
                                 "ACCEPT table=$tableId updatedAt=$updatedAt previous=${lastUpdated}"
                             )
 
@@ -304,7 +304,7 @@ private fun startWaiterListener() {
                             }
 
                             Log.d(
-                                "SYNC_ORDER",
+                                "SYNC",
                                 "PROCESSING table=$tableId updatedAt=$updatedAt items=${items.size}"
                             )
 
@@ -353,3 +353,4 @@ private fun startWaiterListener() {
         }
     }
 }
+

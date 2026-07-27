@@ -46,6 +46,7 @@ object ReceiptBitmapGenerator {
         outletInfo: OutletInfo,
         logo: Bitmap?,
         kotNumberText: String,
+        stewardName: String,
     ): Bitmap {
 
         val bitmap = Bitmap.createBitmap(
@@ -68,7 +69,7 @@ object ReceiptBitmapGenerator {
         drawer.drawHeader(order, outletInfo)
 
         // Order Info
-        drawer.drawOrderInfo(order, kotNumberText)
+        drawer.drawOrderInfo(order, kotNumberText, stewardName)
 
         // Table Header
         drawer.drawItemsHeader()
@@ -356,7 +357,7 @@ object ReceiptBitmapGenerator {
 //================================================
 
         fun drawOrderInfo(
-            order: PrintOrder, kotNumberText: String,
+            order: PrintOrder, kotNumberText: String,stewardName:String,
         ) {
 
             drawLeft(
@@ -380,8 +381,15 @@ object ReceiptBitmapGenerator {
             )
 
             drawRight(
+                "Steward : $stewardName",
+                rightMargin - 50f,
+                normalPaint
+            )
+            y += 40f
+
+            drawLeft(
                 "KOT(s) : ${kotNumberText}",
-                rightMargin-70f,
+                leftMargin,
                 normalPaint
             )
 
@@ -970,7 +978,7 @@ object ReceiptBitmapGenerator {
             drawRight(
                 String.format("%.2f", value),
                 xAmount,
-                normalPaint
+                boldPaint
             )
 
             y += 34f

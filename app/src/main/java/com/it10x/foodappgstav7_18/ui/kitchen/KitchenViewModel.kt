@@ -125,9 +125,11 @@ class KitchenViewModel(
         }
     }
 
-    // THIS FUNCTION RECEIVE ITEM FROM MAIN POS
 
 
+    // *************************************************
+    // THIS FUNCTION RECEIVE ITEM FROM MAIN POS  ((((((((BUTTON)))))))
+    // *************************************************
 
     fun cartToKotMainPOS(
         orderType: String,
@@ -157,7 +159,7 @@ class KitchenViewModel(
                 _loading.value = false
                 return@launch
             }
-
+            Log.d("KOT_DEBUG", "--- MAIN POS BUTTON----")
             try {
                 val kotSaved = withContext(Dispatchers.IO) {
                     saveKotFromMainPOSandWairterFirestore(
@@ -196,7 +198,11 @@ class KitchenViewModel(
         }
     }
 
-    //THIS FUNCTION RECEIVE ITEM FORM WAITER THROUGH FIRESTORE
+
+    // ********************************************************
+    // THIS FUNCTION RECEIVE ITEM FORM WAITER THROUGH FIRESTORE
+    // ********************************************************
+
     suspend fun saveKotFromFirestoreWaiter(
         orderType: String,
         sessionId: String,
@@ -208,12 +214,14 @@ class KitchenViewModel(
         role: String,
         source: String,
     ) {
+
+
         //THIS FUNCTION RECEIVE DATA FROM WAITER POS 1.
         if (cartItems.isEmpty()) {
             Log.w("KOT_BRIDGE", "⚠️ createKotAndPrint called with empty cartItems")
             return
         }
-
+        Log.d("KOT_DEBUG", "--- FIRESTORE DIRECT----")
 
         _loading.value = true
 
@@ -245,7 +253,12 @@ class KitchenViewModel(
     }
 
 
-// PRIVATE USED BY MAIN POS
+
+
+
+    // ****************************************
+    // PRIVATE USED RECIVE DATA FROM FUNCITONS, (MAIN POS, WAITER DEVICE)
+    // ****************************************
 
     private suspend fun saveKotFromMainPOSandWairterFirestore(
         orderType: String,
@@ -262,7 +275,7 @@ class KitchenViewModel(
         //  Log.d("KOT", "saveKotAndPrintKitchen Called from: ${Throwable().stackTrace[1]}")
         //FROM MAIN POS AND
         //FROM FIRESTORE WAITER POS
-
+        val kotNumber = kotRepository.generateNextKotNumber()
         val tableNo = tableNo ?: "";
         try {
             val db = AppDatabaseProvider.get(printerManager.appContext())
@@ -271,7 +284,7 @@ class KitchenViewModel(
 
             val batchId = UUID.randomUUID().toString()
             val now = System.currentTimeMillis()
-            val kotNumber = kotRepository.generateNextKotNumber()
+
             val batch = PosKotBatchEntity(
                 id = batchId,
                 kotNumber = kotNumber,
@@ -330,13 +343,17 @@ class KitchenViewModel(
                     createdAt = now
                 )
             }
-
+            val createdByName = cartItems.firstOrNull()?.createdByName ?: ""
+            val createdById = cartItems.firstOrNull()?.createdById ?: ""
           //  Log.d("KOT_DEBUG", "---- MainKitchenViewmodel----source:${source}")
             kotRepository.insertItemsInBill(tableNo, items, role)
             kotRepository.saveHistory(
+                kotNumber = kotNumber,
                 batch = batch,
                 items = items,
-                source = source
+                source = source,
+                createdByName = createdByName,
+
             )
             kotRepository.syncBillCount(tableId)
 
@@ -407,6 +424,12 @@ class KitchenViewModel(
         return items
     }
 
+    //*******************************************
+    //  GlobalOrderSyncManager LISTENER
+    //*********************************************
+    //****************************************************************************************
+    // * 1 THIS FUNCTION USED TO  FORCE UPDATED WAITER TABLE BY MAIN POS IF NOT UPDATED BY SYNC*
+    // ***************************************************************************************
     suspend fun replaceKotFromFirestoreWaiterListener(
         tableId: String,
         sessionId: String,
@@ -470,7 +493,9 @@ class KitchenViewModel(
                     createdAt = System.currentTimeMillis()
                 )
             }
-
+            //****************************************************************************************
+            // * 2 THIS FUNCTION USED TO  FORCE UPDATED WAITER TABLE BY MAIN POS IF NOT UPDATED BY SYNC*
+            // ***************************************************************************************
             saveCartItemToBillView(
                 orderType = "DINE_IN",
                 sessionId = sessionId,
@@ -487,6 +512,9 @@ class KitchenViewModel(
         }
     }
 
+    //****************************************************************************************
+    // * 2 THIS FUNCTION USED TO  FORCE UPDATED WAITER TABLE BY MAIN POS IF NOT UPDATED BY SYNC*
+    // ***************************************************************************************
     private suspend fun saveCartItemToBillView(
         orderType: String,
         sessionId: String,
@@ -508,27 +536,28 @@ class KitchenViewModel(
             val now = System.currentTimeMillis()
 
             repository.markAllSent(tableNo)
-            val kotNumber = kotRepository.generateNextKotNumber()
 
-            val batch = PosKotBatchEntity(
-                id = batchId,
-                kotNumber = kotNumber,
-                sessionId = sessionId,
-                tableNo = tableNo,
-                tableName = tableName,
-                orderType = orderType,
-                deviceId = deviceId,
-                deviceName = deviceName,
-                appVersion = appVersion,
-                createdAt = now,
-                sentBy = "WAITRER",
-                syncStatus = "DONE",
-                lastSyncedAt = null
-            )
+            // NOW THIS IS COMMENTED BECAUSE IT IS DUPLICATE
 
-            kotBatchDao.insert(batch)
+//            val batch = PosKotBatchEntity(
+//                id = batchId,
+//                kotNumber = "DummykotNumber",
+//                sessionId = sessionId,
+//                tableNo = tableNo,
+//                tableName = tableName,
+//                orderType = orderType,
+//                deviceId = deviceId,
+//                deviceName = deviceName,
+//                appVersion = appVersion,
+//                createdAt = now,
+//                sentBy = "WAITRER",
+//                syncStatus = "DONE",
+//                lastSyncedAt = null
+//            )
+//
+//            kotBatchDao.insert(batch)
 
-         //   Log.d("KOT_DEBUG", "--- WaiterKitchenViewmodel----")
+            Log.d("KOT_DEBUG", "Force updated Waiter tabele-------------------")
 
 
 
@@ -536,7 +565,7 @@ class KitchenViewModel(
                 //    Log.d("KOT_DEBUG", "Saving item: ${cart.name} qty=${cart.quantity}")
                 PosKotItemEntity(
                     id = UUID.randomUUID().toString(),
-                    kotNumber = kotNumber,
+                    kotNumber = "dummykotNumber",
                     sessionId = sessionId,
                     kotBatchId = batchId,
                     tableNo = tableNo,
@@ -577,11 +606,41 @@ class KitchenViewModel(
     }
 
 
-
-
-
-
-
 }
 
 
+//
+//saveKotFromFirestoreWaiter() ✅
+//
+//Receives a brand new kitchen order.
+//Should generate a new kotNumber.
+//Should create a new batch.
+//Should save history.
+//Should print.
+//
+//replaceKotFromFirestoreWaiterListener() ❌ (currently)
+//
+//Receives a table state synchronisation.
+//It should not generate a new kotNumber.
+//It should not create a new batch.
+//It should not save history.
+//It should not print.
+//
+//I would refactor saveCartItemToBillView()
+//into something like restoreTableSnapshot(),
+//making it clear that its job is only to restore the local table state, not to
+//create a new KOT. That separation will also eliminate the duplicate KOT numbers you're seeing.
+
+//GlobalOrderSyncManager
+//│
+//▼
+//startMainPosListener()
+//│
+//▼
+//waiter_orders collection
+//│
+//▼
+//saveKotFromFirestoreWaiter()
+//│
+//▼
+//saveKotFromMainPOSandWairterFirestore()

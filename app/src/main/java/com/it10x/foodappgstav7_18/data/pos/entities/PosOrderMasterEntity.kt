@@ -39,8 +39,8 @@ val reason: String?="",
 // USER SNAPSHOT
 // =====================================================
 // NO NEED AS ALREADY IN ITEM
-//    val createdById: String = "",
-//    val createdByName: String = "",
+    val createdById: String? = "",
+    val createdByName: String? = "",
 
     val finalizedById: String? = "",
     val finalizedByName: String? = "",

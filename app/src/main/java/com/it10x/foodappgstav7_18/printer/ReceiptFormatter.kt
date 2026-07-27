@@ -183,6 +183,7 @@ Thank You!
         context: Context,
         logo: Bitmap?,
         kotNumberText: String="",
+        stewardName: String = "",
 
     ): Bitmap {
 
@@ -191,7 +192,8 @@ Thank You!
             order,
             outletInfo,
             logo,   // ✅ IMPORTANT: pass here
-                    kotNumberText,
+            kotNumberText,
+            stewardName,
         )
     }
 

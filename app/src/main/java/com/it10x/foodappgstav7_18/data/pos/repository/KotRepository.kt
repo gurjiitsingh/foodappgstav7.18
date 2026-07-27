@@ -4,11 +4,11 @@ import android.util.Log
 import com.it10x.foodappgstav7_18.data.pos.dao.KotBatchDao
 import com.it10x.foodappgstav7_18.data.pos.dao.KotItemDao
 import com.it10x.foodappgstav7_18.data.pos.dao.TableDao
+import com.it10x.foodappgstav7_18.data.pos.entities.KotHistorySummary
 import com.it10x.foodappgstav7_18.data.pos.entities.PosKotBatchEntity
 import com.it10x.foodappgstav7_18.data.pos.entities.PosKotHistoryEntity
 import com.it10x.foodappgstav7_18.data.pos.entities.PosKotItemEntity
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.combine
 
 class KotRepository(
     private val batchDao: KotBatchDao,
@@ -16,24 +16,17 @@ class KotRepository(
     private val tableDao: TableDao
 ) {
 
-
-
+    // =====================================================
+    // KOT
+    // =====================================================
 
     suspend fun insertItemsInBill(
         tableNo: String,
         items: List<PosKotItemEntity>,
         role: String
     ) {
-
-
-
         kotItemDao.insertAll(items)
-
-
-     //  Log.d("KOT_DEBUG", "insertAll() executed")
     }
-
-
 
     suspend fun deleteKotByTable(tableId: String) {
         kotItemDao.deleteByTableId(tableId)
@@ -42,89 +35,123 @@ class KotRepository(
 
     suspend fun markDoneAll(tableNo: String) {
         kotItemDao.markAllDone(tableNo)
-         }
+    }
+
     suspend fun markPrinted(tableNo: String) {
         kotItemDao.markAllPrinted(tableNo)
     }
 
     private suspend fun syncBillCounters(tableNo: String) {
-       // val billCount = kotItemDao.countDoneItems(tableNo) ?: 0
-        val billCount = kotItemDao.getBillQtyCount(tableNo) ?: 0
+
+        val billQty = kotItemDao.getBillQtyCount(tableNo) ?: 0
         val billAmount = kotItemDao.sumDoneAmount(tableNo) ?: 0.0
 
-        tableDao.updateBill(tableNo, billCount, billAmount)
+        tableDao.updateBill(
+            tableNo,
+            billQty,
+            billAmount
+        )
     }
 
     private suspend fun syncKitchenCount(tableNo: String) {
+
         val count = kotItemDao.countBillDone(tableNo) ?: 0
-        tableDao.setKitchenCount(tableNo, count)
+
+        tableDao.setKitchenCount(
+            tableNo,
+            count
+        )
     }
 
     suspend fun syncBillCount(tableNo: String) {
-          syncBillCounters(tableNo)
+        syncBillCounters(tableNo)
     }
 
-    //THIS FUNCITON IS CALLED IN TABLE GRID
     suspend fun syncKinchenCount(tableNo: String) {
-            syncKitchenCount(tableNo)
+        syncKitchenCount(tableNo)
     }
 
-
-    suspend fun transferTable(oldTableId: String, newTableId: String) {
+    suspend fun transferTable(
+        oldTableId: String,
+        newTableId: String
+    ) {
 
         if (oldTableId == newTableId) return
 
         try {
 
-            // 1️⃣ Move all KOT items to new table
-            kotItemDao.transferTable(oldTableId, newTableId)
+            kotItemDao.transferTable(
+                oldTableId,
+                newTableId
+            )
 
-            // 2️⃣ Refresh counters for old table
             syncKinchenCount(oldTableId)
             syncBillCount(oldTableId)
 
-            // 3️⃣ Refresh counters for new table
             syncKinchenCount(newTableId)
             syncBillCount(newTableId)
 
-            Log.d("TABLE_TRANSFER", "Moved KOT from $oldTableId → $newTableId")
+            Log.d(
+                "TABLE_TRANSFER",
+                "Moved KOT from $oldTableId -> $newTableId"
+            )
 
         } catch (e: Exception) {
 
-            Log.e("TABLE_TRANSFER", "Transfer failed", e)
+            Log.e(
+                "TABLE_TRANSFER",
+                "Transfer failed",
+                e
+            )
 
         }
     }
 
+    // =====================================================
+    // KOT HISTORY
+    // =====================================================
 
-  // =====================================================
-// KOT HISTORY
-// =====================================================
     suspend fun saveHistory(
+        kotNumber: String,
         batch: PosKotBatchEntity,
         items: List<PosKotItemEntity>,
-        source: String
+        source: String,
+        createdByName: String,
     ) {
 
         val historyItems = items.map { item ->
 
             PosKotHistoryEntity(
+
                 id = item.id,
+
+                kotNumber = kotNumber,
+
                 batchId = batch.id,
+
                 sessionId = batch.sessionId ?: "",
+
+                orderId = null,
+
                 tableNo = batch.tableNo ?: "",
+
+                 tableName = batch.tableName?: "",
+                createdByName = createdByName,
+
                 orderType = batch.orderType,
 
                 productId = item.productId,
+
                 name = item.name,
+
                 quantity = item.quantity,
-                note = item.note,
-                modifiersJson = item.modifiersJson,
+
                 modifierTotal = item.modifierTotal,
 
-                createdAt = item.createdAt,
+                note = item.note,
 
-                source = source,
+                modifiersJson = item.modifiersJson,
+
                 status = "ACTIVE",
 
                 deleted = false,
@@ -132,31 +159,49 @@ class KotRepository(
                 deletedReason = null,
                 deletedAt = null,
 
+                paidAt = null,
+
+                source = source,
+
                 deviceId = batch.deviceId ?: "",
+
                 deviceName = batch.deviceName,
 
-                paidAt = null,
-                orderId = null
+                createdAt = item.createdAt
             )
         }
 
         batchDao.insertHistory(historyItems)
     }
 
-
-
-
-
+    /**
+     * Latest KOTs
+     */
     fun getKotHistory(): Flow<List<PosKotHistoryEntity>> {
         return batchDao.getHistory()
     }
 
-
-
-    fun getHistoryAll(
-
-    ): Flow<List<PosKotHistoryEntity>> {
+    /**
+     * All history rows
+     */
+    fun getHistoryAll(): Flow<List<PosKotHistoryEntity>> {
         return batchDao.getAllHistory()
+    }
+
+    /**
+     * One row per KOT
+     */
+    fun getHistorySummary(): Flow<List<KotHistorySummary>> {
+        return batchDao.getHistorySummary()
+    }
+
+    /**
+     * All items of one KOT
+     */
+    fun getHistoryByKotNumber(
+        kotNumber: String
+    ): Flow<List<PosKotHistoryEntity>> {
+        return batchDao.getHistoryByKotNumber(kotNumber)
     }
 
     suspend fun markHistoryDeleted(
@@ -169,21 +214,17 @@ class KotRepository(
         )
     }
 
-
     suspend fun markHistoryComplimentary(
         tableNo: String,
         orderId: String,
         reason: String
     ) {
 
-        val rows = batchDao.markTableComplimentary(
+        batchDao.markTableComplimentary(
             tableNo = tableNo,
             orderId = orderId,
-
             complimentaryAt = System.currentTimeMillis()
         )
-
-
     }
 
     suspend fun markHistoryPaid(
@@ -203,6 +244,9 @@ class KotRepository(
         )
     }
 
+    // =====================================================
+    // KOT NUMBER
+    // =====================================================
 
     suspend fun generateNextKotNumber(): String {
 
@@ -220,5 +264,4 @@ class KotRepository(
 
         return "K$next"
     }
-
 }

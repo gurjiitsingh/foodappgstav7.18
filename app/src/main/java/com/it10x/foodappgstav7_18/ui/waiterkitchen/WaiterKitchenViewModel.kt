@@ -97,7 +97,7 @@ class WaiterKitchenViewModel(
         deviceName: String?,
         role: String
     ) {
-
+        Log.d("KOT_DEBUG","WaiterKitchenViewModel is sending Waiter kot--------------")
         // ✅ Prevent double click immediately
         if (isProcessing) return
         isProcessing = true
@@ -295,7 +295,7 @@ class WaiterKitchenViewModel(
 
             kotBatchDao.insert(batch)
 
-            Log.d("KOT_DEBUG", "--- WaiterKitchenViewmodel----")
+            Log.d("SYNC", "--- WaiterKitchenViewmodel----1")
 
 //            cartItems.forEach {
 //                Log.d(

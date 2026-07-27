@@ -8,7 +8,9 @@ data class PosKotHistoryEntity(
 
     @PrimaryKey
     val id: String,
-
+    val kotNumber: String,
+    val tableName: String,
+    val createdByName: String,
     // Batch
     val batchId: String,
     val sessionId: String,

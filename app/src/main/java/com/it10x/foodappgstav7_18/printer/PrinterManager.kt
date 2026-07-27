@@ -174,6 +174,7 @@ fun enqueueImagePrint(
         paymentMode: String,
         outletInfo: OutletInfo,
         kotNumberText: String,
+        stewardName: String,
     ) {
 
 
@@ -191,6 +192,8 @@ fun enqueueImagePrint(
             outletInfo = outletInfo,
             logo = logoBitmap,   // ✅ IMPORTANT
             kotNumberText= kotNumberText,
+            stewardName = stewardName,
+
         )
 
 //        val size = prefs.getPrinterSize(PrinterRole.BILLING) ?: "80mm"

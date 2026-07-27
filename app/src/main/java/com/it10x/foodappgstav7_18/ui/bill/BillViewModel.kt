@@ -71,6 +71,7 @@ import kotlin.String
 import android.app.Application
 import com.it10x.foodappgstav7_18.data.pos.repository.BusinessDayRepository
 
+
 class BillViewModel(
     private val app: Application,
     private val kotItemDao: KotItemDao,
@@ -685,6 +686,13 @@ class BillViewModel(
 
                 val finalizedById = PosSessionManager.getUserId(app) ?: ""
                 val finalizedByName = PosSessionManager.getFullName(app) ?: ""
+                val stewardName = kotItems
+                    .mapNotNull { it.createdByName }
+                    .firstOrNull { it.isNotBlank() } ?: "NONAME"
+
+                val stewardId = kotItems
+                    .mapNotNull { it.createdById }
+                    .firstOrNull { it.isNotBlank() } ?: ""
                 // ===========================
                 // ORDER MASTER
                 // ===========================
@@ -734,8 +742,8 @@ class BillViewModel(
                     deviceName = "POS",
                     appVersion = "1.0",
 
-//                    createdById ="",
-//                    createdByName="",
+                    createdById =stewardId,
+                    createdByName=stewardName,
                     finalizedById= finalizedById,
                     finalizedByName= finalizedByName,
                     businessDate = businessDate,
@@ -800,6 +808,8 @@ class BillViewModel(
                             // 🔹 SNAPSHOT CATEGORY NAME (enterprise safe)
                             categoryName = first.categoryName,
                             orderMasterId = orderId,
+                            createdById = first.createdById,
+                            createdByName = first.createdByName,
                             productId = first.productId,
                             name = first.name,
                             productMode = first.productMode,
@@ -1088,6 +1098,13 @@ class BillViewModel(
 
                 val finalizedById = PosSessionManager.getUserId(app) ?: ""
                 val finalizedByName = PosSessionManager.getFullName(app) ?: ""
+                val stewardName = kotItems
+                    .mapNotNull { it.createdByName }
+                    .firstOrNull { it.isNotBlank() } ?: "NONAME"
+
+                val stewardId = kotItems
+                    .mapNotNull { it.createdById }
+                    .firstOrNull { it.isNotBlank() } ?: ""
                 // =========================
                 // ORDER MASTER (MINIMAL)
                 // =========================
@@ -1123,8 +1140,8 @@ class BillViewModel(
                     deviceName = "POS",
                     appVersion = "1.0",
 
-//                    createdById ="",
-//                    createdByName="",
+                    createdById =stewardId,
+                    createdByName=stewardName,
                     finalizedById= finalizedById,
                     finalizedByName=finalizedByName,
                     businessDate = businessDate,
@@ -1156,7 +1173,8 @@ class BillViewModel(
                         categoryId = it.categoryId,
                         parentId = it.parentId,
                         isVariant = it.isVariant,
-
+                        createdById = it.createdById,
+                        createdByName = it.createdByName,
                         orderMasterId = orderId,
                         productId = it.productId,
                         name = it.name,
@@ -1195,7 +1213,7 @@ class BillViewModel(
                 // =========================
                 // PRINT
                 // =========================
-               printOrder(orderMaster, orderItems, kotNumberText)
+               printOrder(orderMaster, orderItems, kotNumberText, stewardName)
 
                 sendEvent("Printed successfully")
 
@@ -1486,6 +1504,13 @@ class BillViewModel(
                 val finalizedById = PosSessionManager.getUserId(app) ?: ""
                 val finalizedByName = PosSessionManager.getFullName(app) ?: ""
 
+                val stewardName = kotItems
+                    .mapNotNull { it.createdByName }
+                    .firstOrNull { it.isNotBlank() } ?: "NONAME"
+
+                val stewardId = kotItems
+                    .mapNotNull { it.createdById }
+                    .firstOrNull { it.isNotBlank() } ?: ""
             // ===========================
             // ORDER MASTER
             // ===========================
@@ -1533,8 +1558,8 @@ class BillViewModel(
                 deviceName = "POS",
                 appVersion = "1.0",
 
-//                createdById ="",
-//                createdByName="",
+                createdById =stewardId,
+                createdByName=stewardName,
                 finalizedById=finalizedById,
                 finalizedByName=finalizedByName,
                 businessDate = businessDate,
@@ -1794,6 +1819,7 @@ class BillViewModel(
         order: PosOrderMasterEntity,
         items: List<PosOrderItemEntity>,
         kotNumberText: String="",
+        stewardName: String= "",
 
     ) = withContext(Dispatchers.IO) {
 
@@ -1827,7 +1853,8 @@ class BillViewModel(
             order = printOrder,
             paymentMode = order.paymentMode,
             outletInfo = outletInfo,
-            kotNumberText
+            kotNumberText,
+            stewardName,
         )
 
           }

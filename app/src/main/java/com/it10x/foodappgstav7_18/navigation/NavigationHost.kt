@@ -89,6 +89,7 @@ import com.it10x.foodappgstav7_18.data.pos.entities.config.OutletEntity
 import com.it10x.foodappgstav7_18.ui.dayclosing.DayClosingScreen
 import com.it10x.foodappgstav7_18.ui.dayclosing.DayClosingViewModel
 import com.it10x.foodappgstav7_18.ui.dayclosing.DayClosingViewModelFactory
+import com.it10x.foodappgstav7_18.ui.kot.history.KotHistoryDetailScreen
 import com.it10x.foodappgstav7_18.ui.kot.history.KotHistoryScreen
 import com.it10x.foodappgstav7_18.ui.pos.FastFoodPosScreen
 import com.it10x.foodappgstav7_18.ui.pos.RetailPosScreen
@@ -378,6 +379,28 @@ fun NavigationHost(
 
         composable("products") { Text("Products Screen") }
         composable("categories") { Text("Categories Screen") }
+
+
+
+        composable(
+            route = "kot_history_detail/{batchId}"
+        ) { backStackEntry ->
+
+            val batchId =
+                backStackEntry.arguments?.getString("batchId") ?: ""
+
+            val historyViewModel: KotHistoryViewModel = viewModel(
+                factory = KotHistoryViewModelFactory(
+                    repository = kotRepository
+                )
+            )
+
+            KotHistoryDetailScreen(
+                batchId = batchId,
+                viewModel = historyViewModel,
+                navController = navController
+            )
+        }
 
         composable("kot_history") {
 

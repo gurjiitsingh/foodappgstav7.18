@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.it10x.foodappgstav7_18.data.pos.entities.PosKotBatchEntity
+import com.it10x.foodappgstav7_18.data.pos.entities.PosKotHistoryEntity
 import com.it10x.foodappgstav7_18.data.pos.entities.PosKotItemEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -434,4 +435,46 @@ WHERE tableNo = :oldTable
 
     @Query("DELETE FROM pos_kot_items WHERE tableNo = :tableId")
     suspend fun deleteByTableId(tableId: String)
+
+
+    @Query("""
+SELECT *
+FROM kot_history
+ORDER BY createdAt DESC
+""")
+    fun getAllHistory(): Flow<List<PosKotHistoryEntity>>
+
+    @Query("""
+SELECT *
+FROM kot_history
+WHERE kotNumber = :kotNumber
+ORDER BY createdAt ASC
+""")
+    fun getHistoryByKotNumber(
+        kotNumber: String
+    ): Flow<List<PosKotHistoryEntity>>
+
+
+    @Query("""
+SELECT *
+FROM kot_history
+WHERE kotNumber = :kotNumber
+ORDER BY createdAt ASC
+""")
+    suspend fun getHistoryByKotNumberOnce(
+        kotNumber: String
+    ): List<PosKotHistoryEntity>
+
+
+    @Query("""
+SELECT DISTINCT kotNumber
+FROM kot_history
+ORDER BY createdAt DESC
+""")
+    fun getKotNumbers(): Flow<List<String>>
+
+
+
 }
+
+

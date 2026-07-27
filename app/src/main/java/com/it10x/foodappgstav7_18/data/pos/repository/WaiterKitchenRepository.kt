@@ -26,7 +26,7 @@ class WaiterKitchenRepository(
 
             if (cartList.isEmpty()) return false
 
-
+            Log.d("KOT_DEBUG","WaiterKitchenRepository is sending Waiter kot--------------")
 
             val orderId = firestore.collection("waiter_orders").document().id
             val batch = firestore.batch()
