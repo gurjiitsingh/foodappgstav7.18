@@ -539,10 +539,7 @@ class BillViewModel(
 //                    ).format(Date())
 //                )
 
-                val srno = orderSequenceRepository.nextOrderNo(
-                    outletId = outlet.outletId,
-                    businessDate = businessDate
-                )
+
 
 
                 val deliveryFeePaise = MoneyUtils.toPaise(_deliveryFee.value)
@@ -671,7 +668,7 @@ class BillViewModel(
                         debitAmount = creditToAdd,
                         creditAmount = 0.0,
                         balanceAfter = newBalance,
-                        note = "Credit sale Order #$srno",
+                        note = "Credit sale Order ",
                         createdAt = now,
                         deviceId = "POS"
                     )
@@ -696,10 +693,11 @@ class BillViewModel(
                 // ===========================
                 // ORDER MASTER
                 // ===========================
-
+                val srNo =
+                    orderSequenceRepository.getOrCreateOrderNo(tableId)
                 val orderMaster = PosOrderMasterEntity(
                     id = orderId,
-                    srno = srno,
+                    srno = srNo,
                     orderType = orderType,
                     saleType = "COMPLIMENTARY",
                     reason = reason,
@@ -909,7 +907,7 @@ class BillViewModel(
 
                         // 3️⃣ BACKUP QUEUE
                         SyncManagerProvider.get().addClearTable(tableId)
-
+                        orderSequenceRepository.clearOrder(tableId)
 
 
 
@@ -1013,10 +1011,8 @@ class BillViewModel(
 //                    ).format(Date())
 //                )
 
-                val srno = orderSequenceRepository.nextOrderNo(
-                    outletId = outlet.outletId,
-                    businessDate = businessDate
-                )
+                val srNo =
+                    orderSequenceRepository.getOrCreateOrderNo(tableId)
 
                 // =========================
                 // CALCULATE TOTAL
@@ -1110,7 +1106,7 @@ class BillViewModel(
                 // =========================
                 val orderMaster = PosOrderMasterEntity(
                     id = orderId,
-                    srno = srno,
+                    srno = srNo,
                     orderType = orderType,
                     tableNo = tableName,
                     customerName = "Customer",
@@ -1213,9 +1209,9 @@ class BillViewModel(
                 // =========================
                 // PRINT
                 // =========================
-               printOrder(orderMaster, orderItems, kotNumberText, stewardName)
+              printOrder(orderMaster, orderItems, kotNumberText, stewardName)
 
-                sendEvent("Printed successfully")
+              //  sendEvent("Printed successfully")
 
             } catch (e: Exception) {
 
@@ -1355,10 +1351,10 @@ class BillViewModel(
 //                ).format(Date())
 //            )
 
-                val srno = orderSequenceRepository.nextOrderNo(
-                    outletId = outlet.outletId,
-                    businessDate = businessDate
-                )
+                val srNo =
+                    orderSequenceRepository.getOrCreateOrderNo(tableId)
+
+
 
 
                 val deliveryFeePaise = MoneyUtils.toPaise(_deliveryFee.value)
@@ -1488,7 +1484,7 @@ class BillViewModel(
                         debitAmount = creditToAdd,
                         creditAmount = 0.0,
                         balanceAfter = newBalance,
-                        note = "Credit sale Order #$srno",
+                        note = "Credit sale Order ",
                         createdAt = now,
                         deviceId = "POS"
                     )
@@ -1519,7 +1515,7 @@ class BillViewModel(
 
             val orderMaster = PosOrderMasterEntity(
                 id = orderId,
-                srno = srno,
+                srno = srNo,
                 orderType = orderType,
                 tableNo = tableName,
                 customerName = inputName,
@@ -1721,7 +1717,7 @@ class BillViewModel(
 
 // 3️⃣ BACKUP QUEUE
                       SyncManagerProvider.get().addClearTable(tableId)
-
+                        orderSequenceRepository.clearOrder(tableId)
 
 
 

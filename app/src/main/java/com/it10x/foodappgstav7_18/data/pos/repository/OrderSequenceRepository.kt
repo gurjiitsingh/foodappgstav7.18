@@ -1,52 +1,126 @@
 package com.it10x.foodappgstav7_18.data.pos.repository
 
+import android.util.Log
 import androidx.room.withTransaction
 import com.it10x.foodappgstav7_18.data.pos.AppDatabase
-import com.it10x.foodappgstav7_18.data.pos.entities.OrderSequenceEntity
+import com.it10x.foodappgstav7_18.data.pos.entities.OrderCounterEntity
+import com.it10x.foodappgstav7_18.data.pos.entities.OrderSerialMapEntity
 
 class OrderSequenceRepository(
     private val db: AppDatabase
 ) {
 
-    /**
-     * 🔐 Atomic, offline-safe order number generator
-     * One sequence per outlet per business day
-     */
-    suspend fun nextOrderNo(
-        outletId: String,
-        businessDate: String   // yyyyMMdd (LOCAL date)
-    ): Int {
+    private val counterDao = db.orderCounterDao()
+    private val mapDao = db.orderSerialMapDao()
 
-        val key = "${outletId}_${businessDate}"
-        val now = System.currentTimeMillis()
+    /**
+     * Returns the existing serial number for this order.
+     * If the order has never been assigned a serial,
+     * creates a new one atomically.
+     */
+    suspend fun getOrCreateOrderNo(
+        mapkey: String
+    ): Long {
 
         return db.withTransaction {
 
-            val dao = db.orderSequenceDao()
-            val current = dao.getByKey(key)
-
-            if (current == null) {
-                // ✅ First order of the day
-                val first = OrderSequenceEntity(
-                    key = key,
-                    outletId = outletId,
-                    businessDate = businessDate,
-                    lastOrderNo = 1,
-                    updatedAt = now
-                )
-                dao.insert(first)
-                1
-            } else {
-                // ✅ Increment safely
-                val next = current.lastOrderNo + 1
-                dao.update(
-                    current.copy(
-                        lastOrderNo = next,
-                        updatedAt = now
-                    )
-                )
-                next
+            // Already assigned?
+            mapDao.get(mapkey)?.let {
+                return@withTransaction it.orderSerialNo
             }
+
+            // Read current counter
+            val counter = counterDao.getCounter()
+                ?: OrderCounterEntity()
+
+            // Generate next number
+            val nextSerial = counter.orderSerialNo + 1
+
+            // Save updated counter
+            counterDao.save(
+                counter.copy(
+                    orderSerialNo = nextSerial,
+                    updatedAt = System.currentTimeMillis()
+                )
+            )
+
+            // Save mapping
+            mapDao.insert(
+                OrderSerialMapEntity(
+                    mapKey = mapkey,
+                    orderSerialNo = nextSerial
+                )
+            )
+
+            nextSerial
         }
     }
+
+    /**
+     * Returns current counter value only.
+     * Does NOT increment.
+     */
+    suspend fun currentOrderNo(): Long {
+
+        return counterDao
+            .getCounter()
+            ?.orderSerialNo
+            ?: 0L
+    }
+
+    /**
+     * Returns serial if already assigned.
+     * Otherwise null.
+     */
+    suspend fun getOrderNo(
+        orderId: String
+    ): Long? {
+
+        return mapDao.get(orderId)?.orderSerialNo
+    }
+
+    /**
+     * Removes the mapping after the bill
+     * is fully completed (optional).
+     */
+    suspend fun clearOrder(mapKey: String) {
+
+        mapDao.delete(mapKey)
+
+        Log.d(
+            "ORDER_COUNTER",
+            "Cleared mapping for order=$mapKey"
+        )
+    }
+
+
+    suspend fun moveTable(
+        oldTableKey: String,
+        newTableKey: String
+    ) {
+
+        if (oldTableKey == newTableKey) return
+
+        db.withTransaction {
+
+            // New table already has a bill
+            if (mapDao.get(newTableKey) != null) {
+                return@withTransaction
+            }
+
+            // Old table has no bill
+            if (mapDao.get(oldTableKey) == null) {
+                return@withTransaction
+            }
+
+            mapDao.updateTableKey(
+                oldTableKey = oldTableKey,
+                newTableKey = newTableKey
+            )
+        }
+    }
+
+
+
+
 }

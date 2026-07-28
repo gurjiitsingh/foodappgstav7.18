@@ -3,6 +3,7 @@ package com.it10x.foodappgstav7_18.data.online.models.waiter
 data class WaiterOrder(
     val orderId: String = "",
     val tableNo: String = "",
+    val tableName: String,
     val sessionId: String = "",
     val orderType: String = "",
     val deviceId: String = "",
@@ -21,6 +22,7 @@ data class WaiterOrderItem(
     val price: Double = 0.0,
     val taxRate: Double = 0.0,
     val tableNo: String = "",
+    val tableName: String,
     val sessionId: String = "",
     val createdById: String = "",
     val createdByName: String = "",

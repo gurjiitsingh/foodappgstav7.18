@@ -12,6 +12,8 @@ import com.it10x.foodappgstav7_18.data.online.repository.ProductRecipeSyncReposi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import com.google.firebase.firestore.FirebaseFirestore
+import com.it10x.foodappgstav7_18.data.online.repository.OrderCounterSyncRepository
 
 class ProductSyncViewModel(app: Application) : AndroidViewModel(app) {
 
@@ -29,12 +31,23 @@ class ProductSyncViewModel(app: Application) : AndroidViewModel(app) {
     private val _status = MutableStateFlow<String>("")
     val status: StateFlow<String> = _status
 
+
+
+    private val orderCounterRepo =
+        OrderCounterSyncRepository(
+            db,
+            FirebaseFirestore.getInstance()
+        )
+
     private val recipeRepo =
         ProductRecipeSyncRepository(db)
     fun syncAll() {
         viewModelScope.launch {
             try {
                 _syncing.value = true
+
+                _status.value = "Syncing order counter..."
+                orderCounterRepo.syncLastOrderSerialNo()
 
                 _status.value = "Syncing categories…"
                 repo.syncCategories()
@@ -51,7 +64,7 @@ class ProductSyncViewModel(app: Application) : AndroidViewModel(app) {
                 _status.value = "Syncing product modifiers…"
                 modifierRepo.syncProductModifiers()
 
-                _status.value = "Sync complete 🎉"
+
 
                 _status.value =
                     "Syncing product recipes..."

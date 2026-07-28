@@ -21,7 +21,7 @@ data class PosOrderMasterEntity(
     val id: String,                 // UUID (generated on POS)
 
     @ColumnInfo(name = "srno")
-    val srno: Int,                  // Daily running number (POS)
+    val srno: Long,               // Daily running number (POS)
     val orderType: String,          // DINE_IN | TAKEAWAY | DELIVERY | ONLINE
     val tableNo: String?,           // Only for DINE_IN
 

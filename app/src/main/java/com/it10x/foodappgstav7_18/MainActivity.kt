@@ -82,19 +82,12 @@ import com.it10x.foodappgstav7_18.core.FirstSyncManager
 import com.it10x.foodappgstav7_18.core.PosRole
 import com.it10x.foodappgstav7_18.core.PosRoleManager
 import com.it10x.foodappgstav7_18.core.PosType
-
-//import com.it10x.foodappgstav7_18.firebase.ClientRegistry
 import com.it10x.foodappgstav7_18.core.rememberNetworkStatus
 import com.it10x.foodappgstav7_18.data.pos.repository.PrinterRepository
-import com.it10x.foodappgstav7_18.data.pos.repository.WaiterKitchenRepository
 import com.it10x.foodappgstav7_18.data.printer.PrinterUploadManager
-//import com.it10x.foodappgstav7_18.firebase.ClientFirebaseConfig
 import com.it10x.foodappgstav7_18.data.model.ClientFirebaseConfig
 import com.it10x.foodappgstav7_18.data.online.sync.TableKotSyncService
-import com.it10x.foodappgstav7_18.ui.cart.CartViewModel
 import com.it10x.foodappgstav7_18.ui.settings.FirstAutoSyncScreen
-import com.it10x.foodappgstav7_18.ui.waiterkitchen.WaiterKitchenViewModel
-import com.it10x.foodappgstav7_18.ui.waiterkitchen.WaiterKitchenViewModelFactory
 import com.it10x.foodappgstav7_18.network.RetrofitInstance
 import com.it10x.foodappgstav7_18.ui.components.TopBarNavButton
 import com.it10x.foodappgstav7_18.ui.menu.fastfood.FastFoodMenu
@@ -331,9 +324,9 @@ class MainActivity : ComponentActivity() {
                     return@FoodPosTheme
                 }
 
-                FirebaseApp.getApps(context).forEach {
-                    FirebaseApp.getInstance(it.name).delete()
-                }
+//                FirebaseApp.getApps(context).forEach {
+//                    FirebaseApp.getInstance(it.name).delete()
+//                }
 
                 val options = FirebaseOptions.Builder()
                     .setApiKey(config!!.apiKey)
@@ -341,7 +334,14 @@ class MainActivity : ComponentActivity() {
                     .setProjectId(config!!.projectId)
                     .build()
 
-                FirebaseApp.initializeApp(context, options)
+               // FirebaseApp.initializeApp(context, options)
+                if (FirebaseApp.getApps(context).isEmpty()) {
+
+                    FirebaseApp.initializeApp(
+                        context,
+                        options
+                    )
+                }
 
 
                 val firestore = remember { FirebaseFirestore.getInstance() }
@@ -393,6 +393,13 @@ class MainActivity : ComponentActivity() {
                 LaunchedEffect(globalSyncManager, role) {
                     // Always stop any previous listener first
                     globalSyncManager.stopListening()
+
+
+                    Log.d("KOT_DEBUG", "LaunchedEffect executed. role=$role")
+
+                    globalSyncManager.stopListening()
+
+                    Log.d("KOT_DEBUG", "Calling startListening()")
 
                     // Start listener automatically according to role
                     globalSyncManager.startListening()
@@ -499,7 +506,9 @@ class MainActivity : ComponentActivity() {
                 ModalNavigationDrawer(
                     drawerState = drawerState,
                     drawerContent = {
-                        ModalDrawerSheet {
+                        ModalDrawerSheet(
+                            modifier = Modifier.width(270.dp)
+                        ) {
 
                             // ✅ Make drawer scrollable
                             Column(
@@ -545,7 +554,9 @@ class MainActivity : ComponentActivity() {
                                             )
 
                                             PosRole.WAITER -> WaiterMenu(
-                                                navController, drawerState, scope
+                                                navController, drawerState, scope, onLogout = {
+                                                    loggedIn = false
+                                                }
                                             )
 
                                             else -> RestaurantMainMenu(

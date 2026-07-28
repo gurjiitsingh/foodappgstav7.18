@@ -34,9 +34,6 @@ class CartViewModel(
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-
-
-
     private val currentTableId =
         savedStateHandle.getStateFlow<String?>("tableId", null)
     private val currentTableName =
@@ -92,10 +89,7 @@ class CartViewModel(
         price: Double,
         modifiersJson: String = ""
     ) {
-        Log.d(
-            "MODI",
-            "price:${price} modi:  ${modifiersJson}"
-        )
+
 
         val modifierTotal = ModifierJsonHelper
             .fromJson(modifiersJson)
@@ -110,7 +104,7 @@ class CartViewModel(
         viewModelScope.launch {
             Log.d(
                 "CART_SCOPE_DEBUG",
-                "orderType=${currentOrderType.value}, tableId=${currentTableId.value}, sessionId=${sessionId.value}"
+                "orderType=${currentOrderType.value}, createdByName=${createdByName.value}, tableId=${currentTableId.value}, sessionId=${sessionId.value}"
             )
             if (sessionId.value.isNullOrBlank()) {
                 _uiEvent.emit(CartUiEvent.SessionRequired)
@@ -129,15 +123,7 @@ class CartViewModel(
                     ?: category?.kitchenPrintReq
                     ?: true
 
-//            Log.d(
-//                "TABLE_NAME_DEBUG",
-//                """
-//    currentTableId   = ${currentTableId.value}
-//    currentTableName = ${currentTableName.value}
-//    sessionId        = ${sessionId.value}
-//    orderType        = ${currentOrderType.value}
-//    """.trimIndent()
-//            )
+
 
             val cartItem = PosCartEntity(
                 productId = product.id,
@@ -167,7 +153,6 @@ class CartViewModel(
 
 
             repository.addToCart(cartItem, currentTableId.value!!)
-         //   repository.syncCartCount(currentTableId.value!!)
 
             val tableNo = currentTableId.value ?: return@launch
             val type = currentOrderType.value
@@ -176,10 +161,6 @@ class CartViewModel(
             tableSyncManager.syncBill(tableNo, type)
         }
     }
-
-
-
-
 
     fun increase(item: PosCartEntity) {
 

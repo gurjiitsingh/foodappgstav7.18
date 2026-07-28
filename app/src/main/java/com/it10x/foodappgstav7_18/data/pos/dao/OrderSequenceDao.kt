@@ -12,10 +12,10 @@ interface OrderSequenceDao {
 
     @Query("""
         SELECT * FROM order_sequence
-        WHERE key = :key
+        WHERE mapkey = :mapkey
         LIMIT 1
     """)
-    suspend fun getByKey(key: String): OrderSequenceEntity?
+    suspend fun getByKey(mapkey: String): OrderSequenceEntity?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(entity: OrderSequenceEntity)

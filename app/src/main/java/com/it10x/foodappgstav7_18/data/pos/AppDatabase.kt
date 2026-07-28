@@ -11,6 +11,8 @@ import com.it10x.foodappgstav7_18.data.pos.entities.*
 import com.it10x.foodappgstav7_18.data.pos.entities.config.*
 import com.it10x.foodappgstav7_18.data.printqueue.PrintQueueDao
 import com.it10x.foodappgstav7_18.data.pos.entity.ProductRecipeEntity
+
+import androidx.room.Entity
 @Database(
     entities = [
         ProductEntity::class,
@@ -42,8 +44,10 @@ import com.it10x.foodappgstav7_18.data.pos.entity.ProductRecipeEntity
         PosUserEntity:: class,
         PosDayClosingEntity::class,
         PosBusinessDayEntity::class,
+        OrderCounterEntity::class,
+        OrderSerialMapEntity::class,
     ],
-    version = 127,              // ⬆️ increment version since schema changed
+    version = 134,              // ⬆️ increment version since schema changed
     exportSchema = true
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -84,4 +88,8 @@ abstract class AppDatabase : RoomDatabase() {
 
     abstract fun dayClosingDao(): DayClosingDao
     abstract fun businessDayDao(): BusinessDayDao
+
+    abstract fun orderCounterDao(): OrderCounterDao
+
+    abstract fun orderSerialMapDao(): OrderSerialMapDao
 }

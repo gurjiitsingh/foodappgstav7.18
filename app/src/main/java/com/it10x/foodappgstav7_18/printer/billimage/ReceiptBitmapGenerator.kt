@@ -229,7 +229,7 @@ object ReceiptBitmapGenerator {
         ) {
 
             // Top padding
-            y += 20f
+            y += 15f
 
             // Restaurant Name
             drawCenter(
@@ -237,7 +237,7 @@ object ReceiptBitmapGenerator {
                 titlePaint
             )
 
-            y += 8f
+            y += 5f
 
             // ---------- Address ----------
 
@@ -303,9 +303,9 @@ object ReceiptBitmapGenerator {
                     "GSTIN : ${outletInfo.gstVatNumber}",
                     smallPaint
                 )
-                y += 8f
+                y += 1f
             }
-
+              y-=5f
             // Top divider
             canvas.drawLine(
                 LEFT,
@@ -326,7 +326,7 @@ object ReceiptBitmapGenerator {
                 }
             )
 
-            y += 20f
+            y += 10f
 
             // TAX INVOICE
             val cleanOrderType = order.orderType?.replace("_", " ")
@@ -338,19 +338,19 @@ object ReceiptBitmapGenerator {
             )
 
             // Padding below title
-            y += 5f
+            y -= 2f
 
             // Bottom divider
             canvas.drawLine(
                 LEFT,
-                y,
+                y-20f,
                 RIGHT,
-                y,
+                y-20f,
                 linePaint
             )
 
             // Space before next section
-            y += 45f
+            y += 25f
         }
         //================================================
 // Order Details
@@ -393,7 +393,7 @@ object ReceiptBitmapGenerator {
                 normalPaint
             )
 
-            y += 42f
+            y += 25f
         }
 
 //================================================
@@ -564,6 +564,7 @@ object ReceiptBitmapGenerator {
             }
 
             // Divider before totals only
+            y-=10f
             canvas.drawLine(
                 leftMargin,
                 y,
@@ -572,7 +573,7 @@ object ReceiptBitmapGenerator {
                 linePaint
             )
 
-            y += 24f
+            y += 5f
         }
 
         //================================================
@@ -716,7 +717,7 @@ object ReceiptBitmapGenerator {
 //                linePaint
 //            )
 
-            y += 18f
+            y += 1f
         }
 
         // ============================
@@ -725,7 +726,7 @@ object ReceiptBitmapGenerator {
 
         fun drawTotals(order: PrintOrder) {
 
-            y += 40f
+            y += 30f
 //            drawDivider()
 
             val  itemTotal = order.itemTotal
@@ -779,7 +780,7 @@ object ReceiptBitmapGenerator {
             val sgstPercent = 2.5//totalGstPercent / 2
 
 
-            drawLabelValue("Taxable Amount", taxableAmount)
+          //  drawLabelValue("Taxable Amount", taxableAmount)
             //----------------------------------
             // CGST
             //----------------------------------
@@ -817,7 +818,7 @@ object ReceiptBitmapGenerator {
 
 
 
-            y += 30f
+            y -= 10f
 
 
 
@@ -902,7 +903,7 @@ object ReceiptBitmapGenerator {
 
 
 
-            y = bottom + 60f   // 👈 increase spacing
+            y = bottom + 40f   // 👈 increase spacing
         }
 
 
@@ -926,16 +927,16 @@ object ReceiptBitmapGenerator {
 
             canvas.drawText(text, 20f, y, paint)
 
-            y += 55f
+            y += 20f
         }
 
         fun drawQrCode(qr: Bitmap?) {
 
             if (qr == null) return
 
-            y += 30f
+            y -= 10f
 
-            val qrSize = 200  // 🔥 best for 48mm
+            val qrSize = 280  // 🔥 best for 48mm
 
             val scaledQr = Bitmap.createScaledBitmap(qr, qrSize, qrSize, true)
 
@@ -944,7 +945,7 @@ object ReceiptBitmapGenerator {
             // Draw QR
             canvas.drawBitmap(scaledQr, x, y, null)
 
-            y += qrSize + 10f
+            y += qrSize + 5f
 
             // Label
             val paint = Paint().apply {
@@ -961,7 +962,7 @@ object ReceiptBitmapGenerator {
                 paint
             )
 
-            y += 40f
+            y += 15f
         }
         private fun drawLabelValue(
             label: String,

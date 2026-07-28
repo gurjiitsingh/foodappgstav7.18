@@ -132,11 +132,24 @@ class WaiterKitchenViewModel(
 
             try {
 
+                latestCart.forEach {
+                    Log.d(
+                        "WAITER_SEND",
+                        """
+        product=${it.name}
+        createdById=${it.createdById}
+        createdByName=${it.createdByName}
+        """.trimIndent()
+                    )
+                }
+
                 val success = withContext(Dispatchers.IO) {
                     waiterKitchenRepository.sendOrderToFireStore(
                         cartList = latestCart,
                         tableNo = tableNo,
+                        tableName = tableName,
                         sessionId = sessionId,
+
                         orderType = orderType,
                         deviceId = deviceId,
                         deviceName = deviceName
@@ -319,7 +332,6 @@ class WaiterKitchenViewModel(
                     currentStock = cart.currentStock,
                     categoryId = cart.categoryId,
                     categoryName = cart.categoryName,
-
                     createdById = cart.createdById,
                     createdByName = cart.createdByName,
 

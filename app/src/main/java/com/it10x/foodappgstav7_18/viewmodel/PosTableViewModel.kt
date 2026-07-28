@@ -14,6 +14,7 @@ import kotlinx.coroutines.launch
 import com.it10x.foodappgstav7_18.data.pos.repository.TableRepository
 import com.it10x.foodappgstav7_18.data.pos.repository.CartRepository
 import com.it10x.foodappgstav7_18.data.pos.repository.KotRepository
+import com.it10x.foodappgstav7_18.data.pos.repository.OrderSequenceRepository
 
 object TableStatus {
 
@@ -55,6 +56,9 @@ class PosTableViewModel(app: Application) : AndroidViewModel(app) {
         firestore,
         kotItemDao = database.kotItemDao(),
     )
+
+    private val orderSequenceRepository =
+        OrderSequenceRepository(database)
 
     init {
         observeTables()
@@ -170,6 +174,16 @@ class PosTableViewModel(app: Application) : AndroidViewModel(app) {
             kotRepository.transferTable(oldTableId, newTableId)
             Log.d("TABLE_SYNC", "Triggered snapshot sync for table=$oldTableId")
             Log.d("TABLE_SYNC", "Triggered snapshot sync for table=$newTableId")
+
+
+            // ✅ Move bill serial mapping
+            orderSequenceRepository.moveTable(
+                oldTableKey = oldTableId,
+                newTableKey = newTableId
+            )
+
+            Log.d("TABLE_SYNC", "Moved serial mapping $oldTableId -> $newTableId")
+
             // refresh table counters
             cartRepository.syncCartCount(oldTableId)
             cartRepository.syncCartCount(newTableId)

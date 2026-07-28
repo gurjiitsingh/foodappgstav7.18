@@ -135,41 +135,53 @@ fun WaiterKitchenScreenMob(
 
 
             Button(
-                enabled = !loading && isOnline,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(52.dp),
+                onClick = {
+
+                    when {
+                        !isOnline -> {
+                            Toast.makeText(
+                                context,
+                                "No internet connection",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+
+                        loading -> {
+                            Toast.makeText(
+                                context,
+                                "Order is already being sent...",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+
+                        else -> {
+                            val deviceId = Settings.Secure.getString(
+                                context.contentResolver,
+                                Settings.Secure.ANDROID_ID
+                            )
+
+                            waiterkitchenViewModel.waiterCartTo_FireStore_Bill(
+                                cartList = cartItems,
+                                tableNo = tableNo,
+                                deviceId = deviceId,
+                                deviceName = Build.MODEL ?: "Unknown Device",
+                                role = "WAITER"
+                            )
+                        }
+                    }
+                },
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = if (isOnline)
+                    containerColor = if (isOnline && !loading)
                         Color(0xFF16A34A)
                     else
                         Color(0xFF9E9E9E)
-                ),
-                onClick = {
+                )
 
-                    if (!isOnline) {
-                        Toast.makeText(
-                            context,
-                            "No internet connection. Cannot send order.",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        return@Button
-                    }
-
-                    val deviceId = Settings.Secure.getString(
-                        context.contentResolver,
-                        Settings.Secure.ANDROID_ID
-                    )
-
-                    waiterkitchenViewModel.waiterCartTo_FireStore_Bill(
-                        cartList = cartItems,
-                        tableNo = tableNo,
-                        deviceId = deviceId,
-                        deviceName = Build.MODEL ?: "Unknown Device",
-                        role = "WAITER"
-                    )
-                }
-            ) {
+            )
+            {
                 Icon(
                     imageVector = Icons.Default.SoupKitchen,
                     contentDescription = null,

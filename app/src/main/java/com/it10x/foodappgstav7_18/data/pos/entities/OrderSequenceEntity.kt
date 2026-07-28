@@ -11,7 +11,7 @@ import androidx.room.PrimaryKey
 data class OrderSequenceEntity(
 
     @PrimaryKey
-    val key: String,
+    val mapkey: String,
     // Format: {outletId}_{yyyyMMdd}
 
     val outletId: String,

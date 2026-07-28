@@ -207,6 +207,7 @@ class KitchenViewModel(
         orderType: String,
         sessionId: String,
         tableNo: String,
+        tableName: String,
         cartItems: List<PosCartEntity>,
         deviceId: String,
         deviceName: String?,
@@ -272,7 +273,7 @@ class KitchenViewModel(
         role: String,
         source: String,
     ): Boolean = withContext(Dispatchers.IO) {
-        //  Log.d("KOT", "saveKotAndPrintKitchen Called from: ${Throwable().stackTrace[1]}")
+          Log.d("KOT_DEBUG", "tableName FROM FIRESORE: ${tableName}")
         //FROM MAIN POS AND
         //FROM FIRESTORE WAITER POS
         val kotNumber = kotRepository.generateNextKotNumber()

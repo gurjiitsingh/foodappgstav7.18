@@ -15,6 +15,7 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.Calendar
 import com.it10x.foodappgstav7_18.data.model.report.DailyTotals
+import com.it10x.foodappgstav7_18.data.pos.entities.PosOrderMasterEntity
 import com.it10x.foodappgstav7_18.data.pos.repository.POSPaymentRepository
 
 
@@ -307,10 +308,54 @@ class PosOrderSyncRepository(
             Log.e("ORDER_SYNC", "Batch sync failed: ${e.message}", e)
             throw e
         }
+
+        updateOrderCounter(pendingOrders)
     }
     fun Double.round2(): Double {
         return String.format("%.2f", this).toDouble()
     }
-}
+
+    private suspend fun updateOrderCounter(
+        pendingOrders: List<PosOrderMasterEntity>
+    ) {
+        val ref = firestore
+            .collection("settings")
+            .document("orderCounter")
+
+        val snapshot = ref.get().await()
+
+        val firestoreSrNo =
+            snapshot.getLong("orderSerialNo") ?: 0L
+
+        val localSrNo =
+            pendingOrders.maxOfOrNull { it.srno } ?: 0L
+
+        Log.d(
+            "ORDER_COUNTER",
+            "Firestore=$firestoreSrNo Local=$localSrNo"
+        )
+
+        if (localSrNo > firestoreSrNo) {
+
+            ref.set(
+                mapOf(
+                    "orderSerialNo" to localSrNo
+                ),
+                SetOptions.merge()
+            ).await()
+
+            Log.d(
+                "ORDER_COUNTER",
+                "Updated Firestore orderSerialNo=$localSrNo"
+            )
+        } else {
+
+            Log.d(
+                "ORDER_COUNTER",
+                "No update required"
+            )
+        }
+    }
+    }
 
 

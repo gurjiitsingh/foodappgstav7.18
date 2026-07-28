@@ -15,6 +15,7 @@ class WaiterKitchenRepository(
     suspend fun sendOrderToFireStore(
         cartList: List<PosCartEntity>,
         tableNo: String,
+        tableName: String,
         sessionId: String,
         orderType: String,
         deviceId: String,
@@ -25,7 +26,7 @@ class WaiterKitchenRepository(
         return try {
 
             if (cartList.isEmpty()) return false
-
+            Log.d("WAITER_FIRESTORE", "sendOrderToFireStore() started")
             Log.d("KOT_DEBUG","WaiterKitchenRepository is sending Waiter kot--------------")
 
             val orderId = firestore.collection("waiter_orders").document().id
@@ -38,6 +39,7 @@ class WaiterKitchenRepository(
             val order = WaiterOrder(
                 orderId = orderId,
                 tableNo = tableNo,
+                tableName = tableName,
                 sessionId = sessionId,
                 orderType = orderType,
                 deviceId = deviceId,
@@ -63,11 +65,26 @@ class WaiterKitchenRepository(
                     price = cartItem.basePrice,
                     taxRate = cartItem.taxRate,
                     tableNo = tableNo,
+                    tableName = tableName,
+                    sessionId = sessionId,
+
+                    createdById = cartItem.createdById,
+                    createdByName = cartItem.createdByName,
+
                     note = cartItem.note,
                     modifiersJson = cartItem.modifiersJson,
-                    sessionId = sessionId,
                     kitchenPrintReq = cartItem.kitchenPrintReq,
                     kitchenPrinted = false
+                )
+
+                Log.d(
+                    "WAITER_SEND",
+                    """
+    Sending firestore betch:
+    product=${orderItem.productName}
+    createdById=${orderItem.createdById}
+    createdByName=${orderItem.createdByName}
+    """.trimIndent()
                 )
 
                 batch.set(itemRef, orderItem)
