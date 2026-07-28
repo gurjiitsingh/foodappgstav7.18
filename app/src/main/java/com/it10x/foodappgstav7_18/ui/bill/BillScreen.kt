@@ -15,6 +15,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.it10x.foodappgstav7_18.ui.payment.PaymentType
 import android.widget.Toast
+import androidx.compose.foundation.background
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -24,6 +25,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import com.it10x.foodappgstav7_18.ui.theme.PosTheme
 import com.it10x.foodappgstav7_18.utils.formatter.MoneyFormatter
 
 // =====================================================
@@ -90,9 +92,9 @@ fun BillScreen(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .fillMaxHeight(0.95f)// ensures visible height for tablets
+            .fillMaxHeight(0.95f)
+            .background(PosTheme.product.productCardBg)
             .padding(start = 6.dp, top = 6.dp, end = 6.dp)
-
     ) {
         // 🔹 Fixed Header
         // 🔹 Scrollable Item List (takes all remaining space)
@@ -114,7 +116,8 @@ fun BillScreen(
                             modifier = Modifier
                                 .weight(1f),
                             verticalAlignment = Alignment.CenterVertically
-                        ) {
+                        )
+                        {
                             IconButton(
                                 onClick = { viewModel.deleteItem(item.id) },
                                 modifier = Modifier.size(28.dp)
@@ -140,7 +143,7 @@ fun BillScreen(
                                     Text(
                                         text = "+ $mod",
                                         style = MaterialTheme.typography.bodySmall,
-                                        color = Color.Gray
+                                        color = PosTheme.product.productCardText
                                     )
                                 }
 
@@ -149,7 +152,7 @@ fun BillScreen(
                                     Text(
                                         text = item.note,
                                         style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        color = PosTheme.product.productCardText
                                     )
                                 }
                             }

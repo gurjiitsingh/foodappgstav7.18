@@ -57,6 +57,12 @@ data class PosTopBarButtonColors(
     val unselectedContent: Color
 )
 
+data class PosBillColors(
+    val billBg: Color,
+    val billText: Color,
+    val billTab: Color
+)
+
 // =====================================================
 // GLOBAL ACCESS
 // =====================================================
@@ -71,6 +77,9 @@ object PosTheme {
     lateinit var category: PosCategoryColors
         internal set
     lateinit var topBarButton: PosTopBarButtonColors
+        internal set
+
+    lateinit var bill: PosBillColors
         internal set
 }
 
@@ -92,54 +101,7 @@ fun FoodPosTheme(
 
     val colorScheme = when (finalMode) {
 
-        // ================= LIGHT =================
-//        PosThemeMode.LIGHT -> {
-//
-//            PosTheme.accent = PosAccentColors(
-//                cartAddBg = Color(0xFF22C55E),
-//                cartAddText = Color.White,
-//                cartRemoveBorder = Color(0xFFCBD5E1),
-//                cartRemoveText = Color(0xFF334155),
-//
-//                primaryActionBg = Color(0xFF22C55E),
-//                primaryActionText = Color.White
-//            )
-//
-//            PosTheme.product = PosProductColors(
-//                productCardBg = Color.White,
-//                productCardText = Color.Black
-//            )
-//
-//            PosTheme.topBar = PosTopBarColors(
-//                background = Color.White,
-//                content = Color(0xFF1E293B)
-//            )
-//
-//            PosTheme.category = PosCategoryColors(
-//                selectedBg = Color(0xFF22C55E),
-//                selectedText = Color.White,
-//                unselectedBg = Color(0xFFF1F5F9),
-//                unselectedText = Color(0xFF64748B)
-//            )
-//
-//            // ✅ FIXED (NO TRANSPARENT BUG)
-//            PosTheme.topBarButton = PosTopBarButtonColors(
-//                selectedBg = Color(0xFF22C55E),
-//                selectedContent = Color.White,
-//                unselectedBg = Color(0xFF1E293B).copy(alpha = 0.05f),
-//                unselectedContent = Color(0xFF1E293B).copy(alpha = 0.7f)
-//            )
-//
-//            lightColorScheme(
-//                primary = Color(0xFF22C55E),
-//                onPrimary = Color.White,
-//                background = Color(0xFFF8FAFC),
-//                onBackground = Color.Black,
-//                surface = Color.White,
-//                onSurface = Color.Black,
-//                error = Color(0xFFDC2626)
-//            )
-//        }
+
 
         PosThemeMode.LIGHT -> {
 
@@ -180,6 +142,12 @@ fun FoodPosTheme(
                 unselectedContent = Color(0xFF023047)
             )
 
+            PosTheme.bill = PosBillColors(
+                billBg = Color.White,
+                billText = Color(0xFF023047),
+                billTab = Color(0xFFF8FAFC)
+            )
+
             lightColorScheme(
                 primary = Color(0xFF219EBC),
                 onPrimary = Color.White,
@@ -192,6 +160,8 @@ fun FoodPosTheme(
 
                 error = Color(0xFFDC2626)
             )
+
+
         }
         // ================= DARK =================
         PosThemeMode.DARK -> {
@@ -230,6 +200,12 @@ fun FoodPosTheme(
                 unselectedContent = Color.White.copy(alpha = 0.7f)
             )
 
+            PosTheme.bill = PosBillColors(
+                billBg = Color(0xFF1E293B),
+                billText = Color.White,
+                billTab = Color(0xFF0F172A)
+            )
+
             darkColorScheme(
                 primary = Color(0xFFF97316),
                 onPrimary = Color.White,
@@ -239,6 +215,7 @@ fun FoodPosTheme(
                 onSurface = Color.White,
                 error = Color(0xFFDC2626)
             )
+
         }
 
         // ================= GSTA =================
@@ -280,6 +257,11 @@ fun FoodPosTheme(
                 unselectedBg = Color.White.copy(alpha = 0.08f),
                 unselectedContent = Color.White.copy(alpha = 0.85f)
             )
+            PosTheme.bill = PosBillColors(
+                billBg = Color(0xFF1F2937),
+                billText = Color.White,
+                billTab = Color(0xFF111827)
+            )
 
             darkColorScheme(
                 primary = Color(0xFFFACC15),          // Yellow
@@ -293,6 +275,7 @@ fun FoodPosTheme(
 
                 error = Color(0xFFEF4444)             // Red
             )
+
         }
 
 
@@ -335,6 +318,11 @@ fun FoodPosTheme(
                 unselectedBg = Color.Transparent,
                 unselectedContent = Color.White.copy(alpha = 0.85f)
             )
+            PosTheme.bill = PosBillColors(
+                billBg = Color.White,
+                billText = Color(0xFF035AA6),
+                billTab = Color(0xFFF2F2F2)
+            )
 
             lightColorScheme(
                 primary = Color(0xFF049DD9),
@@ -348,6 +336,7 @@ fun FoodPosTheme(
 
                 error = Color(0xFFDC2626)
             )
+
         }
 
         // ================= LIGHTSPEED BLUESLATE =================
@@ -366,7 +355,7 @@ fun FoodPosTheme(
 
             PosTheme.product = PosProductColors(
                 productCardBg = Color(0xFFE0FBFC),
-                productCardText = Color(0xFF293241)
+                productCardText = Color.White,
             )
 
             PosTheme.topBar = PosTopBarColors(
@@ -390,6 +379,11 @@ fun FoodPosTheme(
                 unselectedContent = Color(0xFF293241)
             )
 
+            PosTheme.bill = PosBillColors(
+                billBg = Color(0xFFE0FBFC),
+                billText = Color(0xFF293241),
+                billTab = Color(0xFF3D5A80)
+            )
             lightColorScheme(
                 primary = Color(0xFFEE6C4D),
                 onPrimary = Color.White,
@@ -402,6 +396,7 @@ fun FoodPosTheme(
 
                 error = Color(0xFFDC2626)
             )
+
         }
 
         // ================= TOAST combination of light coffee=================
@@ -444,6 +439,11 @@ fun FoodPosTheme(
                 unselectedContent = Color(0xFF807E79)
             )
 
+            PosTheme.bill = PosBillColors(
+                billBg = Color.White,
+                billText = Color(0xFF1E293B),
+                billTab = Color(0xFFE3E3E3)
+            )
             lightColorScheme(
                 primary = Color(0xFF807E79),
                 onPrimary = Color.White,
@@ -456,6 +456,7 @@ fun FoodPosTheme(
 
                 error = Color(0xFFDC2626)
             )
+
         }
 
 

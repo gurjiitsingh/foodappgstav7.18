@@ -339,6 +339,25 @@ fun RestaurantMainMenu(
     )
 
     NavigationDrawerItem(
+        label = { Text("Theme Settings") },
+        selected = false,
+        onClick = {
+            scope.launch { drawerState.close() }
+
+            navController.navigate("theme_settings") {
+                launchSingleTop = true
+            }
+        }
+    )
+
+    Divider(
+        modifier = Modifier
+            .padding(horizontal = 16.dp)
+            .padding(bottom = 4.dp),
+        thickness = 0.5.dp
+    )
+
+    NavigationDrawerItem(
         label = { Text("Printer Settings") },
         selected = false,
         onClick = {

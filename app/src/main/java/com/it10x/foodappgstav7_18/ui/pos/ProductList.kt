@@ -116,7 +116,8 @@ private fun ParentProductCard(
     }
 
     val productBg = MaterialTheme.colorScheme.background//MaterialTheme.colorScheme.surface
-    val productText = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.85f)
+   // val productText = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.85f)
+    val productText = PosTheme.product.productCardText
 
     val addBg = PosTheme.accent.cartAddBg
     val addText = PosTheme.accent.cartAddText

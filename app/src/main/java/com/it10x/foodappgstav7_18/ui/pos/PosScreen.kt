@@ -486,6 +486,9 @@ fun PosScreen(
                         val selectedBg = PosTheme.topBar.background
                         val selectedContent = PosTheme.topBar.content
 
+                        val tableSelectedShowText = PosTheme.product.productCardText
+                        val tableSelectedShowBg = PosTheme.product.productCardBg
+
                         val unselectedBg = Color(0xFFF1F5F9)
                         val unselectedContent = Color(0xFF475569)
 
@@ -654,13 +657,13 @@ fun PosScreen(
                                 contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
                                 border = BorderStroke(
                                     1.dp,
-                                    selectedBg
+                                    tableSelectedShowText
                                 )
                             ) {
                                 Text(
                                     text = tableName ?: "",
                                     style = MaterialTheme.typography.bodyMedium,
-                                    color = selectedBg,
+                                    color = tableSelectedShowText,
                                     fontWeight = FontWeight.SemiBold
                                 )
                             }
