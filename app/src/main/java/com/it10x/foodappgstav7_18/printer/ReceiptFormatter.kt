@@ -166,15 +166,125 @@ Thank You!
 
 
 
-    fun billing48(
-        order: PrintOrder,
-        outletInfo: OutletInfo
-    ): String {
 
-        return Receipt48Formatter.billing48(
-            order,
-            outletInfo
-        )
+    fun billing48(order: PrintOrder, outletInfo: OutletInfo): String {
+
+        val LINE_WIDTH = 48
+        //  Log.d("RECEIPT_FORMATTER", "billing48() called for orderNo=${order.orderNo}")
+        val outletHeader = buildOutletHeader(outletInfo, LINE_WIDTH)
+
+        val headerBlock = buildHeaderBlock(order)
+
+        val totalsBlock = buildString {
+
+            append(totalLine48("Item Total", order.itemTotal))
+
+            if ((order.deliveryFee ?: 0.0) > 0.0) {
+                append(totalLine48("Delivery", order.deliveryFee))
+            }
+
+            if ((order.discount ?: 0.0) > 0.0) {
+                append(totalLine48("Discount", order.discount))
+            }
+
+            if ((order.tax ?: 0.0) > 0.0) {
+                append(totalLine48("Tax", order.tax))
+            }
+        }
+
+        val qrTitleToPrint = if (
+            outletInfo?.qrEnabled == true
+        ) {
+            when {
+                order.paymentMode == "UPI" && !outletInfo.upiId.isNullOrBlank() ->
+                    outletInfo.upiTitle ?: "Scan & Pay"
+                else ->
+                    outletInfo.qrTitle
+            }
+        } else null
+
+        val itemsBlock = if (order.items.isEmpty()) {
+            "No items found"
+        } else {
+            // 48 chars total → distribute: qty(4) + name(26) + price(8) + total(10)
+            val header =
+                "QTY".padEnd(4) +
+                        "ITEM".padEnd(26) +
+                        "PRICE".padStart(8) +
+                        "TOTAL".padStart(10)
+
+            val divider = "-".repeat(LINE_WIDTH)
+
+
+            val lines = buildString {
+
+                order.items.forEach { item ->
+
+                    val qty = item.quantity.toString().padEnd(4)
+                    val name = item.name.take(26).padEnd(26)
+                    val price = format(item.price).padStart(8)
+                    val total = format(item.subtotal).padStart(10)
+
+                    // 🔹 Main line
+                    append(qty + name + price + total + "\n")
+
+
+                    // 🔹 Modifiers (if any)
+                    if (!item.modifiersJson.isNullOrBlank()) {
+                        try {
+                            val modifiers = item.modifiersJson
+                                .removePrefix("[")
+                                .removeSuffix("]")
+                                .split(",")
+                                .map { it.trim().replace("\"", "") }
+                                .filter { it.isNotBlank() }
+
+                            modifiers.forEach { mod ->
+                                append("    + $mod\n")
+                            }
+                        } catch (_: Exception) {
+                            append("    + ${item.modifiersJson}\n")
+                        }
+                    }
+
+                    // 🔹 Note (if any)
+                    if (!item.note.isNullOrBlank()) {
+                        append("    • ${item.note}\n")
+                    }
+                }
+            }
+
+
+            "$header\n$divider\n$lines"
+        }
+
+        return buildString {
+            append(ALIGN_CENTER)
+
+            //  PRINT TITLE JUST AFTER QR
+            if (!qrTitleToPrint.isNullOrBlank()) {
+                append(qrTitleToPrint.uppercase())
+                append("\n\n")
+            }
+            append(ALIGN_LEFT)
+            append(
+                """
+------------------------------------------------
+$outletHeader
+------------------------------------------------
+$headerBlock
+------------------------------------------------
+$itemsBlock
+------------------------------------------------
+$totalsBlock
+------------------------------------------------
+${totalLine48("GRAND TOTAL", order.grandTotal)}
+------------------------------------------------
+${buildOutletFooter(outletInfo, 48)}
+Thank You!
+""".trimIndent()
+            )
+        }
     }
 
     fun billing48IMAGE(

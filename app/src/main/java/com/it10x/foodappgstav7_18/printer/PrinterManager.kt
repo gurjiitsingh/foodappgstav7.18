@@ -226,8 +226,7 @@ fun enqueueImagePrint(
         order: PrintOrder,
         paymentMode: String,
         outletInfo: OutletInfo
-    )
-    {
+    ) {
         val size = prefs.getPrinterSize(PrinterRole.BILLING) ?: "80mm"
 
         val receiptText = when (size) {
