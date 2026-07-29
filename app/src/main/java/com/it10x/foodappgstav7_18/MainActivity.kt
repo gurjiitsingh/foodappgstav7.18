@@ -104,6 +104,8 @@ import androidx.compose.runtime.collectAsState
 import com.it10x.foodappgstav7_18.auth.PosLoginViewModel
 import com.it10x.foodappgstav7_18.ui.login.PosLoginScreen
 import com.it10x.foodappgstav7_18.auth.PosSessionManager
+import com.it10x.foodappgstav7_18.viewmodel.ProductSyncViewModel
+
 class MainActivity : ComponentActivity() {
     private lateinit var globalOrderSyncManager: GlobalOrderSyncManager
 
@@ -453,21 +455,26 @@ class MainActivity : ComponentActivity() {
             // ------------------------------------
             // UI STATE
             // ------------------------------------
-            val navController = rememberNavController()
-            val drawerState = rememberDrawerState(DrawerValue.Closed)
-            val scope = rememberCoroutineScope()
+                val navController = rememberNavController()
+                val drawerState = rememberDrawerState(DrawerValue.Closed)
+                val scope = rememberCoroutineScope()
 
                 var loggedIn by remember {
                     mutableStateOf(PosSessionManager.isLoggedIn(context))
                 }
 
+// ------------------------------------
+// LOGIN + SYNC VIEWMODELS
+// ------------------------------------
                 val loginViewModel: PosLoginViewModel = viewModel()
+                val syncViewModel: ProductSyncViewModel = viewModel()
 
                 val users by loginViewModel.users.collectAsState()
-
                 val loginLoading by loginViewModel.isLoading.collectAsState()
-
                 val loginError by loginViewModel.error.collectAsState()
+
+// NEW
+                val syncing by syncViewModel.syncing.collectAsState()
 
                 if (!loggedIn) {
 
@@ -476,6 +483,8 @@ class MainActivity : ComponentActivity() {
                         users = users,
 
                         isLoading = loginLoading,
+
+                        syncing = syncing, // ✅ add this
 
                         error = loginError,
 
@@ -496,13 +505,16 @@ class MainActivity : ComponentActivity() {
                             )
 
                             loggedIn = true
+                        },
+
+                        onSyncUsersClick = {
+                            syncViewModel.syncUsersOnly()
                         }
 
                     )
 
                     return@FoodPosTheme
                 }
-
                 ModalNavigationDrawer(
                     drawerState = drawerState,
                     drawerContent = {

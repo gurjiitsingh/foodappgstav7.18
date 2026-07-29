@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.google.firebase.firestore.FirebaseFirestore
+import com.it10x.foodappgstav7_18.data.PrinterPreferences
 import com.it10x.foodappgstav7_18.data.online.repository.CashierOrderSyncRepository
 import com.it10x.foodappgstav7_18.data.pos.AppDatabaseProvider
 import com.it10x.foodappgstav7_18.data.pos.manager.TableSyncManager
@@ -32,6 +33,8 @@ class BillViewModelFactory(
 
             val printerManager =
                 PrinterManager.getInstance(application.applicationContext)
+            val prefs = PrinterPreferences(application.applicationContext)
+
 
             val kotRepository = KotRepository(
                 db.kotBatchDao(),
@@ -108,6 +111,7 @@ class BillViewModelFactory(
                 orderType = orderType,
                 repository = ordersRepository,
                 printerManager = printerManager,
+                prefs = prefs,
                 outletRepository = OutletRepository(db.outletDao()),
                 paymentRepository = paymentRepository,
                 customerDao = db.posCustomerDao(),

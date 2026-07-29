@@ -69,7 +69,9 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlin.String
 import android.app.Application
+import com.it10x.foodappgstav7_18.data.ReceiptPrintMode
 import com.it10x.foodappgstav7_18.data.pos.repository.BusinessDayRepository
+import com.it10x.foodappgstav7_18.data.PrinterPreferences
 
 
 class BillViewModel(
@@ -84,6 +86,7 @@ class BillViewModel(
     private val orderType: String,
     private val repository: POSOrdersRepository,
     private val printerManager: PrinterManager,
+    private val prefs: PrinterPreferences,
     private val outletRepository: OutletRepository,
     private val paymentRepository: POSPaymentRepository,
     private val customerDao: PosCustomerDao,
@@ -1831,27 +1834,40 @@ class BillViewModel(
         val outletInfo = OutletMapper.fromEntity(outlet)
 
        // printerManager.printTextNewSuspend(PrinterRole.BILLING, printOrder, outletInfo)
- //       printerManager.enqueueBill(printOrder,order.paymentMode, outletInfo)
-//        val bitmap = ReceiptFormatter.billing48_IMAGE(
-//            context = context,
+
+        val printMode = prefs.getReceiptPrintMode()
+
+        when (printMode) {
+
+            ReceiptPrintMode.TEXT -> {
+
+                printerManager.enqueueBill(
+                    printOrder,
+                    order.paymentMode,
+                    outletInfo
+                )
+            }
+
+            ReceiptPrintMode.IMAGE -> {
+
+                printerManager.enqueueBillImage(
+                    order = printOrder,
+                    paymentMode = order.paymentMode,
+                    outletInfo = outletInfo,
+                    kotNumberText = kotNumberText,
+                    stewardName = stewardName
+                )
+            }
+        }
+
+//        printerManager.enqueueBill(printOrder,order.paymentMode, outletInfo)
+//         printerManager.enqueueBillImage(
 //            order = printOrder,
-//            outletInfo = outletInfo
-//        )
-
-//        printerManager.enqueueImagePrint(
-//            role = PrinterRole.BILLING,
-//            bitmap = bitmap,
 //            paymentMode = order.paymentMode,
-//            grandTotal = order.grandTotal
+//            outletInfo = outletInfo,
+//            kotNumberText,
+//            stewardName,
 //        )
-
-        printerManager.enqueueBillImage(
-            order = printOrder,
-            paymentMode = order.paymentMode,
-            outletInfo = outletInfo,
-            kotNumberText,
-            stewardName,
-        )
 
           }
 

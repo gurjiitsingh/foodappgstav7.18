@@ -25,6 +25,7 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.it10x.foodappgstav7_18.ui.payment.PaymentInput
 import com.it10x.foodappgstav7_18.ui.components.NumPad
+import com.it10x.foodappgstav7_18.ui.theme.PosTheme
 import com.it10x.foodappgstav7_18.utils.MoneyUtils
 import java.util.Locale
 import com.it10x.foodappgstav7_18.utils.formatter.MoneyFormatter
@@ -101,18 +102,8 @@ fun BillDialog(
         }
     }
 
-
-
-
-
     val suggestions = billViewModel.customerSuggestions.collectAsState()
-
     val remainingPaise by billViewModel.remainingPaise.collectAsState()
-
-
-
-
-
 
     LaunchedEffect(showBill) {
         if (showBill) {
@@ -151,73 +142,105 @@ fun BillDialog(
 
         Surface(
             modifier = Modifier
-                .fillMaxWidth(1f)
-                .fillMaxHeight(1f)
+                .fillMaxSize()
                 .padding(8.dp),
             shape = MaterialTheme.shapes.medium,
-            tonalElevation = 8.dp
-        )
-        {
+            color = PosTheme.bill.billBg,
+            contentColor = PosTheme.bill.billText,
+            tonalElevation = 0.dp,
+            shadowElevation = 8.dp
+        ) {
             Row(
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .fillMaxSize()
                     .padding(12.dp),
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
                 verticalAlignment = Alignment.Top
             ) {
                 // ========= LEFT COLUMN (Bill List + Totals) =========
-                Column(
+                Surface(
                     modifier = Modifier
                         .weight(2.2f)
-                        .padding(8.dp)
-                        .fillMaxHeight()
+                        .fillMaxHeight(),
+                    color = PosTheme.bill.billTab,
+                    shape = RoundedCornerShape(12.dp)
                 ) {
+                    Column(
+                        modifier = Modifier.padding(8.dp)
+                    ) {
 
 
-                    Text(
-                        "Final Bill ${ selectedTableName}",
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
-                        modifier = Modifier.padding(bottom = 4.dp)
-                    )
+                        Text(
+                            "Final Bill ${selectedTableName}",
+                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                            modifier = Modifier.padding(bottom = 4.dp)
+                        )
 
 
-                    Divider(thickness = 1.dp, color = Color.Gray.copy(alpha = 0.4f))
-                    BillScreen(
-                        viewModel = billViewModel,
-                        onPayClick = { paymentType ->
-
-                            val totalAmount = billViewModel.totalPaise
+                        Divider(thickness = 1.dp, color = PosTheme.bill.billText.copy(alpha = 0.3f))
+                        //**************************************************
+                        // THIS IS BILL SCREEEN SHOW ITEMS
+                        // **************************************************
 
 
-                            billViewModel.payBill(
-                                payments = listOf(
-                                    PaymentInput(
-                                        mode = paymentType.name,
-                                        amount = totalAmount
-                                    )
-                                ),
-                                name = "Customer",
-                                phone = uiState.value.customerPhone
-                            )
+// IF YOU WANT TO USE DEFAULT COLOR
+//                        CompositionLocalProvider(
+//                            LocalContentColor provides PosTheme.bill.billText
+//                        ) {
+//                            Surface(
+//                                color = PosTheme.bill.billBg,
+//                                contentColor = PosTheme.bill.billText
+//                            ) {
+//                                Column(
+//                                    modifier = Modifier
+//                                        .fillMaxWidth()
+//                                        .fillMaxHeight(0.95f)
+//                                        .padding(start = 6.dp, top = 6.dp, end = 6.dp)
+//                                ) {
+                        BillScreen(
+                            viewModel = billViewModel,
+                            onPayClick = { paymentType ->
 
-                           // onDismiss()
-                        },
-                        currencyCode = currencyCode,
-                        localeTag = localeTag,
-                    )
+                                val totalAmount = billViewModel.totalPaise
 
 
+                                billViewModel.payBill(
+                                    payments = listOf(
+                                        PaymentInput(
+                                            mode = paymentType.name,
+                                            amount = totalAmount
+                                        )
+                                    ),
+                                    name = "Customer",
+                                    phone = uiState.value.customerPhone
+                                )
+
+                                // onDismiss()
+                            },
+                            currencyCode = currencyCode,
+                            localeTag = localeTag,
+                        )
+                    //}
                 }
-
+            }
+                //**************************************************
                 // ========= RIGHT COLUMN (Discount + Payment Buttons) =========
-                Column(
+                // **************************************************
+
+                Surface(
                     modifier = Modifier
                         .weight(1f)
-                        .padding(vertical = 8.dp, horizontal = 6.dp)
-                        .verticalScroll(rememberScrollState()),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                )
-                {
+                        .fillMaxHeight(),
+                    color = PosTheme.bill.billBg,
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .padding(vertical = 8.dp, horizontal = 6.dp)
+                            .verticalScroll(rememberScrollState()),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    )
+                    {
 
                     // ---------------- DISCOUNT SECTION ----------------
 
@@ -244,8 +267,10 @@ fun BillDialog(
                                     .height(28.dp)
                                     .width(90.dp),
                                 colors = ButtonDefaults.buttonColors(
-                                    containerColor = Color(0xFF1976D2),
-                                    contentColor = Color.White
+                                    containerColor = PosTheme.bill.warning,
+                                            contentColor = PosTheme.accent.primaryActionText,
+//                                    containerColor = PosTheme.accent.primaryActionBg
+//                                            contentColor = PosTheme.accent.primaryActionText
                                 ),
                                 contentPadding = PaddingValues(vertical = 0.dp)
                             ) {
@@ -262,7 +287,7 @@ fun BillDialog(
                                     .height(28.dp)
                                     .width(90.dp),
                                 colors = ButtonDefaults.buttonColors(
-                                    containerColor = Color(0xFF2E7D32),
+                                    containerColor = PosTheme.bill.success,
                                     contentColor = Color.White
                                 ),
                                 contentPadding = PaddingValues(vertical = 0.dp)
@@ -278,7 +303,7 @@ fun BillDialog(
                                 .height(28.dp)
                                 .width(70.dp),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = Color(0xFFB71C1C), // POS red
+                                containerColor = PosTheme.bill.danger, // POS red
                                 contentColor = Color.White
                             ),
                             contentPadding = PaddingValues(vertical = 0.dp)
@@ -301,15 +326,19 @@ fun BillDialog(
                             singleLine = true,
                             colors = OutlinedTextFieldDefaults.colors(
                                 disabledContainerColor =
-                                    if (activeInput == "PHONE") Color(0xFF1E2A22)  // darker green tone
-                                    else Color(0xFF2A2A2A),
+                                    if (activeInput == "PHONE")
+                                        PosTheme.bill.inputActiveBg
+                                    else
+                                        PosTheme.bill.inputBg,
 
                                 disabledBorderColor =
-                                    if (activeInput == "PHONE") Color(0xFF4CAF50)
-                                    else Color.Gray,
+                                    if (activeInput == "PHONE")
+                                        PosTheme.bill.inputActiveBorder
+                                    else
+                                        PosTheme.bill.inputBorder,
 
-                                disabledTextColor = Color.White,
-                                disabledLabelColor = Color.LightGray
+                                disabledTextColor = PosTheme.bill.billText,
+                                disabledLabelColor = PosTheme.bill.billText.copy(alpha = 0.7f)
                             ),
                             textStyle = LocalTextStyle.current.copy(fontSize = 15.sp),
                             modifier = Modifier
@@ -323,7 +352,9 @@ fun BillDialog(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(top = 4.dp),
-                            colors = CardDefaults.cardColors(containerColor = Color(0xFF2A2A2A))
+                            colors = CardDefaults.cardColors(
+                                containerColor = PosTheme.bill.inputBg
+                            )
                         ) {
                             Column {
                                 suggestions.value.forEach { customer ->
@@ -340,12 +371,12 @@ fun BillDialog(
                                     ) {
                                         Text(
                                             text = "${customer.phone}  (${customer.name})",
-                                            color = Color.White,
+                                            color = PosTheme.bill.billText,
                                             fontSize = 14.sp
                                         )
                                     }
 
-                                    Divider(color = Color.DarkGray)
+                                    Divider(color = PosTheme.bill.billText.copy(alpha = 0.15f))
                                 }
                             }
                         }
@@ -365,7 +396,7 @@ fun BillDialog(
                         Text(
                             text = "Enable Discount",
                             fontSize = 14.sp,          // 🔹 smaller title
-                            color = Color.LightGray,
+                            color = PosTheme.bill.billText.copy(alpha = 0.7f),
                             fontWeight = FontWeight.Medium
                         )
 
@@ -373,17 +404,12 @@ fun BillDialog(
                             checked = showDiscount,
                             onCheckedChange = { showDiscount = it },
                             colors = SwitchDefaults.colors(
+                                checkedThumbColor = PosTheme.bill.warning,
+                                checkedTrackColor = PosTheme.bill.warning.copy(alpha = 0.35f),
 
-                                // 🔹 Enabled (ON) - Dark Orange Thumb
-                                checkedThumbColor = Color(0xFFE65100),      // dark orange
-                                checkedTrackColor = Color(0xFFFFCCBC),      // pastel orange track
-
-                                // 🔹 Disabled (OFF) - Soft Pastel Gray
-                                uncheckedThumbColor = Color(0xFFBDBDBD),
-                                uncheckedTrackColor = Color(0xFFE0E0E0),
-
-                                // optional: subtle border
-                                uncheckedBorderColor = Color(0xFFBDBDBD)
+                                uncheckedThumbColor = PosTheme.bill.billText.copy(alpha = 0.6f),
+                                uncheckedTrackColor = PosTheme.bill.inputBorder.copy(alpha = 0.35f),
+                                uncheckedBorderColor = PosTheme.bill.inputBorder
                             )
                         )
                     }
@@ -420,15 +446,19 @@ fun BillDialog(
                                     enabled = isPrinted,
                                     colors = OutlinedTextFieldDefaults.colors(
                                         disabledContainerColor =
-                                            if (activeInput == "FLAT") Color(0xFF1E2A22)
-                                            else Color(0xFF2A2A2A),
+                                            if (activeInput == "FLAT")
+                                                PosTheme.bill.inputActiveBg
+                                            else
+                                                PosTheme.bill.inputBg,
 
                                         disabledBorderColor =
-                                            if (activeInput == "FLAT") Color(0xFF4CAF50)
-                                            else Color.Gray,
+                                            if (activeInput == "FLAT")
+                                                PosTheme.bill.inputActiveBorder
+                                            else
+                                                PosTheme.bill.inputBorder,
 
-                                        disabledTextColor = Color.White,
-                                        disabledLabelColor = Color.LightGray
+                                        disabledTextColor = PosTheme.bill.billText,
+                                        disabledLabelColor = PosTheme.bill.billText.copy(alpha = 0.7f)
                                     ),
                                     modifier = Modifier.fillMaxWidth()
                                 )
@@ -452,15 +482,19 @@ fun BillDialog(
                                    enabled = isPrinted,
                                     colors = OutlinedTextFieldDefaults.colors(
                                         disabledContainerColor =
-                                            if (activeInput == "PERCENT") Color(0xFF1E2A22)
-                                            else Color(0xFF2A2A2A),
+                                            if (activeInput == "PERCENT")
+                                                PosTheme.bill.inputActiveBg
+                                            else
+                                                PosTheme.bill.inputBg,
 
                                         disabledBorderColor =
-                                            if (activeInput == "PERCENT") Color(0xFF4CAF50)
-                                            else Color.Gray,
+                                            if (activeInput == "PERCENT")
+                                                PosTheme.bill.inputActiveBorder
+                                            else
+                                                PosTheme.bill.inputBorder,
 
-                                        disabledTextColor = Color.White,
-                                        disabledLabelColor = Color.LightGray
+                                        disabledTextColor = PosTheme.bill.billText,
+                                        disabledLabelColor = PosTheme.bill.billText.copy(alpha = 0.7f)
                                     ),
                                     modifier = Modifier.fillMaxWidth()
                                 )
@@ -497,7 +531,7 @@ fun BillDialog(
                         Text(
                             text = "Enable Delivery Charges",
                             fontSize = 14.sp,
-                            color = Color.LightGray,
+                            color = PosTheme.bill.billText.copy(alpha = 0.7f),
                             fontWeight = FontWeight.Medium
                         )
 
@@ -536,15 +570,19 @@ fun BillDialog(
                                     singleLine = true,
                                     colors = OutlinedTextFieldDefaults.colors(
                                         disabledContainerColor =
-                                            if (activeInput == "DELIVERY") Color(0xFF1E2A22)
-                                            else Color(0xFF2A2A2A),
+                                            if (activeInput == "DELIVERY")
+                                                PosTheme.bill.inputActiveBg
+                                            else
+                                                PosTheme.bill.inputBg,
 
                                         disabledBorderColor =
-                                            if (activeInput == "DELIVERY") Color(0xFF0288D1)
-                                            else Color.Gray,
+                                            if (activeInput == "DELIVERY")
+                                                PosTheme.bill.inputActiveBorder
+                                            else
+                                                PosTheme.bill.inputBorder,
 
-                                        disabledTextColor = Color.White,
-                                        disabledLabelColor = Color.LightGray
+                                        disabledTextColor = PosTheme.bill.billText,
+                                        disabledLabelColor = PosTheme.bill.billText.copy(alpha = 0.7f)
                                     ),
                                     modifier = Modifier.fillMaxWidth()
                                 )
@@ -730,7 +768,9 @@ fun BillDialog(
 
 
                         Spacer(modifier = Modifier.height(12.dp))
-                        Divider()
+                    HorizontalDivider(
+                        color = PosTheme.bill.inputBorder
+                    )
                         Spacer(modifier = Modifier.height(8.dp))
 
                     NumPad { label ->
@@ -759,7 +799,7 @@ fun BillDialog(
 
                 }
 
-            }
+            }}
         }
     }
 
@@ -777,7 +817,7 @@ fun BillDialog(
                     .fillMaxWidth(0.88f),
                 shape = RoundedCornerShape(28.dp),
                 tonalElevation = 12.dp,
-                color = Color.White
+                color = PosTheme.bill.billText
             ) {
 
                 Column(

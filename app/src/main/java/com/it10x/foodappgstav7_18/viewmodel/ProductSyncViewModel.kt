@@ -82,4 +82,23 @@ class ProductSyncViewModel(app: Application) : AndroidViewModel(app) {
             }
         }
     }
+
+    fun syncUsersOnly() {
+        viewModelScope.launch {
+            try {
+                _syncing.value = true
+
+                _status.value = "Syncing users..."
+                userRepo.syncUsers()
+
+                _status.value = "Users updated successfully 🎉"
+
+            } catch (e: Exception) {
+                _status.value = "User sync failed: ${e.message}"
+            } finally {
+                _syncing.value = false
+            }
+        }
+    }
+
 }

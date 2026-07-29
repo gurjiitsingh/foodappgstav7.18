@@ -91,7 +91,7 @@ class KitchenDrawer(private val canvas: Canvas) {
             )
         }
 
-        y += boxHeight + (10f * scale)
+        y += boxHeight + (2f * scale)
     }
 
     // =========================
@@ -168,7 +168,7 @@ class KitchenDrawer(private val canvas: Canvas) {
             paint
         )
 
-        y += rowHeight + (30f * scale)
+        y += rowHeight + (2f * scale)
 
         // 🔲 TABLE NO BOX (FULL WIDTH)
         val boxHeight = 50f * scale
@@ -198,7 +198,7 @@ class KitchenDrawer(private val canvas: Canvas) {
             boldPaint
         )
 
-        y += boxHeight + (10f * scale)
+        y += boxHeight + (2f * scale)
 
 
 // 🔲 STEWARD BOX (FULL WIDTH)
@@ -445,7 +445,7 @@ class KitchenDrawer(private val canvas: Canvas) {
     // =========================
     fun drawFooter() {
 
-        y += 30f * scale
+        y += 20f * scale
 
         val centerX = receiptWidth / 2
 
@@ -455,7 +455,7 @@ class KitchenDrawer(private val canvas: Canvas) {
 
         canvas.drawText("---- END ----", centerX, y, centerPaint)
 
-        y += 10f * scale
+        y += 1f * scale
     }
 }
 

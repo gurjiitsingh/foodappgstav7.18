@@ -60,7 +60,18 @@ data class PosTopBarButtonColors(
 data class PosBillColors(
     val billBg: Color,
     val billText: Color,
-    val billTab: Color
+    val billTab: Color,
+
+    // Input fields
+    val inputBg: Color,
+    val inputBorder: Color,
+    val inputActiveBg: Color,
+    val inputActiveBorder: Color,
+
+    // Common actions
+    val success: Color,
+    val warning: Color,
+    val danger: Color
 )
 
 // =====================================================
@@ -145,7 +156,16 @@ fun FoodPosTheme(
             PosTheme.bill = PosBillColors(
                 billBg = Color.White,
                 billText = Color(0xFF023047),
-                billTab = Color(0xFFF8FAFC)
+                billTab = Color(0xFFF8FAFC),
+
+                inputBg = Color(0xFFF8FAFC),
+                inputBorder = Color(0xFFB0BEC5),
+                inputActiveBg = Color(0xFFE3F2FD),
+                inputActiveBorder = Color(0xFF219EBC),
+
+                success = Color(0xFF2E7D32),
+                warning = Color(0xFFFB8500),
+                danger = Color(0xFFC62828)
             )
 
             lightColorScheme(
@@ -203,7 +223,16 @@ fun FoodPosTheme(
             PosTheme.bill = PosBillColors(
                 billBg = Color(0xFF1E293B),
                 billText = Color.White,
-                billTab = Color(0xFF0F172A)
+                billTab = Color(0xFF0F172A),
+
+                inputBg = Color(0xFF273548),
+                inputBorder = Color(0xFF475569),
+                inputActiveBg = Color(0xFF334155),
+                inputActiveBorder = Color(0xFFF97316),
+
+                success = Color(0xFF22C55E),
+                warning = Color(0xFFF97316),
+                danger = Color(0xFFEF4444)
             )
 
             darkColorScheme(
@@ -260,7 +289,16 @@ fun FoodPosTheme(
             PosTheme.bill = PosBillColors(
                 billBg = Color(0xFF1F2937),
                 billText = Color.White,
-                billTab = Color(0xFF111827)
+                billTab = Color(0xFF111827),
+
+                inputBg = Color(0xFF27303D),
+                inputBorder = Color(0xFF4B5563),
+                inputActiveBg = Color(0xFF374151),
+                inputActiveBorder = Color(0xFFFACC15),
+
+                success = Color(0xFF22C55E),
+                warning = Color(0xFFFACC15),
+                danger = Color(0xFFEF4444)
             )
 
             darkColorScheme(
@@ -321,7 +359,16 @@ fun FoodPosTheme(
             PosTheme.bill = PosBillColors(
                 billBg = Color.White,
                 billText = Color(0xFF035AA6),
-                billTab = Color(0xFFF2F2F2)
+                billTab = Color(0xFFF2F2F2),
+
+                inputBg = Color(0xFFF8FAFC),
+                inputBorder = Color(0xFFBFD6E5),
+                inputActiveBg = Color(0xFFE3F2FD),
+                inputActiveBorder = Color(0xFF049DD9),
+
+                success = Color(0xFF2E7D32),
+                warning = Color(0xFFF2C438),
+                danger = Color(0xFFC62828)
             )
 
             lightColorScheme(
@@ -382,7 +429,16 @@ fun FoodPosTheme(
             PosTheme.bill = PosBillColors(
                 billBg = Color(0xFFE0FBFC),
                 billText = Color(0xFF293241),
-                billTab = Color(0xFF3D5A80)
+                billTab = Color(0xFF3D5A80),
+
+                inputBg = Color.White,
+                inputBorder = Color(0xFF98C1D9),
+                inputActiveBg = Color(0xFFF4FDFF),
+                inputActiveBorder = Color(0xFFEE6C4D),
+
+                success = Color(0xFF2E7D32),
+                warning = Color(0xFFEE6C4D),
+                danger = Color(0xFFC62828)
             )
             lightColorScheme(
                 primary = Color(0xFFEE6C4D),
@@ -442,7 +498,16 @@ fun FoodPosTheme(
             PosTheme.bill = PosBillColors(
                 billBg = Color.White,
                 billText = Color(0xFF1E293B),
-                billTab = Color(0xFFE3E3E3)
+                billTab = Color(0xFFE3E3E3),
+
+                inputBg = Color(0xFFFAFAFA),
+                inputBorder = Color(0xFFD6D3D1),
+                inputActiveBg = Color(0xFFF6F3EF),
+                inputActiveBorder = Color(0xFF807E79),
+
+                success = Color(0xFF4CAF50),
+                warning = Color(0xFFE8CCC5),
+                danger = Color(0xFFD32F2F)
             )
             lightColorScheme(
                 primary = Color(0xFF807E79),

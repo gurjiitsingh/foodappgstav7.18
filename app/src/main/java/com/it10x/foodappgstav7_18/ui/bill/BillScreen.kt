@@ -93,9 +93,10 @@ fun BillScreen(
         modifier = Modifier
             .fillMaxWidth()
             .fillMaxHeight(0.95f)
-            .background(PosTheme.product.productCardBg)
+            .background(PosTheme.bill.billBg)
             .padding(start = 6.dp, top = 6.dp, end = 6.dp)
-    ) {
+    )
+    {
         // 🔹 Fixed Header
         // 🔹 Scrollable Item List (takes all remaining space)
         Box(
@@ -134,7 +135,8 @@ fun BillScreen(
                                 // 🔹 Item Name
                                 Text(
                                     text = item.name,
-                                    style = MaterialTheme.typography.bodyLarge
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    color = PosTheme.bill.billText,
                                 )
 
                                 // 🔹 Modifiers
@@ -143,7 +145,7 @@ fun BillScreen(
                                     Text(
                                         text = "+ $mod",
                                         style = MaterialTheme.typography.bodySmall,
-                                        color = PosTheme.product.productCardText
+                                        color = PosTheme.bill.billText.copy(alpha = 0.75f)
                                     )
                                 }
 
@@ -152,7 +154,7 @@ fun BillScreen(
                                     Text(
                                         text = item.note,
                                         style = MaterialTheme.typography.bodySmall,
-                                        color = PosTheme.product.productCardText
+                                        color = PosTheme.bill.billText.copy(alpha = 0.65f)
                                     )
                                 }
                             }
@@ -165,7 +167,11 @@ fun BillScreen(
                             horizontalArrangement = Arrangement.Center,
                             modifier = Modifier.padding(horizontal = 8.dp)
                         ) {
-                            Text(text = "x ${item.quantity}", fontSize = 13.sp)
+                            Text(
+                                text = "x ${item.quantity}",
+                                fontSize = 13.sp,
+                                color = PosTheme.bill.billText
+                            )
                             Spacer(Modifier.width(8.dp))
                             OutlinedButton(
                                 onClick = {
@@ -186,8 +192,8 @@ fun BillScreen(
                                 currencyCode = currencyCode,
                                 localeTag = localeTag
                             ),
-                            modifier = Modifier
-                                .width(90.dp), // fixed width so numbers align
+                            color = PosTheme.bill.billText,
+                            modifier = Modifier.width(90.dp),
                             textAlign = TextAlign.End
                         )
                     }
@@ -197,7 +203,9 @@ fun BillScreen(
 
         // 🔹 Fixed Footer (Totals)
         Spacer(Modifier.height(8.dp))
-        Divider()
+        HorizontalDivider(
+            color = PosTheme.bill.inputBorder
+        )
         Spacer(Modifier.height(6.dp))
 
         BillRow(
@@ -311,15 +319,15 @@ private fun BillRow(
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
 
-        Text(label)
+        Text(
+            text = label,
+            color = PosTheme.bill.billText
+        )
 
         Text(
             text = formattedAmount,
-            fontWeight =
-                if (bold)
-                    androidx.compose.ui.text.font.FontWeight.Bold
-                else
-                    null
+            color = PosTheme.bill.billText,
+            fontWeight = if (bold) FontWeight.Bold else FontWeight.Normal
         )
     }
 }

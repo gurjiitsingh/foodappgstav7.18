@@ -24,10 +24,13 @@ import androidx.compose.ui.graphics.Color
 
 @Composable
 fun PosLoginScreen(
+
     users: List<PosUserEntity>,
     isLoading: Boolean,
+    syncing: Boolean,
     error: String?,
-    onLoginClick: (PosUserEntity, String) -> Unit
+    onLoginClick: (PosUserEntity, String) -> Unit,
+    onSyncUsersClick: () -> Unit
 ) {
 
     var selectedUser by remember {
@@ -247,22 +250,56 @@ fun PosLoginScreen(
                 modifier = Modifier.height(15.dp)
             )
 
+// =========================
+// SYNC USERS BUTTON
+// =========================
 
+            OutlinedButton(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp),
+                enabled = !syncing,
+                onClick = onSyncUsersClick,
+                border = BorderStroke(
+                    1.dp,
+                    PosTheme.accent.primaryActionBg
+                ),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = PosTheme.accent.primaryActionBg
+                ),
+                shape = RoundedCornerShape(4.dp)
+            ) {
+                if (syncing) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(18.dp),
+                        strokeWidth = 2.dp
+                    )
+                } else {
+                    Text(
+                        text = "UPDATE",
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+
+            Spacer(
+                modifier = Modifier.height(12.dp)
+            )
             // =========================
             // PIN + KEYBOARD
             // =========================
 
 
-            Row(
-
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f),
-
-                horizontalArrangement =
-                    Arrangement.spacedBy(20.dp)
-
-            ) {
+//            Row(
+//
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .weight(1f),
+//
+//                horizontalArrangement =
+//                    Arrangement.spacedBy(20.dp)
+//
+//            ) {
 
 
                 // LEFT
@@ -463,7 +500,7 @@ fun PosLoginScreen(
                 }
 
 
-            }
+           // }
 
 
         }

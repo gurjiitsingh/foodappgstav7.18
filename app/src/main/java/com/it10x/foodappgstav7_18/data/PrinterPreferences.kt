@@ -292,6 +292,20 @@ fun getPrinterConfig(role: PrinterRole): PrinterConfig? {
         }
     }
 
+    fun setReceiptPrintMode(mode: ReceiptPrintMode) {
+        prefs.edit()
+            .putString("receipt_print_mode", mode.name)
+            .apply()
+    }
 
+    fun getReceiptPrintMode(): ReceiptPrintMode {
+
+        val value = prefs.getString(
+            "receipt_print_mode",
+            ReceiptPrintMode.IMAGE.name
+        ) ?: ReceiptPrintMode.IMAGE.name
+
+        return ReceiptPrintMode.valueOf(value)
+    }
 
 }

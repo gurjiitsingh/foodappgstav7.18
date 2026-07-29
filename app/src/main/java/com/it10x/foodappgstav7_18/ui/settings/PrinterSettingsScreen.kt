@@ -20,6 +20,8 @@ import com.it10x.foodappgstav7_18.viewmodel.PrinterSettingsViewModel
 import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.launch
 import android.content.Intent
+import com.it10x.foodappgstav7_18.data.ReceiptPrintMode
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PrinterSettingsScreen(
@@ -78,7 +80,8 @@ fun PrinterSettingsScreen(
                 .height(180.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
+        )
+        {
             items(PrinterType.values().size) { index ->
                 val type = PrinterType.values()[index]
                 val isSelected = printerType == type
@@ -162,7 +165,8 @@ fun PrinterSettingsScreen(
         }
 
         // 🔹 Connection Info
-        when (printerType) {
+        when (printerType)
+        {
             PrinterType.BLUETOOTH -> {
                 if (btPrinterName.isNotBlank())
                     Text("Bluetooth Printer: $btPrinterName", style = MaterialTheme.typography.bodyMedium)
@@ -180,12 +184,48 @@ fun PrinterSettingsScreen(
         }
 
         Divider(Modifier.padding(vertical = 8.dp))
+// 🔹 Receipt Print Type
+        Spacer(modifier = Modifier.height(12.dp))
 
-        // 🔹 Actions
+        Text(
+            text = "Receipt Print Type",
+            fontWeight = FontWeight.Medium,
+            style = MaterialTheme.typography.titleMedium
+        )
+
+        var receiptMode by remember {
+            mutableStateOf(prefs.getReceiptPrintMode())
+        }
+
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
+
+            FilterChip(
+                selected = receiptMode == ReceiptPrintMode.TEXT,
+                onClick = {
+                    receiptMode = ReceiptPrintMode.TEXT
+                    prefs.setReceiptPrintMode(ReceiptPrintMode.TEXT)
+                },
+                label = { Text("Text") }
+            )
+
+            FilterChip(
+                selected = receiptMode == ReceiptPrintMode.IMAGE,
+                onClick = {
+                    receiptMode = ReceiptPrintMode.IMAGE
+                    prefs.setReceiptPrintMode(ReceiptPrintMode.IMAGE)
+                },
+                label = { Text("Image") }
+            )
+        }
+        // 🔹 Actions
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        )
+        {
             Button(
                 modifier = Modifier.weight(1f),
                 onClick = {
@@ -218,6 +258,8 @@ fun PrinterSettingsScreen(
         ) {
             Text("Debug Log Printers")
         }
+
+
 
         OutlinedButton(
             modifier = Modifier.align(Alignment.CenterHorizontally),

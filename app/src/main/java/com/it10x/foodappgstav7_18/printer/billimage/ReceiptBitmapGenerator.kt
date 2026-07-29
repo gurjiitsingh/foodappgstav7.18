@@ -590,7 +590,7 @@ object ReceiptBitmapGenerator {
             val maxWidth = itemRight - xItem - 10f
 
             val lines = wrapText(
-                itemName,
+                itemName.uppercase(),
                 maxWidth,
                 boldPaintItem
             )
@@ -945,7 +945,7 @@ object ReceiptBitmapGenerator {
             // Draw QR
             canvas.drawBitmap(scaledQr, x, y, null)
 
-            y += qrSize + 5f
+            y += qrSize + 1f
 
             // Label
             val paint = Paint().apply {
@@ -962,7 +962,7 @@ object ReceiptBitmapGenerator {
                 paint
             )
 
-            y += 15f
+            y += 30f
         }
         private fun drawLabelValue(
             label: String,

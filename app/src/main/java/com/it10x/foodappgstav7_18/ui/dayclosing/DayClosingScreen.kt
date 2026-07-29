@@ -1,5 +1,6 @@
 package com.it10x.foodappgstav7_18.ui.dayclosing
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,6 +18,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -29,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.it10x.foodappgstav7_18.ui.theme.PosTheme
 import com.it10x.foodappgstav7_18.utils.formatter.MoneyFormatter
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -47,6 +50,7 @@ fun DayClosingScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(PosTheme.bill.billBg)
             .verticalScroll(rememberScrollState())
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -56,112 +60,190 @@ fun DayClosingScreen(
         Text(
             text = "Business Day Closing",
             style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
+            color = PosTheme.bill.billText
         )
-
         //==========================================================
         // ROW 1
         //==========================================================
+
 
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
 
-            Card(
-                modifier = Modifier.weight(1f),
-                colors = CardDefaults.cardColors(
-                    containerColor = Color(0xFFE3F2FD)
-                )
-            ) {
+            //==========================================================
+            // LEFT - Payment Breakdown
+            //==========================================================
 
-                Column(
-                    modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
 
-                    Text(
-                        "Business Information",
-                        fontWeight = FontWeight.Bold,
-                        style = MaterialTheme.typography.titleMedium
-                    )
-
-                    Divider()
-
-                    InfoRow("Business Date", ui.businessDate)
-
-                    InfoRow("Opened By", ui.openedBy)
-
-                    InfoRow(
-                        "Opened At",
-                        formatTime(ui.openedAt)
-                    )
-                }
-            }
 
             Card(
                 modifier = Modifier.weight(1f),
                 colors = CardDefaults.cardColors(
-                    containerColor = Color(0xFFE8F5E9)
+                    containerColor = PosTheme.bill.billTab
                 )
-            ) {
+            )
+            {
 
                 Column(
                     modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                )
+                {
 
                     Text(
-                        "Sales Summary",
+                        text = "Cash Count",
+                        style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
-                        style = MaterialTheme.typography.titleMedium
+                        color = PosTheme.bill.billText
                     )
 
-                    Divider()
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
 
-                    MoneyRow(
-                        "Total Sales",
-                        ui.totalSales,
-                        currencyCode,
-                        localeTag
+                        SmallMoneyCard(
+                            modifier = Modifier.weight(1f),
+                            title = "Opening",
+                            amount = ui.openingCash,
+                            currencyCode = currencyCode,
+                            localeTag = localeTag
+                        )
+
+                        SmallMoneyCard(
+                            modifier = Modifier.weight(1f),
+                            title = "Expected",
+                            amount = ui.expectedCash,
+                            currencyCode = currencyCode,
+                            localeTag = localeTag
+                        )
+                    }
+
+                    OutlinedTextField(
+                        value = ui.actualCash,
+                        onValueChange = viewModel::updateActualCash,
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        label = { Text("Actual Cash Counted") }
                     )
 
-                    MoneyRow(
-                        "Discount",
-                        ui.totalDiscount,
-                        currencyCode,
-                        localeTag
+                    OutlinedTextField(
+                        value = ui.notes,
+                        onValueChange = viewModel::updateNotes,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(90.dp),
+                        label = { Text("Notes (Optional)") }
                     )
 
-                    MoneyRow(
-                        "Tax",
-                        ui.totalTax,
-                        currencyCode,
-                        localeTag
-                    )
+                    Button(
+                        modifier = Modifier
+                            .align(Alignment.End)
+                            .height(44.dp),
+                        onClick = onCloseDay
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Lock,
+                            contentDescription = null
+                        )
 
-                    MoneyRow(
-                        "Refund",
-                        ui.totalRefund,
-                        currencyCode,
-                        localeTag
-                    )
+                        Spacer(Modifier.width(8.dp))
 
-                    MoneyRow(
-                        "Complimentary",
-                        ui.complimentarySales,
-                        currencyCode,
-                        localeTag
-                    )
-
-                    Divider()
-
-                    InfoRow(
-                        "Orders",
-                        ui.totalOrders.toString()
-                    )
+                        Text("Close Day")
+                    }
                 }
             }
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+
+                //==========================================================
+                // Business Information
+                //==========================================================
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = PosTheme.bill.billTab
+                    )
+                ) {
+
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+
+                        Text(
+                            "Business Information",
+                            fontWeight = FontWeight.Bold,
+                            style = MaterialTheme.typography.titleMedium,
+                            color = PosTheme.bill.billText
+                        )
+
+                        HorizontalDivider(
+                            color = PosTheme.bill.inputBorder
+                        )
+
+                        InfoRow("Business Date", ui.businessDate)
+                        InfoRow("Opened By", ui.openedBy)
+                        InfoRow("Opened At", formatTime(ui.openedAt))
+                    }
+                }
+
+                //==========================================================
+                // Sales Summary
+                //==========================================================
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = PosTheme.bill.billTab
+                    )
+                ) {
+
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+
+                        Text(
+                            "Sales Summary",
+                            fontWeight = FontWeight.Bold,
+                            style = MaterialTheme.typography.titleMedium,
+                            color = PosTheme.bill.billText
+                        )
+
+                        HorizontalDivider(
+                            color = PosTheme.bill.inputBorder
+                        )
+
+                        MoneyRow("Total Sales", ui.totalSales, currencyCode, localeTag)
+                        MoneyRow("Discount", ui.totalDiscount, currencyCode, localeTag)
+                        MoneyRow("Tax", ui.totalTax, currencyCode, localeTag)
+                        MoneyRow("Refund", ui.totalRefund, currencyCode, localeTag)
+                        MoneyRow("Complimentary", ui.complimentarySales, currencyCode, localeTag)
+
+                        HorizontalDivider(
+                            color = PosTheme.bill.inputBorder
+                        )
+
+                        InfoRow("Orders", ui.totalOrders.toString())
+                    }
+                }
+            }
+        }
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+
+
+
+
+           //SECNOD CARD
         }
 
         //==========================================================
@@ -170,7 +252,7 @@ fun DayClosingScreen(
 
         Card(
             colors = CardDefaults.cardColors(
-                containerColor = Color(0xFFFFF8E1)
+                containerColor = PosTheme.bill.billTab
             )
         )
         {
@@ -182,7 +264,8 @@ fun DayClosingScreen(
                 Text(
                     "Payment Breakdown",
                     fontWeight = FontWeight.Bold,
-                    style = MaterialTheme.typography.titleMedium
+                    style = MaterialTheme.typography.titleMedium,
+                    color = PosTheme.bill.billText
                 )
 
                 Spacer(Modifier.height(16.dp))
@@ -251,97 +334,7 @@ fun DayClosingScreen(
         // ROW 3
         //==========================================================
 
-        Card {
 
-            Column(
-                modifier = Modifier.padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            )
-            {
-
-                Text(
-                    text = "Cash Count",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
-
-                //====================================
-                // Opening / Expected
-                //====================================
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-
-                    SmallMoneyCard(
-                        modifier = Modifier.weight(1f),
-                        title = "Opening",
-                        amount = ui.openingCash,
-                        currencyCode = currencyCode,
-                        localeTag = localeTag
-                    )
-
-                    SmallMoneyCard(
-                        modifier = Modifier.weight(1f),
-                        title = "Expected",
-                        amount = ui.expectedCash,
-                        currencyCode = currencyCode,
-                        localeTag = localeTag
-                    )
-                }
-
-                //====================================
-                // Actual Cash
-                //====================================
-
-                OutlinedTextField(
-                    value = ui.actualCash,
-                    onValueChange = viewModel::updateActualCash,
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    label = {
-                        Text("Actual Cash Counted")
-                    }
-                )
-
-                //====================================
-                // Notes
-                //====================================
-
-                OutlinedTextField(
-                    value = ui.notes,
-                    onValueChange = viewModel::updateNotes,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(90.dp),
-                    label = {
-                        Text("Notes (Optional)")
-                    }
-                )
-
-                //====================================
-                // Action
-                //====================================
-
-                Button(
-                    modifier = Modifier
-                        .align(Alignment.End)
-                        .height(44.dp),
-                    onClick = onCloseDay
-                ) {
-
-                    Icon(
-                        imageVector = Icons.Default.Lock,
-                        contentDescription = null
-                    )
-
-                    Spacer(Modifier.width(8.dp))
-
-                    Text("Close Day")
-                }
-            }
-        }
     }
 }
 
@@ -358,7 +351,7 @@ private fun SmallMoneyCard(
     Card(
         modifier = modifier,
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
+            containerColor = PosTheme.bill.billTab
         )
     ) {
 
@@ -368,7 +361,8 @@ private fun SmallMoneyCard(
 
             Text(
                 text = title,
-                style = MaterialTheme.typography.labelMedium
+                style = MaterialTheme.typography.labelMedium,
+                color = PosTheme.bill.billText.copy(alpha = 0.75f)
             )
 
             Spacer(Modifier.height(4.dp))
@@ -380,7 +374,8 @@ private fun SmallMoneyCard(
                     localeTag
                 ),
                 style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                color = PosTheme.bill.billText
             )
         }
     }
@@ -397,7 +392,7 @@ private fun PaymentCard(
     Card(
         modifier = modifier,
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
+            containerColor = PosTheme.bill.inputBg
         )
     ) {
 
@@ -409,7 +404,8 @@ private fun PaymentCard(
             Text(
                 text = title,
                 style = MaterialTheme.typography.labelMedium,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                color = PosTheme.bill.billText.copy(alpha = 0.75f)
             )
 
             Text(
@@ -419,7 +415,8 @@ private fun PaymentCard(
                     localeTag
                 ),
                 style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                color = PosTheme.bill.billText
             )
         }
     }
@@ -429,16 +426,19 @@ private fun InfoRow(
     label: String,
     value: String
 ) {
-
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
 
-        Text(label)
+        Text(
+            text = label,
+            color = PosTheme.bill.billText.copy(alpha = 0.75f)
+        )
 
         Text(
-            value,
+            text = value,
+            color = PosTheme.bill.billText,
             fontWeight = FontWeight.SemiBold
         )
     }
@@ -451,20 +451,23 @@ private fun MoneyRow(
     currencyCode: String,
     localeTag: String
 ) {
-
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
 
-        Text(label)
+        Text(
+            text = label,
+            color = PosTheme.bill.billText.copy(alpha = 0.75f)
+        )
 
         Text(
-            MoneyFormatter.format(
+            text = MoneyFormatter.format(
                 amount = amount,
                 currencyCode = currencyCode,
                 localeTag = localeTag
             ),
+            color = PosTheme.bill.billText,
             fontWeight = FontWeight.SemiBold
         )
     }
