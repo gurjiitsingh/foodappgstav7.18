@@ -7,6 +7,8 @@ import androidx.lifecycle.viewModelScope
 import androidx.room.Transaction
 import com.google.firebase.firestore.BuildConfig
 import com.google.firebase.firestore.FirebaseFirestore
+import com.it10x.foodappgstav7_18.data.PrinterPreferences
+import com.it10x.foodappgstav7_18.data.ReceiptPrintMode
 
 import com.it10x.foodappgstav7_18.data.online.sync.TableKotSyncService
 import com.it10x.foodappgstav7_18.data.pos.AppDatabaseProvider
@@ -43,6 +45,7 @@ class KitchenViewModel(
     private val sessionId: String,
     private val orderType: String,
     private val repository: POSOrdersRepository,
+    private val prefs: PrinterPreferences,
 
     ) : AndroidViewModel(app) {
 
@@ -359,7 +362,7 @@ class KitchenViewModel(
             kotRepository.syncBillCount(tableId)
 
 
-
+            val printMode = prefs.getReceiptPrintMode()
             CoroutineScope(Dispatchers.IO).launch {
                 try {
 
@@ -367,19 +370,32 @@ class KitchenViewModel(
 
                     if (printItems.isNotEmpty()) {
 
-//                        printerManager.enqueueKitchen(
-//                            sessionKey = tableNo,
-//                            orderType = orderType,
-//                            kotNumber = kotNumber,
-//                            items = printItems
-//                        )
-                        printerManager.enqueueKitchenImage(
+
+                        when (printMode) {
+
+                            ReceiptPrintMode.TEXT -> {
+
+                    printerManager.enqueueKitchen(
                             sessionKey = tableNo,
-                            tableName = tableName,
                             orderType = orderType,
                             kotNumber = kotNumber,
                             items = printItems
                         )
+                            }
+
+                            ReceiptPrintMode.IMAGE -> {
+
+                                printerManager.enqueueKitchenImage(
+                                    sessionKey = tableNo,
+                                    tableName = tableName,
+                                    orderType = orderType,
+                                    kotNumber = kotNumber,
+                                    items = printItems
+                                )
+                            }
+                        }
+
+
 
 
                     }

@@ -63,7 +63,7 @@ class KitchenDrawer(private val canvas: Canvas) {
             ?.uppercase()
             ?.trim()
 
-        val boxHeight = 60f * scale
+        val boxHeight = 40f * scale
 
         // 🔲 Full width box
         canvas.drawRect(
@@ -107,7 +107,7 @@ class KitchenDrawer(private val canvas: Canvas) {
 
         val labelBoxWidth = 60f * scale   // K.No. label box
         val valueBoxWidth = 95f * scale   // KOT number box
-        val rowHeight = 50f * scale
+        val rowHeight = 40f * scale
 
         val startX = padding
         val endX = canvas.width.toFloat() - padding
@@ -264,7 +264,7 @@ class KitchenDrawer(private val canvas: Canvas) {
 
 
 
-        val lineHeight = 28f * scale
+        val lineHeight = 22f * scale
         val textPadding = 10f * scale
         val maxNameWidth = dividerX - padding - 20f * scale
 
@@ -338,7 +338,7 @@ class KitchenDrawer(private val canvas: Canvas) {
                 tempLines.size
             } else 0
 
-            val rowHeight = ((lines.size + modifiers.size + noteLinesCount) * lineHeight) + 20f * scale
+            val rowHeight = ((lines.size + modifiers.size + noteLinesCount) * lineHeight) + 12f * scale
 
             // 🔲 BOX
             canvas.drawRect(

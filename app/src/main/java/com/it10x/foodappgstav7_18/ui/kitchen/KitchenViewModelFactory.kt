@@ -5,6 +5,7 @@ package com.it10x.foodappgstav7_18.ui.kitchen
 import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.it10x.foodappgstav7_18.data.PrinterPreferences
 import com.it10x.foodappgstav7_18.data.pos.repository.POSOrdersRepository
 import com.it10x.foodappgstav7_18.ui.cart.CartViewModel
 
@@ -19,9 +20,11 @@ class KitchenViewModelFactory(
 ) : ViewModelProvider.Factory {
 
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
+
         if (modelClass.isAssignableFrom(KitchenViewModel::class.java)) {
+            val prefs = PrinterPreferences(app.applicationContext)
             @Suppress("UNCHECKED_CAST")
-            return KitchenViewModel(app, tableId, tableName, sessionId, orderType, repository ) as T
+            return KitchenViewModel(app, tableId, tableName, sessionId, orderType, repository ,  prefs = prefs,) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
