@@ -2,12 +2,13 @@ package com.it10x.foodappgstav7_18.data.pos.entities
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import java.util.UUID
 
 @Entity(tableName = "pos_day_closing")
 data class PosDayClosingEntity(
 
     @PrimaryKey
-    val id: String,
+    val id: String = UUID.randomUUID().toString(),
 
     val businessDate: String,
 

@@ -1,5 +1,9 @@
 package com.it10x.foodappgstav7_18.ui.dayclosing
 
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -18,11 +22,13 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -36,7 +42,13 @@ import com.it10x.foodappgstav7_18.utils.formatter.MoneyFormatter
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.getValue
+import java.time.Instant
+import java.time.ZoneId
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DayClosingScreen(
     viewModel: DayClosingViewModel,
@@ -46,7 +58,7 @@ fun DayClosingScreen(
 ) {
 
     val ui by viewModel.uiState.collectAsState()
-
+    var showDatePicker by remember { mutableStateOf(false) }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -63,10 +75,64 @@ fun DayClosingScreen(
             fontWeight = FontWeight.Bold,
             color = PosTheme.bill.billText
         )
+
+
+
         //==========================================================
         // ROW 1
         //==========================================================
 
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+
+            Text(
+                text = "Selected Date: ${viewModel.selectedDate}",
+                color = PosTheme.bill.billText
+            )
+
+            OutlinedButton(onClick = { showDatePicker = true }) {
+                Text("Select Date")
+            }
+        }
+        //==========================================================
+        // ROW 2
+        //==========================================================
+        if (showDatePicker) {
+
+            val datePickerState = rememberDatePickerState()
+
+            DatePickerDialog(
+                onDismissRequest = { showDatePicker = false },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            val millis = datePickerState.selectedDateMillis
+                            if (millis != null) {
+                                val date = Instant.ofEpochMilli(millis)
+                                    .atZone(ZoneId.systemDefault())
+                                    .toLocalDate()
+
+                                viewModel.updateSelectedDate(date)
+                            }
+                            showDatePicker = false
+                        }
+                    ) {
+                        Text("OK")
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showDatePicker = false }) {
+                        Text("Cancel")
+                    }
+                }
+            ) {
+                DatePicker(state = datePickerState)
+            }
+        }
 
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -121,14 +187,34 @@ fun DayClosingScreen(
                             localeTag = localeTag
                         )
                     }
-
-                    OutlinedTextField(
-                        value = ui.actualCash,
-                        onValueChange = viewModel::updateActualCash,
+                    Row(
                         modifier = Modifier.fillMaxWidth(),
-                        singleLine = true,
-                        label = { Text("Actual Cash Counted") }
-                    )
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+
+                        OutlinedTextField(
+                            value = ui.actualCash,
+                            onValueChange = viewModel::updateActualCash,
+                            modifier = Modifier.weight(1f),
+                            singleLine = true,
+                            label = { Text("Actual Cash Counted") }
+                        )
+
+                        Button(
+                            modifier = Modifier.height(56.dp), // Match TextField height
+                            onClick = onCloseDay
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Lock,
+                                contentDescription = null
+                            )
+
+                            Spacer(Modifier.width(8.dp))
+
+                            Text("Close Day")
+                        }
+                    }
 
                     OutlinedTextField(
                         value = ui.notes,
@@ -139,22 +225,15 @@ fun DayClosingScreen(
                         label = { Text("Notes (Optional)") }
                     )
 
-                    Button(
-                        modifier = Modifier
-                            .align(Alignment.End)
-                            .height(44.dp),
-                        onClick = onCloseDay
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Lock,
-                            contentDescription = null
-                        )
 
-                        Spacer(Modifier.width(8.dp))
-
-                        Text("Close Day")
-                    }
                 }
+
+
+
+
+
+
+
             }
             Column(
                 modifier = Modifier.weight(1f),

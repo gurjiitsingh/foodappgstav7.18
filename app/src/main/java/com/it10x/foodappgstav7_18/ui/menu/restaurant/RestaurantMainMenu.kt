@@ -74,73 +74,41 @@ fun RestaurantMainMenu(
         thickness = 0.5.dp
     )
 
-    NavigationDrawerItem(
-        label = { Text("🧾 Receipt Preview") },
-        selected = false,
-        onClick = {
+//    NavigationDrawerItem(
+//        label = { Text("🧾 Receipt Preview") },
+//        selected = false,
+//        onClick = {
+//
+//            val file = java.io.File(
+//                context.cacheDir,
+//                "receipt_preview.png"
+//            )
+//
+//            if (!file.exists()) {
+//
+//                android.widget.Toast.makeText(
+//                    context,
+//                    "No preview found. Print a bill first.",
+//                    android.widget.Toast.LENGTH_SHORT
+//                ).show()
+//
+//                return@NavigationDrawerItem
+//            }
+//
+//            val intent = android.content.Intent(
+//                context,
+//                com.it10x.foodappgstav7_18.ui.preview.ReceiptPreviewActivity::class.java
+//            ).apply {
+//                putExtra("image", file.absolutePath)
+//            }
+//
+//            context.startActivity(intent)
+//
+//            scope.launch { drawerState.close() }
+//        }
+//    )
 
-            val file = java.io.File(
-                context.cacheDir,
-                "receipt_preview.png"
-            )
 
-            if (!file.exists()) {
-
-                android.widget.Toast.makeText(
-                    context,
-                    "No preview found. Print a bill first.",
-                    android.widget.Toast.LENGTH_SHORT
-                ).show()
-
-                return@NavigationDrawerItem
-            }
-
-            val intent = android.content.Intent(
-                context,
-                com.it10x.foodappgstav7_18.ui.preview.ReceiptPreviewActivity::class.java
-            ).apply {
-                putExtra("image", file.absolutePath)
-            }
-
-            context.startActivity(intent)
-
-            scope.launch { drawerState.close() }
-        }
-    )
-
-    NavigationDrawerItem(
-        label = { Text("🧾 KOT Preview") },
-        selected = false,
-        onClick = {
-
-            val file = java.io.File(
-                context.cacheDir,
-                "kot_preview1.png"
-            )
-
-            if (!file.exists()) {
-
-                android.widget.Toast.makeText(
-                    context,
-                    "No preview found. Print a bill first.",
-                    android.widget.Toast.LENGTH_SHORT
-                ).show()
-
-                return@NavigationDrawerItem
-            }
-
-            val intent = android.content.Intent(
-                context,
-                com.it10x.foodappgstav7_18.ui.preview.ReceiptPreviewActivity::class.java
-            ).apply {
-                putExtra("image", file.absolutePath)
-            }
-
-            context.startActivity(intent)
-
-            scope.launch { drawerState.close() }
-        }
-    )
 
     NavigationDrawerItem(
         label = { Text("Tables") },
@@ -216,6 +184,40 @@ fun RestaurantMainMenu(
         onClick = {
             scope.launch { drawerState.close() }
             navController.navigate("kot_history")
+        }
+    )
+
+    NavigationDrawerItem(
+        label = { Text("🧾 Print Preview") },
+        selected = false,
+        onClick = {
+
+            val file = java.io.File(
+                context.cacheDir,
+                "kot_preview1.png"
+            )
+
+            if (!file.exists()) {
+
+                android.widget.Toast.makeText(
+                    context,
+                    "No preview found. Print a bill first.",
+                    android.widget.Toast.LENGTH_SHORT
+                ).show()
+
+                return@NavigationDrawerItem
+            }
+
+            val intent = android.content.Intent(
+                context,
+                com.it10x.foodappgstav7_18.ui.preview.ReceiptPreviewActivity::class.java
+            ).apply {
+                putExtra("image", file.absolutePath)
+            }
+
+            context.startActivity(intent)
+
+            scope.launch { drawerState.close() }
         }
     )
 

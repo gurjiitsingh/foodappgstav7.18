@@ -368,37 +368,52 @@ class KitchenViewModel(
 
                     val printItems = lockAndFetchBatch(batchId)
 
-                    if (printItems.isNotEmpty()) {
+                    printerManager.enqueueKitchenImage(
+                        sessionKey = tableNo,
+                        tableName = tableName,
+                        orderType = orderType,
+                        kotNumber = kotNumber,
+                        items = printItems
+                    )
 
+//                                        printerManager.enqueueKitchen(
+//                            sessionKey = tableNo,
+//                            orderType = orderType,
+//                            kotNumber = kotNumber,
+//                            items = printItems
+//                        )
 
-                        when (printMode) {
-
-                            ReceiptPrintMode.TEXT -> {
-
-                    printerManager.enqueueKitchen(
-                            sessionKey = tableNo,
-                            orderType = orderType,
-                            kotNumber = kotNumber,
-                            items = printItems
-                        )
-                            }
-
-                            ReceiptPrintMode.IMAGE -> {
-
-                                printerManager.enqueueKitchenImage(
-                                    sessionKey = tableNo,
-                                    tableName = tableName,
-                                    orderType = orderType,
-                                    kotNumber = kotNumber,
-                                    items = printItems
-                                )
-                            }
-                        }
-
-
-
-
-                    }
+//                    if (printItems.isNotEmpty()) {
+//
+//
+//                        when (printMode) {
+//
+//                            ReceiptPrintMode.TEXT -> {
+//
+//                    printerManager.enqueueKitchen(
+//                            sessionKey = tableNo,
+//                            orderType = orderType,
+//                            kotNumber = kotNumber,
+//                            items = printItems
+//                        )
+//                            }
+//
+//                            ReceiptPrintMode.IMAGE -> {
+//
+//                                printerManager.enqueueKitchenImage(
+//                                    sessionKey = tableNo,
+//                                    tableName = tableName,
+//                                    orderType = orderType,
+//                                    kotNumber = kotNumber,
+//                                    items = printItems
+//                                )
+//                            }
+//                        }
+//
+//
+//
+//
+//                    }
 
                     tableKotSyncService.syncTableSnapshot(
                         tableId = tableNo,

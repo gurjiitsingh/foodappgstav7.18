@@ -8,7 +8,16 @@ data class DayClosingUiState(
 
     val openedAt: Long = 0L,
 
+
     val openingCash: Double = 0.0,
+
+    val expectedCash: Double = 0.0,
+
+    val actualCash: String = "",
+
+
+    val notes: String = "",
+
 
     val totalOrders: Int = 0,
 
@@ -22,6 +31,7 @@ data class DayClosingUiState(
 
     val complimentarySales: Double = 0.0,
 
+
     val cashSales: Double = 0.0,
 
     val cardSales: Double = 0.0,
@@ -32,9 +42,7 @@ data class DayClosingUiState(
 
     val creditSales: Double = 0.0,
 
-    val expectedCash: Double = 0.0,
 
-    val actualCash: String = "",
-
-    val notes: String = ""
+    // Add this
+    val errorMessage: String? = null
 )

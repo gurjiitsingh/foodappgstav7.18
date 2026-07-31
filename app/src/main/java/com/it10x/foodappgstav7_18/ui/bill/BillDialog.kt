@@ -274,7 +274,7 @@ fun BillDialog(
                                 ),
                                 contentPadding = PaddingValues(vertical = 0.dp)
                             ) {
-                                Text("Print Again", fontSize = 12.sp)
+                                Text("Unlock", fontSize = 12.sp)
                             }
 
                         } else {
@@ -298,19 +298,37 @@ fun BillDialog(
 
                         // ✅ Compact Close button (top-right)
                         Button(
-                            onClick = onDismiss,
+                            onClick = {
+                                if (!isPrinted) {
+                                    onDismiss()
+                                }
+                            },
+                            enabled = !isPrinted,
                             modifier = Modifier
                                 .height(28.dp)
                                 .width(70.dp),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = PosTheme.bill.danger, // POS red
-                                contentColor = Color.White
+                                containerColor = PosTheme.bill.danger,
+                                contentColor = Color.White,
+                                disabledContainerColor = PosTheme.bill.danger.copy(alpha = 0.35f),
+                                disabledContentColor = Color.White.copy(alpha = 0.6f)
                             ),
                             contentPadding = PaddingValues(vertical = 0.dp)
                         ) {
                             Text("Close", fontSize = 12.sp)
                         }
                     }
+                        if (isPrinted) {
+                            Text(//  Close disabled after printing.
+
+                                text = "Complete payment or press Unlock.",
+                                color = PosTheme.bill.warning,
+                                fontSize = 11.sp,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 4.dp, bottom = 8.dp)
+                            )
+                        }
 
                     Box(
                         modifier = Modifier

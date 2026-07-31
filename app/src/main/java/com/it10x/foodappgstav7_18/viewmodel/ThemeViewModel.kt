@@ -15,7 +15,7 @@ class ThemeViewModel(app: Application) : AndroidViewModel(app) {
     val themeMode = prefs.themeMode.stateIn(
         viewModelScope,
         SharingStarted.Eagerly,
-        PosThemeMode.DARK.name
+        PosThemeMode.MIDNIGHT.name
     )
 
     fun setThemeMode(mode: PosThemeMode) = viewModelScope.launch {

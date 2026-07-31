@@ -1,5 +1,5 @@
 package com.it10x.foodappgstav7_18.ui.dayclosing
-
+import java.time.LocalDate
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -10,7 +10,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 class DayClosingViewModel(
 
     private val businessDayRepository: BusinessDayRepository,
@@ -89,6 +91,13 @@ class DayClosingViewModel(
         }
     }
 
+    var selectedDate by mutableStateOf(LocalDate.now())
+        private set
+
+    fun updateSelectedDate(date: LocalDate) {
+        selectedDate = date
+        loadDayData(date) // 🔥 fetch sales for selected date
+    }
     fun closeBusinessDay() {
 
         viewModelScope.launch {
@@ -273,4 +282,39 @@ class DayClosingViewModel(
                 notes = value
             )
     }
+    private fun loadDayData(date: LocalDate) {
+
+        viewModelScope.launch {
+
+            val summary =
+                dayClosingRepository.getSummary(date.toString())
+
+            _uiState.value = _uiState.value.copy(
+
+                businessDate = date.toString(),
+
+                totalOrders = summary.totalOrders,
+
+                totalSales = summary.totalSales,
+
+                totalDiscount = summary.totalDiscount,
+
+                totalTax = summary.totalTax,
+
+                complimentarySales = summary.complimentarySales,
+
+                cashSales = summary.cashSales,
+
+                cardSales = summary.cardSales,
+
+                upiSales = summary.upiSales,
+
+                walletSales = summary.walletSales,
+
+                creditSales = summary.creditSales
+            )
+        }
+    }
+
+
 }

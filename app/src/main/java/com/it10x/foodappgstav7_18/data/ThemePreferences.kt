@@ -17,7 +17,7 @@ class ThemePreferences(private val context: Context) {
 
     val themeMode: Flow<String> =
         context.themeDataStore.data.map {
-            it[THEME_MODE] ?: PosThemeMode.DARK.name
+            it[THEME_MODE] ?: PosThemeMode.MIDNIGHT.name
         }
 
     suspend fun setThemeMode(mode: String) {

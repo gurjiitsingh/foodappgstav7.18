@@ -23,12 +23,12 @@ fun ThemeSettingsScreen(vm: ThemeViewModel = viewModel()) {
 
     val modes = listOf(
         PosThemeMode.AUTO,
-        PosThemeMode.LIGHT,
-        PosThemeMode.DARK,
+        PosThemeMode.CLASSIC,
+        PosThemeMode.MIDNIGHT,
         PosThemeMode.GSTA,
-        PosThemeMode.SQUARE,
-        PosThemeMode.LIGHTSPEED,
-        PosThemeMode.TOAST
+        PosThemeMode.OCEAN,
+        PosThemeMode.SLATE,
+        PosThemeMode.LATTE
     )
 
     Column(

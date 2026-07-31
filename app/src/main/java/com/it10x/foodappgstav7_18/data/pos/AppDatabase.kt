@@ -47,7 +47,7 @@ import androidx.room.Entity
         OrderCounterEntity::class,
         OrderSerialMapEntity::class,
     ],
-    version = 134,              // ⬆️ increment version since schema changed
+    version = 136,              // ⬆️ increment version since schema changed
     exportSchema = true
 )
 abstract class AppDatabase : RoomDatabase() {

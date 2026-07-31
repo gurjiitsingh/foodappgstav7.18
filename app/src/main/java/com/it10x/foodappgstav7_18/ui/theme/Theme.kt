@@ -11,14 +11,13 @@ import androidx.compose.ui.graphics.Color
 
 enum class PosThemeMode {
     AUTO,
-    LIGHT,
-    DARK,
+    CLASSIC,
+    MIDNIGHT,
     GSTA,
-    SQUARE,
-    LIGHTSPEED,
-    TOAST
+    OCEAN,
+    SLATE,
+    LATTE
 }
-
 // =====================================================
 // COLOR DATA CLASSES
 // =====================================================
@@ -106,7 +105,7 @@ fun FoodPosTheme(
     val isSystemDark = isSystemInDarkTheme()
 
     val finalMode = when (mode) {
-        PosThemeMode.AUTO -> if (isSystemDark) PosThemeMode.DARK else PosThemeMode.LIGHT
+        PosThemeMode.AUTO -> if (isSystemDark) PosThemeMode.MIDNIGHT else PosThemeMode.CLASSIC
         else -> mode
     }
 
@@ -114,7 +113,7 @@ fun FoodPosTheme(
 
 
 
-        PosThemeMode.LIGHT -> {
+        PosThemeMode.CLASSIC -> {
 
             PosTheme.accent = PosAccentColors(
                 cartAddBg = Color(0xFFFB8500),       // Strong orange (CTA)
@@ -184,7 +183,7 @@ fun FoodPosTheme(
 
         }
         // ================= DARK =================
-        PosThemeMode.DARK -> {
+        PosThemeMode.MIDNIGHT -> {
 
             PosTheme.accent = PosAccentColors(
                 cartAddBg = Color(0xFFF97316),
@@ -317,8 +316,8 @@ fun FoodPosTheme(
         }
 
 
-        // ================= SQUARE BLUE=================
-        PosThemeMode.SQUARE -> {
+        // ================= OCEAN BLUE=================
+        PosThemeMode.OCEAN -> {
 
             PosTheme.accent = PosAccentColors(
                 cartAddBg = Color(0xFFF2C438),        // Yellow CTA (attention)
@@ -386,8 +385,8 @@ fun FoodPosTheme(
 
         }
 
-        // ================= LIGHTSPEED BLUESLATE =================
-        PosThemeMode.LIGHTSPEED -> {
+        // ================= SLATE BLUESLATE =================
+        PosThemeMode.SLATE -> {
 
             PosTheme.accent = PosAccentColors(
                 cartAddBg = Color(0xFFEE6C4D),       // Coral action
@@ -401,7 +400,8 @@ fun FoodPosTheme(
             )
 
             PosTheme.product = PosProductColors(
-                productCardBg = Color(0xFFE0FBFC),
+              //  productCardBg = Color(0xFFE0FBFC),
+                productCardBg =   Color(0xFF3D5A80),
                 productCardText = Color.White,
             )
 
@@ -455,8 +455,8 @@ fun FoodPosTheme(
 
         }
 
-        // ================= TOAST combination of light coffee=================
-        PosThemeMode.TOAST -> {
+        // ================= LATTE combination of light coffee=================
+        PosThemeMode.LATTE -> {
 
             PosTheme.accent = PosAccentColors(
                 cartAddBg = Color(0xFFE8CCC5),       // warm soft peach (CTA)
