@@ -206,16 +206,25 @@ class MainActivity : ComponentActivity() {
 
 
 
-            var role by remember { mutableStateOf(PosRoleManager.getRole(context)) }
+//            var role by remember { mutableStateOf(PosRoleManager.getRole(context)) }
+            val role = remember {
+
+                when (PosSessionManager.getRole(context)?.uppercase()) {
+
+                    "ADMIN" -> PosRole.MAIN
+
+                    else -> PosRole.WAITER
+                }
+            }
             FoodPosTheme(
                 mode = themeMode
             ) {
-                LaunchedEffect(role) {
-                    if (role == null) {
-                        PosRoleManager.saveRole(context, PosRole.MAIN)
-                        role = PosRole.MAIN
-                    }
-                }
+//                LaunchedEffect(role) {
+//                    if (role == null) {
+//                        PosRoleManager.saveRole(context, PosRole.MAIN)
+//                        role = PosRole.MAIN
+//                    }
+//                }
            // val clientId = remember { ClientIdStore.get(context) }
                 var clientId by remember { mutableStateOf(ClientIdStore.get(context)) }
                 if (clientId == null) {
