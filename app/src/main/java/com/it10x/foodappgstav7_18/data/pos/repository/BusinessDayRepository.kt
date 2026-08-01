@@ -108,7 +108,6 @@ class BusinessDayRepository(
     }
 
 
-
     suspend fun createNextBusinessDay(
         openingCash: Double,
         openedById: String,
@@ -122,29 +121,102 @@ class BusinessDayRepository(
             Locale.getDefault()
         )
 
-        val calendar = Calendar.getInstance()
+        // Current business day
+        val currentBusinessDate =
+            sdf.parse(current.businessDate)!!
 
-        calendar.time = sdf.parse(current.businessDate)!!
+        // Real today
+        val todayCalendar =
+            Calendar.getInstance()
 
-        // Move to next business day
-        calendar.add(Calendar.DAY_OF_MONTH, 1)
+        val todayDate =
+            sdf.parse(
+                sdf.format(todayCalendar.time)
+            )!!
 
-        val nextDate = sdf.format(calendar.time)
+        // Candidate = current business day + 1
+        val nextCalendar =
+            Calendar.getInstance()
 
-        val now = System.currentTimeMillis()
+        nextCalendar.time =
+            currentBusinessDate
 
-        val nextDay = PosBusinessDayEntity(
-            id = "CURRENT",
-            businessDate = nextDate,
-            openedAt = now,
-            openedById = openedById,
-            openedByName = openedByName,
-            openingCash = openingCash,
-            isClosed = false,
-            status = "OPEN",
-            updatedAt = now
+        nextCalendar.add(
+            Calendar.DAY_OF_MONTH,
+            1
         )
+
+        val candidateDate =
+            nextCalendar.time
+
+        /*
+           Rules
+
+           Today = 01 Aug
+           Business = 01 Aug
+           -> Next = 02 Aug
+
+           Today = 01 Aug
+           Business = 02 Aug
+           -> STOP (already prepared tomorrow)
+
+           Today = 02 Aug
+           Business = 01 Aug
+           -> Next = 02 Aug
+
+           Today = 06 Aug
+           Business = 01 Aug
+           -> Next = 06 Aug
+        */
+
+        val nextDate = when {
+
+            // Already created tomorrow
+            candidateDate.after(todayDate) -> {
+                throw Exception(
+                    "Business day already closed for today."
+                )
+            }
+
+            // Forgot to close for one or more days
+            currentBusinessDate.before(todayDate) -> {
+                sdf.format(todayDate)
+            }
+
+            // Normal case
+            else -> {
+                sdf.format(candidateDate)
+            }
+        }
+
+        val now =
+            System.currentTimeMillis()
+
+        val nextDay =
+            PosBusinessDayEntity(
+
+                id = "CURRENT",
+
+                businessDate = nextDate,
+
+                openedAt = now,
+
+                openedById = openedById,
+
+                openedByName = openedByName,
+
+                openingCash = openingCash,
+
+                isClosed = false,
+
+                status = "OPEN",
+
+                updatedAt = now
+            )
 
         businessDayDao.save(nextDay)
     }
+
+
+
 }
