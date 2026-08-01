@@ -39,5 +39,6 @@ interface BusinessDayDao {
     suspend fun clear()
 
 
-
+    @Query("DELETE FROM pos_business_day")
+    suspend fun deleteAll()
 }

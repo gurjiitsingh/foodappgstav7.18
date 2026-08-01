@@ -29,4 +29,10 @@ LIMIT 1
     suspend fun getByBusinessDate(
         businessDate: String
     ): PosDayClosingEntity?
+
+
+    @Query("DELETE FROM pos_day_closing")
+    suspend fun deleteAll()
+
+
 }

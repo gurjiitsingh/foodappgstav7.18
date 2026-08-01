@@ -1,4 +1,5 @@
 package com.it10x.foodappgstav7_18.ui.dayclosing
+import android.app.Application
 import java.time.LocalDate
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -13,20 +14,30 @@ import kotlinx.coroutines.launch
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import com.it10x.foodappgstav7_18.auth.PosSessionManager
+
 class DayClosingViewModel(
 
+    private val app: Application,
     private val businessDayRepository: BusinessDayRepository,
     private val dayClosingRepository: DayClosingRepository
 
 ) : ViewModel() {
 
+    private var isClosing = false
     private val _uiState = MutableStateFlow(DayClosingUiState())
 
     val uiState: StateFlow<DayClosingUiState> =
         _uiState.asStateFlow()
 
     init {
-        loadData()
+        viewModelScope.launch {
+//NEXT LINE ARE TO TEST ALWAY COMMENTE THESE
+//            businessDayRepository.resetBusinessDayForTesting()
+//            dayClosingRepository.clearDayClosingHistory()
+
+            loadData()
+        }
     }
 
     private fun loadData() {
@@ -39,6 +50,7 @@ class DayClosingViewModel(
 
                 val businessDay =
                     businessDayRepository.getCurrentBusinessDay()
+
 
                 Log.d("DAY_CLOSE", "Business Day = $businessDay")
 
@@ -98,171 +110,351 @@ class DayClosingViewModel(
         selectedDate = date
         loadDayData(date) // 🔥 fetch sales for selected date
     }
+
     fun closeBusinessDay() {
+
+        if (isClosing) {
+            return
+        }
+
+
+        isClosing = true
+
 
         viewModelScope.launch {
 
             try {
 
-                Log.d("DAY_CLOSE", "Starting Day Closing")
 
-                // ----------------------------
-                // Load Current Business Day
-                // ----------------------------
-                val businessDay =
-                    businessDayRepository.getCurrentBusinessDay()
-
-                // ----------------------------
-                // Already Closed?
-                // ----------------------------
-                if (
-                    dayClosingRepository.alreadyClosed(
-                        businessDay.businessDate
+                _uiState.value =
+                    _uiState.value.copy(
+                        errorMessage = null
                     )
-                ) {
+
+
+                Log.d(
+                    "DAY_CLOSE",
+                    "Starting Day Closing"
+                )
+
+
+
+                val businessDay =
+                    businessDayRepository
+                        .getCurrentBusinessDay()
+                val closedById =
+                    PosSessionManager.getUserId(app)
+
+                val closedByName =
+                    PosSessionManager.getFullName(app)
+
+
+                Log.d(
+                    "DAY_CLOSE",
+                    "Closed By: $closedById - $closedByName"
+                )
+
+
+                Log.d(
+                    "DAY_CLOSE",
+                    "Current Business Day = $businessDay"
+                )
+
+
+
+                /*
+                    IMPORTANT CHECK
+
+                    If tomorrow business day is already created,
+                    stop here.
+
+                    Do not save closing.
+                    Do not change status.
+                */
+
+                val canCreate =
+                    businessDayRepository
+                        .canCreateNextBusinessDay()
+
+
+
+                if (!canCreate) {
+
 
                     Log.d(
                         "DAY_CLOSE",
-                        "Business Day Already Closed"
+                        "Business Day Already Prepared For Tomorrow"
                     )
+
+
+                    _uiState.value =
+                        _uiState.value.copy(
+
+                            errorMessage =
+                                "Tomorrow business day is already open."
+
+                        )
+
 
                     return@launch
                 }
 
-                // ----------------------------
-                // Load Latest Summary
-                // ----------------------------
-                val summary =
-                    dayClosingRepository.getSummary(
-                        businessDay.businessDate
-                    )
 
-                // ----------------------------
-                // Cash Calculation
-                // ----------------------------
+
+
+
+                val summary =
+                    dayClosingRepository
+                        .getSummary(
+                            businessDay.businessDate
+                        )
+
+
+
+
                 val actualCash =
-                    _uiState.value.actualCash.toDoubleOrNull()
+                    _uiState.value.actualCash
+                        .toDoubleOrNull()
                         ?: 0.0
+
+
+
 
                 val expectedCash =
                     businessDay.openingCash +
                             summary.cashSales
 
+
+
+
                 val difference =
                     actualCash - expectedCash
 
-                // ----------------------------
-                // Create Closing Record
-                // ----------------------------
-                val dayClosing = PosDayClosingEntity(
 
-                    id = businessDay.businessDate,
 
-                    businessDate = businessDay.businessDate,
 
-                    openedAt = businessDay.openedAt,
+                val dayClosing =
+                    PosDayClosingEntity(
 
-                    closedAt = System.currentTimeMillis(),
 
-                    openedById = businessDay.openedById,
+                        id =
+                            businessDay.businessDate,
 
-                    openedByName = businessDay.openedByName,
 
-                    // TODO:
-                    // Replace with logged-in user
-                    closedById = businessDay.openedById,
+                        businessDate =
+                            businessDay.businessDate,
 
-                    closedByName = businessDay.openedByName,
 
-                    openingCash = businessDay.openingCash,
+                        openedAt =
+                            businessDay.openedAt,
 
-                    expectedCash = expectedCash,
 
-                    actualCash = actualCash,
+                        closedAt =
+                            System.currentTimeMillis(),
 
-                    cashDifference = difference,
 
-                    totalSales = summary.totalSales,
 
-                    totalRefund = 0.0,
+                        openedById =
+                            businessDay.openedById,
 
-                    totalDiscount = summary.totalDiscount,
 
-                    totalTax = summary.totalTax,
+                        openedByName =
+                            businessDay.openedByName,
 
-                    cashSales = summary.cashSales,
 
-                    cardSales = summary.cardSales,
 
-                    upiSales = summary.upiSales,
+//                        closedById =
+//                            businessDay.openedById,
+//                        closedByName =
+//                            businessDay.openedByName,
 
-                    walletSales = summary.walletSales,
+                        closedById =
+                            closedById?:"",
 
-                    creditSales = summary.creditSales,
+                        closedByName =
+                            closedByName?:"",
 
-                    complimentarySales = summary.complimentarySales,
+                        openingCash =
+                            businessDay.openingCash,
 
-                    totalOrders = summary.totalOrders,
 
-                    syncStatus = "PENDING",
 
-                    createdAt = System.currentTimeMillis()
+                        expectedCash =
+                            expectedCash,
+
+
+                        actualCash =
+                            actualCash,
+
+
+                        cashDifference =
+                            difference,
+
+
+
+                        totalSales =
+                            summary.totalSales,
+
+
+                        totalRefund =
+                            0.0,
+
+
+                        totalDiscount =
+                            summary.totalDiscount,
+
+
+                        totalTax =
+                            summary.totalTax,
+
+
+
+                        cashSales =
+                            summary.cashSales,
+
+
+                        cardSales =
+                            summary.cardSales,
+
+
+                        upiSales =
+                            summary.upiSales,
+
+
+                        walletSales =
+                            summary.walletSales,
+
+
+                        creditSales =
+                            summary.creditSales,
+
+
+                        complimentarySales =
+                            summary.complimentarySales,
+
+
+
+                        totalOrders =
+                            summary.totalOrders,
+
+
+
+                        syncStatus =
+                            "PENDING",
+
+
+
+                        createdAt =
+                            System.currentTimeMillis()
+                    )
+
+
+
+
+                /*
+                    STEP 1
+                    Save closing history
+                */
+
+                dayClosingRepository.save(
+                    dayClosing
                 )
 
-                // ----------------------------
-                // Save Day Closing
-                // ----------------------------
-                dayClosingRepository.save(dayClosing)
 
                 Log.d(
                     "DAY_CLOSE",
                     "Day Closing Saved"
                 )
 
-                // ----------------------------
-                // Close Current Business Day
-                // ----------------------------
+
+
+
+                /*
+                    STEP 2
+                    Close current business day
+                */
+
                 businessDayRepository.closeCurrentBusinessDay(
 
-                    closedById = businessDay.openedById,
+                    closedById =
+                        closedById ?: "",
 
-                    closedByName = businessDay.openedByName
+                    closedByName =
+                        closedByName ?: ""
                 )
+
 
                 Log.d(
                     "DAY_CLOSE",
                     "Business Day Closed"
                 )
 
-                // ----------------------------
-                // Create Next Business Day
-                // ----------------------------
+
+
+
+
+                /*
+                    STEP 3
+                    Create next business day
+                */
+
                 businessDayRepository.createNextBusinessDay(
 
-                    openingCash = actualCash,
+                    openingCash =
+                        actualCash,
 
-                    openedById = businessDay.openedById,
+                    openedById =
+                        closedById ?: "",
 
-                    openedByName = businessDay.openedByName
+                    openedByName =
+                        closedByName ?: ""
                 )
+
+
 
                 Log.d(
                     "DAY_CLOSE",
                     "Next Business Day Created"
                 )
 
-                // ----------------------------
-                // Refresh Screen
-                // ----------------------------
+
+
                 loadData()
 
+
+
+                Log.d(
+                    "DAY_CLOSE",
+                    "Day Closed Successfully"
+                )
+
+
+
             } catch (e: Exception) {
+
 
                 Log.e(
                     "DAY_CLOSE",
                     "Day Closing Failed",
                     e
                 )
+
+
+
+                _uiState.value =
+                    _uiState.value.copy(
+
+                        errorMessage =
+                            e.message
+                    )
+
+
+
+            } finally {
+
+
+                isClosing = false
+
             }
         }
     }
@@ -315,6 +507,8 @@ class DayClosingViewModel(
             )
         }
     }
+//FOR TESTING
+
 
 
 }

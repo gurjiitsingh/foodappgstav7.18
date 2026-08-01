@@ -40,7 +40,7 @@ class DayClosingRepository(
     suspend fun getSummary(
         businessDate: String
     ): DayClosingSummary {
-
+        clearDayClosingHistory()
         val totalSales =
             orderMasterDao.getTotalSales(businessDate)
 
@@ -95,6 +95,12 @@ class DayClosingRepository(
             walletSales = walletSales,
             creditSales = creditSales
         )
+
+
+    }
+//FOR TESTING
+    suspend fun clearDayClosingHistory() {
+        dayClosingDao.deleteAll()
     }
 }
 

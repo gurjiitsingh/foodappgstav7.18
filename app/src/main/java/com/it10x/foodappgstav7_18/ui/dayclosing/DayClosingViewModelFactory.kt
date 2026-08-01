@@ -31,6 +31,7 @@ class DayClosingViewModelFactory(
             )
 
         return DayClosingViewModel(
+            application,
             businessDayRepository,
             dayClosingRepository
         ) as T
