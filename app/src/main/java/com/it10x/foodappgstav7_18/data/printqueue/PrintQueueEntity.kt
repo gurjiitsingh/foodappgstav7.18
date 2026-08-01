@@ -1,14 +1,23 @@
 package com.it10x.foodappgstav7_18.data.printqueue
 
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "print_queue")
+@Entity(
+    tableName = "print_queue",
+    indices = [
+        Index(
+            value = ["referenceId"],
+            unique = true
+        )
+    ]
+)
 data class PrintQueueEntity(
 
     @PrimaryKey
     val id: String,
-
+    val referenceId: String?,
     val role: String,
 
     // ----------------------------

@@ -19,4 +19,27 @@ interface PrintQueueDao {
 
     @Query("DELETE FROM print_queue WHERE id=:id")
     suspend fun delete(id: String)
+
+
+    @Query("""
+SELECT EXISTS(
+    SELECT 1 FROM print_queue 
+    WHERE referenceId = :referenceId
+)
+""")
+    suspend fun existsByReferenceId(
+        referenceId: String
+    ): Boolean
+
+    @Query("""
+UPDATE print_queue
+SET status=:newStatus
+WHERE id=:id
+AND status=:oldStatus
+""")
+    suspend fun updateStatusIfPending(
+        id:String,
+        oldStatus:String,
+        newStatus:String
+    ):Int
 }

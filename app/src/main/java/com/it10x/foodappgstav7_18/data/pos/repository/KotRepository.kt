@@ -172,6 +172,11 @@ class KotRepository(
         }
 
         batchDao.insertHistory(historyItems)
+        val fiveDaysAgo =
+            System.currentTimeMillis() -
+                    (5L * 24 * 60 * 60 * 1000)
+
+        batchDao.deleteHistoryOlderThan(fiveDaysAgo)
     }
 
     /**

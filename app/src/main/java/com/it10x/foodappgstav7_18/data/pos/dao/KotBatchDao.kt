@@ -270,7 +270,13 @@ LIMIT 200
     // =====================================================
     // MAINTENANCE
     // =====================================================
-
+    @Query("""
+    DELETE FROM kot_history
+    WHERE createdAt < :cutoffTime
+""")
+    suspend fun deleteHistoryOlderThan(
+        cutoffTime: Long
+    )
     @Query("""
         DELETE FROM kot_history
     """)

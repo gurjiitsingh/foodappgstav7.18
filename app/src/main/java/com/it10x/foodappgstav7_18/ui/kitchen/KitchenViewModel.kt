@@ -363,67 +363,84 @@ class KitchenViewModel(
 
 
             val printMode = prefs.getReceiptPrintMode()
-            CoroutineScope(Dispatchers.IO).launch {
-                try {
 
-                    val printItems = lockAndFetchBatch(batchId)
+            withContext(Dispatchers.IO) {
 
+                val printItems = lockAndFetchBatch(batchId)
+
+                if (printItems.isNotEmpty()) {
                     printerManager.enqueueKitchenImage(
                         sessionKey = tableNo,
                         tableName = tableName,
                         orderType = orderType,
                         kotNumber = kotNumber,
+                        referenceId = batchId,
                         items = printItems
                     )
-
-//                                        printerManager.enqueueKitchen(
-//                            sessionKey = tableNo,
-//                            orderType = orderType,
-//                            kotNumber = kotNumber,
-//                            items = printItems
-//                        )
-
-//                    if (printItems.isNotEmpty()) {
-//
-//
-//                        when (printMode) {
-//
-//                            ReceiptPrintMode.TEXT -> {
-//
-//                    printerManager.enqueueKitchen(
-//                            sessionKey = tableNo,
-//                            orderType = orderType,
-//                            kotNumber = kotNumber,
-//                            items = printItems
-//                        )
-//                            }
-//
-//                            ReceiptPrintMode.IMAGE -> {
-//
-//                                printerManager.enqueueKitchenImage(
-//                                    sessionKey = tableNo,
-//                                    tableName = tableName,
-//                                    orderType = orderType,
-//                                    kotNumber = kotNumber,
-//                                    items = printItems
-//                                )
-//                            }
-//                        }
-//
-//
-//
-//
-//                    }
-
-                    tableKotSyncService.syncTableSnapshot(
-                        tableId = tableNo,
-                        source = source
-                    )
-
-                } catch (e: Exception) {
-                    Log.e("ASYNC_TASK", "❌ Background failed", e)
                 }
             }
+
+//            CoroutineScope(Dispatchers.IO).launch {
+//                try {
+//
+//                    val printItems = lockAndFetchBatch(batchId)
+//
+//                    printerManager.enqueueKitchenImage(
+//                        sessionKey = tableNo,
+//                        tableName = tableName,
+//                        orderType = orderType,
+//                        kotNumber = kotNumber,
+//                        items = printItems
+//                    )
+//
+////                                        printerManager.enqueueKitchen(
+////                            sessionKey = tableNo,
+////                            orderType = orderType,
+////                            kotNumber = kotNumber,
+////                            items = printItems
+////                        )
+//
+////                    if (printItems.isNotEmpty()) {
+////
+////
+////                        when (printMode) {
+////
+////                            ReceiptPrintMode.TEXT -> {
+////
+////                    printerManager.enqueueKitchen(
+////                            sessionKey = tableNo,
+////                            orderType = orderType,
+////                            kotNumber = kotNumber,
+////                            items = printItems
+////                        )
+////                            }
+////
+////                            ReceiptPrintMode.IMAGE -> {
+////
+////                                printerManager.enqueueKitchenImage(
+////                                    sessionKey = tableNo,
+////                                    tableName = tableName,
+////                                    orderType = orderType,
+////                                    kotNumber = kotNumber,
+////                                    items = printItems
+////                                )
+////                            }
+////                        }
+////
+////
+////
+////
+////                    }
+//
+//                    tableKotSyncService.syncTableSnapshot(
+//                        tableId = tableNo,
+//                        source = source
+//                    )
+//
+//                } catch (e: Exception) {
+//                    Log.e("ASYNC_TASK", "❌ Background failed", e)
+//                }
+//            }
 
 
 
@@ -435,7 +452,9 @@ class KitchenViewModel(
         }
     }
 
-
+    //*************************************************
+    //THIS CODE IS TESTED FOR LONG TIME
+    //*************************************************
 
 
     @Transaction
@@ -455,6 +474,24 @@ class KitchenViewModel(
 
         return items
     }
+
+
+
+    //*************************************************
+    //THIS CODE IS NEW
+    //***************************************************
+//    @Transaction
+//    suspend fun lockAndFetchBatch(batchId: String): List<PosKotItemEntity> {
+//
+//        val updated = kotItemDao.markBatchKitchenPrintedBatch(batchId)
+//
+//        if (updated == 0) {
+//            Log.d("LOCK_BATCH", "Already printed batch=$batchId")
+//            return emptyList()
+//        }
+//
+//        return kotItemDao.getItemsByBatchId(batchId)
+//    }
 
     //*******************************************
     //  GlobalOrderSyncManager LISTENER

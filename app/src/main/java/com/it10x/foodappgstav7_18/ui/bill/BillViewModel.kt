@@ -1212,7 +1212,7 @@ class BillViewModel(
                 // =========================
                 // PRINT
                 // =========================
-              printOrder(orderMaster, orderItems, kotNumberText, stewardName)
+              printOrder(orderMaster, orderItems, kotNumberText, stewardName,referenceId = orderId)
 
               //  sendEvent("Printed successfully")
 
@@ -1819,6 +1819,7 @@ class BillViewModel(
         items: List<PosOrderItemEntity>,
         kotNumberText: String="",
         stewardName: String= "",
+        referenceId: String,
 
     ) = withContext(Dispatchers.IO) {
 
@@ -1844,7 +1845,8 @@ class BillViewModel(
                 printerManager.enqueueBill(
                     printOrder,
                     order.paymentMode,
-                    outletInfo
+                    outletInfo,
+                    referenceId,
                 )
             }
 
@@ -1855,7 +1857,8 @@ class BillViewModel(
                     paymentMode = order.paymentMode,
                     outletInfo = outletInfo,
                     kotNumberText = kotNumberText,
-                    stewardName = stewardName
+                    stewardName = stewardName,
+                    referenceId,
                 )
             }
         }
