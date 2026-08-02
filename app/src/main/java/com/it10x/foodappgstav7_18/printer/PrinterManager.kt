@@ -286,95 +286,164 @@ suspend fun enqueueImagePrint(
         //--------------------------------------
 
 
-        LanPrinter.printBitmap(
-            ip = config.ip,
-            port = config.port,
-            bitmap = bitmap,
-            onResult = onResult
-        )
-//        when (config.type) {
-//
-//
-//
-//            PrinterType.BLUETOOTH -> {
-//
-//                if (config.bluetoothAddress.isBlank()) {
-//                    Log.e("PRINT_BITMAP", "Bluetooth address missing")
-//                    onResult(false)
-//                    return
-//                }
-//
-////                BluetoothPrinter.printBitmap(
-////                    address = config.bluetoothAddress,
-////                    bitmap = bitmap,
-////                    onResult = onResult
-////                )
-//            }
-//
-//            PrinterType.LAN -> {
-//                Log.d("IMAGE_TEST", "Entering LAN branch")
-//                if (config.ip.isBlank()) {
-//                    Log.e("PRINT_BITMAP", "LAN IP missing")
-//                    onResult(false)
-//                    return
-//                }
-//
-//                LanPrinter.printBitmap(
-//                    ip = config.ip,
-//                    port = config.port,
-//                    bitmap = bitmap,
-//                    onResult = onResult
-//                )
-//            }
-//
-//            PrinterType.USB -> {
-//
-//                val usbManager =
-//                    context.getSystemService(Context.USB_SERVICE)
-//                            as android.hardware.usb.UsbManager
-//
-//                val saved = prefs.getUSBPrinter(role)
-//
-//                if (saved == null) {
-//                    Log.e("PRINT_BITMAP", "No saved USB printer")
-//                    onResult(false)
-//                    return
-//                }
-//
-//                val (vendorId, productId) = saved
-//
-//                val device = usbManager.deviceList.values.find {
-//                    it.vendorId == vendorId &&
-//                            it.productId == productId
-//                }
-//
-//                if (device == null) {
-//                    Log.e("PRINT_BITMAP", "USB device not found")
-//                    onResult(false)
-//                    return
-//                }
-//
-//                if (!usbManager.hasPermission(device)) {
-//                    Log.e("PRINT_BITMAP", "USB permission denied")
-//                    onResult(false)
-//                    return
-//                }
-//
-////                USBPrinter.printBitmap(
-////                    context = context,
-////                    device = device,
-////                    bitmap = bitmap,
-////                    onResult = onResult
-////                )
-//            }
-//
-//            PrinterType.WIFI -> {
-//
-//                Log.e("PRINT_BITMAP", "WiFi not supported")
-//
-//                onResult(false)
-//            }
-//        }
+//        LanPrinter.printBitmap(
+//            ip = config.ip,
+//            port = config.port,
+//            bitmap = bitmap,
+//            onResult = onResult
+//        )
+
+
+        when (config.type) {
+
+
+            PrinterType.LAN -> {
+
+                Log.d(
+                    "IMAGE_TEST",
+                    "Entering LAN bitmap print"
+                )
+
+                if (config.ip.isBlank()) {
+
+                    Log.e(
+                        "PRINT_BITMAP",
+                        "LAN IP missing"
+                    )
+
+                    onResult(false)
+                    return
+                }
+
+
+                LanPrinter.printBitmap(
+                    ip = config.ip,
+                    port = config.port,
+                    bitmap = bitmap,
+                    onResult = onResult
+                )
+            }
+
+
+
+            PrinterType.BLUETOOTH -> {
+
+                Log.d(
+                    "IMAGE_TEST",
+                    "Entering Bluetooth bitmap print"
+                )
+
+
+                if (config.bluetoothAddress.isBlank()) {
+
+                    Log.e(
+                        "PRINT_BITMAP",
+                        "Bluetooth address missing"
+                    )
+
+                    onResult(false)
+                    return
+                }
+
+
+                BluetoothPrinter.printBitmap(
+                    mac = config.bluetoothAddress,
+                    bitmap = bitmap,
+                    onResult = onResult
+                )
+            }
+
+
+
+
+            PrinterType.USB -> {
+
+                Log.d(
+                    "IMAGE_TEST",
+                    "Entering USB bitmap print"
+                )
+
+
+                val usbManager =
+                    context.getSystemService(Context.USB_SERVICE)
+                            as android.hardware.usb.UsbManager
+
+
+                val saved = prefs.getUSBPrinter(role)
+
+
+                if (saved == null) {
+
+                    Log.e(
+                        "PRINT_BITMAP",
+                        "USB printer not saved"
+                    )
+
+                    onResult(false)
+                    return
+                }
+
+
+                val (vendorId, productId) = saved
+
+
+                val device =
+                    usbManager.deviceList.values.find {
+
+                        it.vendorId == vendorId &&
+                                it.productId == productId
+
+                    }
+
+
+                if (device == null) {
+
+                    Log.e(
+                        "PRINT_BITMAP",
+                        "USB device not found"
+                    )
+
+                    onResult(false)
+                    return
+                }
+
+
+                if (!usbManager.hasPermission(device)) {
+
+                    Log.e(
+                        "PRINT_BITMAP",
+                        "USB permission missing"
+                    )
+
+                    onResult(false)
+                    return
+                }
+
+
+                USBPrinter.printBitmap(
+                    context = context,
+                    device = device,
+                    bitmap = bitmap,
+                    onResult = onResult
+                )
+            }
+
+
+
+            PrinterType.WIFI -> {
+
+                Log.e(
+                    "PRINT_BITMAP",
+                    "WIFI bitmap not supported"
+                )
+
+                onResult(false)
+            }
+        }
+
+
+
+
     }
     // --------------------------------
     // SELECT FORMAT DIRECT PRINT

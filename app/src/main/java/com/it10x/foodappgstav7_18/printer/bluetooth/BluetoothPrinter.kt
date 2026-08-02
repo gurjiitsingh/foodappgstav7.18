@@ -210,7 +210,111 @@ object BluetoothPrinter {
     }
 
 
+    fun printBitmap(
+        mac: String,
+        bitmap: Bitmap,
+        onResult: (Boolean) -> Unit
+    ) {
 
+        CoroutineScope(Dispatchers.IO).launch {
+
+            try {
+
+                val adapter = BluetoothAdapter.getDefaultAdapter()
+                    ?: throw IllegalStateException("Bluetooth not supported")
+
+
+                if (!adapter.isEnabled) {
+                    throw IllegalStateException("Bluetooth OFF")
+                }
+
+
+                ensureConnection(mac)
+
+                val out = output ?: throw Exception("No connection")
+
+
+                adapter.cancelDiscovery()
+
+
+                // INIT
+                out.write(
+                    byteArrayOf(
+                        0x1B,
+                        0x40
+                    )
+                )
+
+
+                // BEEP
+                out.write(
+                    byteArrayOf(
+                        0x1B,
+                        0x42,
+                        0x03,
+                        0x02
+                    )
+                )
+
+
+                // CENTER
+                out.write(
+                    byteArrayOf(
+                        0x1B,
+                        0x61,
+                        0x01
+                    )
+                )
+
+
+                // IMAGE
+                printBitmapInChunks(
+                    out,
+                    bitmap
+                )
+
+
+                // FEED
+                out.write(
+                    byteArrayOf(
+                        0x0A
+                    )
+                )
+
+
+                // CUT
+                out.write(
+                    byteArrayOf(
+                        0x1D,
+                        0x56,
+                        0x01
+                    )
+                )
+
+
+                out.flush()
+
+                withContext(Dispatchers.Main) {
+                    onResult(true)
+                }
+
+
+            } catch (e: Exception) {
+
+                Log.e(
+                    TAG,
+                    "Bluetooth bitmap print failed",
+                    e
+                )
+
+                resetConnection()
+
+                withContext(Dispatchers.Main) {
+                    onResult(false)
+                }
+            }
+        }
+    }
     // =============================
 // PRINT LOGO + TEXT + QR (SMART FALLBACK)
 // =============================
