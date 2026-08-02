@@ -75,40 +75,58 @@ suspend fun enqueueImagePrint(
     grandTotal: Double? = null
 ) {
 
-    scope.launch {
+    try {
 
-        try {
-            val imageFile = File(
-                context.cacheDir,
-                "${role.name.lowercase()}_${System.currentTimeMillis()}.png"
-               // "kot_${System.currentTimeMillis()}.png"
-            )
+        val printDir = File(
+            context.filesDir,
+            "print_queue"
+        )
 
-            Log.d("IMAGE_TEST", "Saving file at: ${imageFile.absolutePath}")
-
-            imageFile.outputStream().use { stream ->
-                val success = bitmap.compress(
-                    Bitmap.CompressFormat.PNG,
-                    100,
-                    stream
-                )
-
-                Log.d("IMAGE_TEST", "Bitmap compress success: $success")
-            }
-
-            Log.d("IMAGE_TEST", "Saved image: ${imageFile.absolutePath}")
-
-            queueManager.enqueueImage(
-                referenceId = referenceId,
-                role = role,
-                imagePath = imageFile.absolutePath,
-                paymentMode = paymentMode,
-                grandTotal = grandTotal
-            )
-
-        } catch (e: Exception) {
-            Log.e("IMAGE_TEST", "Failed to save or enqueue image", e)
+        if (!printDir.exists()) {
+            printDir.mkdirs()
         }
+
+        val imageFile = File(
+            printDir,
+            "${role.name.lowercase()}_${System.currentTimeMillis()}.png"
+        )
+
+        Log.d(
+            "IMAGE_TEST",
+            "Saving file at: ${imageFile.absolutePath}"
+        )
+
+        imageFile.outputStream().use { stream ->
+
+            val success = bitmap.compress(
+                Bitmap.CompressFormat.PNG,
+                100,
+                stream
+            )
+
+            Log.d(
+                "IMAGE_TEST",
+                "Bitmap compress success: $success"
+            )
+        }
+
+
+        queueManager.enqueueImage(
+            referenceId = referenceId,
+            role = role,
+            imagePath = imageFile.absolutePath,
+            paymentMode = paymentMode,
+            grandTotal = grandTotal
+        )
+
+
+    } catch (e: Exception) {
+
+        Log.e(
+            "IMAGE_TEST",
+            "Failed to save or enqueue image",
+            e
+        )
     }
 }
 
