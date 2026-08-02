@@ -66,7 +66,8 @@ class PrinterManager private constructor(
     fun appContext(): Context = context.applicationContext
 
 //IMAGE PRINT QUE
-fun enqueueImagePrint(
+//fun enqueueImagePrint(  // THIS IS CHANGED TO SUSPEND
+suspend fun enqueueImagePrint(
     referenceId: String,
     role: PrinterRole,
     bitmap: Bitmap,
@@ -79,7 +80,8 @@ fun enqueueImagePrint(
         try {
             val imageFile = File(
                 context.cacheDir,
-                "kot_${System.currentTimeMillis()}.png"
+                "${role.name.lowercase()}_${System.currentTimeMillis()}.png"
+               // "kot_${System.currentTimeMillis()}.png"
             )
 
             Log.d("IMAGE_TEST", "Saving file at: ${imageFile.absolutePath}")
@@ -113,7 +115,7 @@ fun enqueueImagePrint(
 
 
 
-    fun enqueueBillImage(
+  suspend  fun enqueueBillImage(
         order: PrintOrder,
         paymentMode: String,
         outletInfo: OutletInfo,
@@ -1262,7 +1264,7 @@ fun enqueueImagePrint(
 
 //IMAGE PRINT OF KOT
 
-    fun enqueueKitchenImage(
+  suspend  fun enqueueKitchenImage(
         sessionKey: String,
         tableName: String,
         orderType: String,
