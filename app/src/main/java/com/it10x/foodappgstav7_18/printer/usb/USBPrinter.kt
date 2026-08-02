@@ -71,6 +71,135 @@ object USBPrinter {
     // =================================================
     // TEST PRINT
     // =================================================
+    fun printBitmap(
+        context: Context,
+        device: UsbDevice,
+        bitmap: Bitmap,
+        onResult: (Boolean) -> Unit
+    ) {
+
+        init(context, device) { ready ->
+
+            if (!ready) {
+                onResult(false)
+                return@init
+            }
+
+
+            val ep = outEndpoint
+            val conn = connection
+
+
+            if (ep == null || conn == null) {
+
+                Log.e(TAG, "USB connection missing")
+
+                onResult(false)
+                return@init
+            }
+
+
+            CoroutineScope(Dispatchers.IO).launch {
+
+                try {
+
+
+                    // =============================
+                    // INIT
+                    // =============================
+
+                    conn.bulkTransfer(
+                        ep,
+                        byteArrayOf(
+                            0x1B,
+                            0x40
+                        ),
+                        2,
+                        1000
+                    )
+
+                    delay(50)
+
+
+
+                    // =============================
+                    // CENTER
+                    // =============================
+
+                    conn.bulkTransfer(
+                        ep,
+                        byteArrayOf(
+                            0x1B,
+                            0x61,
+                            0x01
+                        ),
+                        3,
+                        1000
+                    )
+
+                    delay(50)
+
+
+
+                    // =============================
+                    // IMAGE
+                    // =============================
+
+                    printBitmapInChunksUSB(
+                        conn,
+                        ep,
+                        bitmap
+                    )
+
+
+                    delay(100)
+
+
+
+                    // =============================
+                    // FEED + CUT
+                    // =============================
+
+                    conn.bulkTransfer(
+                        ep,
+                        byteArrayOf(
+                            0x0A,
+                            0x0A,
+                            0x1D,
+                            0x56,
+                            0x01
+                        ),
+                        5,
+                        1000
+                    )
+
+
+                    withContext(Dispatchers.Main) {
+                        onResult(true)
+                    }
+
+
+                } catch(e:Exception) {
+
+
+                    Log.e(
+                        TAG,
+                        "USB bitmap print failed",
+                        e
+                    )
+
+
+                    withContext(Dispatchers.Main) {
+                        onResult(false)
+                    }
+                }
+            }
+        }
+    }
+
+    // =================================================
+    // TEST PRINT
+    // =================================================
     fun printTest(
         context: Context,
         device: UsbDevice,

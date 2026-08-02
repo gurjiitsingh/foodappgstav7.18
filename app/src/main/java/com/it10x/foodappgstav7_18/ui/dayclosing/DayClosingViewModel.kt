@@ -59,6 +59,26 @@ class DayClosingViewModel(
                         businessDay.businessDate
                     )
 
+                // =======================================
+// PREVENT CLOSE WITHOUT ORDERS
+// =======================================
+
+//                if (summary.totalOrders <= 0) {
+//
+//                    Log.d(
+//                        "DAY_CLOSE",
+//                        "Cannot close day. No orders found."
+//                    )
+//
+//                    _uiState.value =
+//                        _uiState.value.copy(
+//                            errorMessage =
+//                                "Cannot close day. No orders found."
+//                        )
+//
+//                    return@launch
+//                }
+
                 _uiState.value = _uiState.value.copy(
 
                     businessDate = businessDay.businessDate,

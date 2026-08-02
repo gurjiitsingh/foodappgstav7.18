@@ -292,20 +292,43 @@ fun getPrinterConfig(role: PrinterRole): PrinterConfig? {
         }
     }
 
-    fun setReceiptPrintMode(mode: ReceiptPrintMode) {
+
+//*******************************
+// RECIPTE MODE IMAGE OR TEX
+//*******************************
+
+    private fun receiptModeKey(role: PrinterRole): String {
+        return "RECEIPT_PRINT_MODE_${role.name}"
+    }
+
+    fun setReceiptPrintMode(
+        role: PrinterRole,
+        mode: ReceiptPrintMode
+    ) {
         prefs.edit()
-            .putString("receipt_print_mode", mode.name)
+            .putString(
+                receiptModeKey(role),
+                mode.name
+            )
             .apply()
     }
 
-    fun getReceiptPrintMode(): ReceiptPrintMode {
+
+    fun getReceiptPrintMode(
+        role: PrinterRole
+    ): ReceiptPrintMode {
 
         val value = prefs.getString(
-            "receipt_print_mode",
+            receiptModeKey(role),
             ReceiptPrintMode.IMAGE.name
         ) ?: ReceiptPrintMode.IMAGE.name
 
-        return ReceiptPrintMode.valueOf(value)
+
+        return try {
+            ReceiptPrintMode.valueOf(value)
+        } catch (e: Exception) {
+            ReceiptPrintMode.IMAGE
+        }
     }
 
 }

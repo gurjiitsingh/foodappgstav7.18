@@ -8,7 +8,9 @@ import androidx.room.Transaction
 import com.google.firebase.firestore.BuildConfig
 import com.google.firebase.firestore.FirebaseFirestore
 import com.it10x.foodappgstav7_18.data.PrinterPreferences
+import com.it10x.foodappgstav7_18.data.PrinterRole
 import com.it10x.foodappgstav7_18.data.ReceiptPrintMode
+import com.it10x.foodappgstav7_18.data.online.sync.SyncManagerProvider
 
 import com.it10x.foodappgstav7_18.data.online.sync.TableKotSyncService
 import com.it10x.foodappgstav7_18.data.pos.AppDatabaseProvider
@@ -46,6 +48,7 @@ class KitchenViewModel(
     private val orderType: String,
     private val repository: POSOrdersRepository,
     private val prefs: PrinterPreferences,
+
 
     ) : AndroidViewModel(app) {
 
@@ -217,7 +220,8 @@ class KitchenViewModel(
         appVersion: String?,
         role: String,
         source: String,
-    ) {
+    )
+    {
 
 
         //THIS FUNCTION RECEIVE DATA FROM WAITER POS 1.
@@ -249,6 +253,13 @@ class KitchenViewModel(
             }
 
             kotRepository.syncBillCount(tableNo)
+
+
+
+            Log.d(
+                "TABLE_SYNC",
+                "✅ POS table snapshot uploaded after waiter order"
+            )
         } catch (e: Exception) {
             Log.e("KOT_BRIDGE", "❌ Exception in createKotAndPrint()", e)
         } finally {
@@ -360,25 +371,69 @@ class KitchenViewModel(
 
             )
             kotRepository.syncBillCount(tableId)
+           val Pritnter_role = "KITCHEN"
+            val printMode = prefs.getReceiptPrintMode(
+                PrinterRole.valueOf(Pritnter_role)
+            )
 
 
-            val printMode = prefs.getReceiptPrintMode()
 
             withContext(Dispatchers.IO) {
 
                 val printItems = lockAndFetchBatch(batchId)
 
                 if (printItems.isNotEmpty()) {
-                    printerManager.enqueueKitchenImage(
-                        sessionKey = tableNo,
-                        tableName = tableName,
-                        orderType = orderType,
-                        kotNumber = kotNumber,
-                        referenceId = batchId,
-                        items = printItems
-                    )
+
+                    when (printMode) {
+
+                        ReceiptPrintMode.TEXT -> {
+
+                            printerManager.enqueueKitchen(
+                                sessionKey = tableNo,
+                                tableName = tableName,
+                                orderType = orderType,
+                                kotNumber = kotNumber,
+                                referenceId = batchId,
+                                items = printItems
+                            )
+                        }
+
+
+                        ReceiptPrintMode.IMAGE -> {
+
+                            printerManager.enqueueKitchenImage(
+                                sessionKey = tableNo,
+                                tableName = tableName,
+                                orderType = orderType,
+                                kotNumber = kotNumber,
+                                referenceId = batchId,
+                                items = printItems
+                            )
+                        }
+                    }
                 }
             }
+
+
+
+            // 🔥 UPDATE WAITER TABLE SNAPSHOT
+            // 🔥 ADD THIS HERE
+            //**********************************************************
+            //  UPDATE WAITER VIEW STATUS
+            //**********************************************************
+//            withContext(Dispatchers.IO) {
+//                tableKotSyncService.syncTableSnapshot(
+//                    tableId = tableNo,
+//                    source = "POS"
+//                )
+//            }
+
+            //**********************************************************
+            // INSTEAD WE WILL USE QUEUE TO UPDATE WAITER VIEW STATUS
+            //**********************************************************
+            SyncManagerProvider
+                .get()
+                .addTableUpdate(tableNo)
 
 //            CoroutineScope(Dispatchers.IO).launch {
 //                try {

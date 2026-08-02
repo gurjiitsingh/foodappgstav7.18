@@ -115,6 +115,7 @@ class OnlineOrdersViewModel(
 
             printerManager.printTextKitchen(
                 PrinterRole.KITCHEN,
+                tableName = order.srno.toString(),
                 sessionKey = order.srno.toString(),
                 orderType = "Online order",
                 kotItems,
@@ -180,6 +181,7 @@ class OnlineOrdersViewModel(
 
                     printerManager.printTextKitchen(
                         PrinterRole.KITCHEN,
+                        tableName = order.srno.toString(),
                         sessionKey = order.srno.toString(),
                         orderType = "Online order",
                         kotItems,

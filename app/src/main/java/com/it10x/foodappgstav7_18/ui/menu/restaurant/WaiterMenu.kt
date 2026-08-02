@@ -71,14 +71,14 @@ fun WaiterMenu(
     )
 
 
-    NavigationDrawerItem(
-        label = { Text("Local Orders") },
-        selected = false,
-        onClick = {
-            scope.launch { drawerState.close() }
-            navController.navigate("local_orders")
-        }
-    )
+//    NavigationDrawerItem(
+//        label = { Text("Local Orders") },
+//        selected = false,
+//        onClick = {
+//            scope.launch { drawerState.close() }
+//            navController.navigate("local_orders")
+//        }
+//    )
 
 
     // ===============================
@@ -136,16 +136,16 @@ fun WaiterMenu(
         }
     )
 
-    SidebarSectionHeader("SETUP")
+ //   SidebarSectionHeader("SETUP")
 
-    NavigationDrawerItem(
-        label = { Text("DEVICE") },
-        selected = false,
-        onClick = {
-            scope.launch { drawerState.close() }
-            navController.navigate("device_role_selection")
-        }
-    )
+//    NavigationDrawerItem(
+//        label = { Text("DEVICE") },
+//        selected = false,
+//        onClick = {
+//            scope.launch { drawerState.close() }
+//            navController.navigate("device_role_selection")
+//        }
+//    )
 
     Divider(
         modifier = Modifier

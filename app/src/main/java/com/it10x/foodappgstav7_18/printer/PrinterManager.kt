@@ -142,7 +142,10 @@ suspend fun enqueueImagePrint(
         referenceId: String,
     ) {
 
-
+      Log.d(
+          "IMAGE_TEST",
+          "encu-------------------------"
+      )
         //----------------------------------
         // ✅ ADD THIS LINE (LOAD LOGO)
         //----------------------------------
@@ -230,6 +233,7 @@ suspend fun enqueueImagePrint(
 
     fun enqueueKitchen(
         sessionKey: String,
+        tableName:String,
         orderType: String,
         items: List<PosKotItemEntity>,
         kotNumber: String,
@@ -238,6 +242,7 @@ suspend fun enqueueImagePrint(
 
         val text = ReceiptFormatter.posKitchen(
             sessionKey = sessionKey,
+            tableName = tableName,
             orderType = orderType,
             items = items,
             kotNumber = kotNumber,
@@ -328,24 +333,6 @@ suspend fun enqueueImagePrint(
 
             PrinterType.BLUETOOTH -> {
 
-                Log.d(
-                    "IMAGE_TEST",
-                    "Entering Bluetooth bitmap print"
-                )
-
-
-                if (config.bluetoothAddress.isBlank()) {
-
-                    Log.e(
-                        "PRINT_BITMAP",
-                        "Bluetooth address missing"
-                    )
-
-                    onResult(false)
-                    return
-                }
-
-
                 BluetoothPrinter.printBitmap(
                     mac = config.bluetoothAddress,
                     bitmap = bitmap,
@@ -354,15 +341,7 @@ suspend fun enqueueImagePrint(
             }
 
 
-
-
             PrinterType.USB -> {
-
-                Log.d(
-                    "IMAGE_TEST",
-                    "Entering USB bitmap print"
-                )
-
 
                 val usbManager =
                     context.getSystemService(Context.USB_SERVICE)
@@ -373,12 +352,7 @@ suspend fun enqueueImagePrint(
 
 
                 if (saved == null) {
-
-                    Log.e(
-                        "PRINT_BITMAP",
-                        "USB printer not saved"
-                    )
-
+                    Log.e("USB", "No saved USB printer")
                     onResult(false)
                     return
                 }
@@ -387,21 +361,17 @@ suspend fun enqueueImagePrint(
                 val (vendorId, productId) = saved
 
 
-                val device =
-                    usbManager.deviceList.values.find {
+                val device = usbManager.deviceList.values.find {
 
-                        it.vendorId == vendorId &&
-                                it.productId == productId
+                    it.vendorId == vendorId &&
+                            it.productId == productId
 
-                    }
+                }
 
 
                 if (device == null) {
 
-                    Log.e(
-                        "PRINT_BITMAP",
-                        "USB device not found"
-                    )
+                    Log.e("USB", "Device not found")
 
                     onResult(false)
                     return
@@ -410,33 +380,37 @@ suspend fun enqueueImagePrint(
 
                 if (!usbManager.hasPermission(device)) {
 
-                    Log.e(
-                        "PRINT_BITMAP",
-                        "USB permission missing"
-                    )
+                    Log.e("USB", "No permission")
 
                     onResult(false)
                     return
                 }
 
 
-                USBPrinter.printBitmap(
-                    context = context,
-                    device = device,
-                    bitmap = bitmap,
-                    onResult = onResult
-                )
+                try {
+
+                    USBPrinter.printBitmap(
+                        context = context,
+                        device = device,
+                        bitmap = bitmap,
+                        onResult = onResult
+                    )
+
+
+                } catch (e: Exception) {
+
+                    Log.e(
+                        "USB",
+                        "USB Bitmap print failed",
+                        e
+                    )
+
+                    onResult(false)
+                }
             }
 
 
-
             PrinterType.WIFI -> {
-
-                Log.e(
-                    "PRINT_BITMAP",
-                    "WIFI bitmap not supported"
-                )
-
                 onResult(false)
             }
         }
@@ -1177,6 +1151,7 @@ suspend fun enqueueImagePrint(
 
     fun printTextKitchen(
         role: PrinterRole,
+        tableName: String,
         sessionKey: String,
         orderType: String,
         items: List<PosKotItemEntity>,
@@ -1194,6 +1169,7 @@ suspend fun enqueueImagePrint(
 
         val text = ReceiptFormatter.posKitchen(
             sessionKey = sessionKey,
+            tableName = tableName,
             orderType = orderType,
             items = items,
             kotNumber = kotNumber

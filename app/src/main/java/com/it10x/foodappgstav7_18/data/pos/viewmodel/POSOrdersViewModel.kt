@@ -3,24 +3,18 @@ package com.it10x.foodappgstav7_18.data.pos.viewmodel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.it10x.foodappgstav7_18.data.pos.entities.PosCartEntity
+import com.it10x.foodappgstav7_18.data.PrinterPreferences
 import com.it10x.foodappgstav7_18.data.pos.entities.PosOrderItemEntity
 import com.it10x.foodappgstav7_18.data.pos.entities.PosOrderMasterEntity
 import com.it10x.foodappgstav7_18.data.pos.repository.POSOrdersRepository
 import com.it10x.foodappgstav7_18.printer.PrintOrderBuilder
 import com.it10x.foodappgstav7_18.printer.PrinterManager
 import com.it10x.foodappgstav7_18.data.PrinterRole
-import com.it10x.foodappgstav7_18.data.mapper.OnlineOrderMapper
-import com.it10x.foodappgstav7_18.data.mapper.PosOrderToKotMapper
-import com.it10x.foodappgstav7_18.printer.ReceiptFormatter
+import com.it10x.foodappgstav7_18.data.ReceiptPrintMode
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import java.util.UUID
 import java.util.concurrent.atomic.AtomicInteger
-
 import com.it10x.foodappgstav7_18.data.pos.AppDatabaseProvider
-import com.it10x.foodappgstav7_18.data.pos.entities.PosKotBatchEntity
-import com.it10x.foodappgstav7_18.data.pos.entities.PosKotItemEntity
 import com.it10x.foodappgstav7_18.data.print.OutletMapper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -31,10 +25,13 @@ import java.util.Locale
 class POSOrdersViewModel(
     private val repository: POSOrdersRepository,
     private val printerManager: PrinterManager
-) : ViewModel() {
+) : ViewModel()
+{
 
 
-
+    private val prefs by lazy {
+        PrinterPreferences(printerManager.appContext())
+    }
     val loading: StateFlow<Boolean> get() = _loading
     private val _loading = MutableStateFlow(false)
 
@@ -135,25 +132,55 @@ class POSOrdersViewModel(
             }
 
           // ---------------- BILLING PRINT ----------------
-if(role == "bill") {
-    printerManager.printTextNew(PrinterRole.BILLING, printOrder)
-}
+
+            val outletInfo = OutletMapper.fromEntity(outlet)
+
+            val stewardName =
+                order.finalizedByName
+                    ?.takeIf { it.isNotBlank() }
+                    ?: order.createdByName.orEmpty()
+
+            val kotNumberText =
+                if (order.srno > 0)
+                    order.srno.toString()
+                else
+                    ""
+
+            val referenceId = order.id
+
+            val printerRole = PrinterRole.BILLING
+
+            val printMode = prefs.getReceiptPrintMode(printerRole)
+
+            when (printMode) {
+
+                ReceiptPrintMode.TEXT -> {
+
+                    printerManager.enqueueBill(
+                        order = printOrder,
+                        paymentMode = order.paymentMode,
+                        outletInfo = outletInfo,
+                        referenceId = referenceId
+                    )
+                }
+
+                ReceiptPrintMode.IMAGE -> {
+
+                    printerManager.enqueueBillImage(
+                        order = printOrder,
+                        paymentMode = order.paymentMode,
+                        outletInfo = outletInfo,
+                        kotNumberText = kotNumberText,
+                        stewardName = stewardName,
+                        referenceId = referenceId
+                    )
+                }
+            }
+
+   // printerManager.printTextNew(PrinterRole.BILLING, printOrder)
+
             // SMALL DELAY
             kotlinx.coroutines.delay(150)
-
-
-            //KITCHEN PRINT ONLINE ORDER WHEN BUTTON PRESSED
-            if(role == "kitchen") {
-                val kotItems = PosOrderToKotMapper.toKotItems(items )
-
-                printerManager.printTextKitchen(
-                    PrinterRole.KITCHEN,
-                    sessionKey = order.srno.toString(),
-                    orderType = order.orderType,
-                    items = kotItems,
-                    kotNumber = "",
-                )
-            }
 
         }
     }

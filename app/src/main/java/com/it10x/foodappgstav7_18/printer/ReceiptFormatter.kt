@@ -35,7 +35,26 @@ object ReceiptFormatter {
 
 
 
+    private const val ESC = "\u001B"
 
+    // Normal size
+    private const val TXT_NORMAL = ESC + "!" + "\u0000"
+
+    // Double Height
+    private const val TXT_DOUBLE_HEIGHT = ESC + "!" + "\u0010"
+
+    // Double Width
+    private const val TXT_DOUBLE_WIDTH = ESC + "!" + "\u0020"
+
+    private const val TXT_FONT_A = ESC + "M" + "\u0000"
+    private const val TXT_FONT_B = ESC + "M" + "\u0001"
+
+    // Double Width + Double Height
+    private const val TXT_BIG = ESC + "!" + "\u0030"
+
+    // Bold
+    private const val TXT_BOLD_ON = ESC + "E" + "\u0001"
+    private const val TXT_BOLD_OFF = ESC + "E" + "\u0000"
     // -----------------------------
     // BILLING RECEIPT
     // -----------------------------
@@ -539,6 +558,7 @@ $itemsBlock
 
     fun posKitchen(
         sessionKey: String,
+        tableName:String,
         orderType: String,
         items: List<PosKotItemEntity>,
         kotNumber: String,
@@ -551,10 +571,16 @@ $itemsBlock
         ).format(java.util.Date())
 
         val header = buildString {
+
+            append(TXT_NORMAL)
+            append(TXT_BOLD_ON)
             appendLine("******** $title ********")
+
+
+
             appendLine("KOT   : $kotNumber")
             appendLine("Type  : $orderType")
-            appendLine("Ref   : $sessionKey")
+            appendLine("Ref   : $tableName")
             appendLine("Time  : $time")
             appendLine("------------------------")
         }
@@ -571,7 +597,10 @@ $itemsBlock
                     items.forEach { item ->
 
                         // Main Item
+                        append(TXT_NORMAL)
+                        append(TXT_BOLD_ON)
                         appendLine("${item.quantity.toString().padEnd(3)} ${item.name}")
+
 
                         // Modifiers
                         if (item.modifiersJson.isNotBlank()) {

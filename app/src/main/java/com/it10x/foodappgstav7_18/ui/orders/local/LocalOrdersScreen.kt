@@ -155,7 +155,7 @@ fun LocalOrdersScreen(
                                 viewModel.printOrder(order.id, role = "bill")
                             },
                             onPrintKitchen = {
-                                viewModel.printOrder(order.id, role = "kitchen")
+                                viewModel.printOrder(order.id, role = "bill")
                             },
                             onShareWhatsApp = {
                                 selectedOrder = order

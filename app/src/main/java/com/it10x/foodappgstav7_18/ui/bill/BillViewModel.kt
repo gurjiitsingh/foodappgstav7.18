@@ -52,14 +52,7 @@ import com.it10x.foodappgstav7_18.fiscal.FiscalService
 import com.it10x.foodappgstav7_18.fiscal.getFiscalService
 import com.it10x.foodappgstav7_18.network.fiskaly.FiskalyClient
 import com.it10x.foodappgstav7_18.fiskaly.FiskalyRepository
-import com.it10x.foodappgstav7_18.network.model.ClientRequest
-import com.it10x.foodappgstav7_18.network.model.PaymentAmount
-import com.it10x.foodappgstav7_18.network.model.StartTransactionRequest
-import com.it10x.foodappgstav7_18.network.model.VatAmount
-import com.it10x.foodappgstav7_18.storage.TssStorage
 import com.it10x.foodappgstav7_18.utils.MoneyUtils
-
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 import java.math.BigDecimal
@@ -1786,10 +1779,17 @@ class BillViewModel(
 
                 //  NEW: FIRESTORE TABLE SNAPSHOT SYNC (IMPORTANT)
                 try {
+                    //**********************************************************
+                    //  UPDATE WAITER VIEW STATUS
+                    //**********************************************************
 //                        tableKotSyncService.syncTableSnapshot(
 //                            tableId = tableId,
 //                            source = "POS"
 //                        )
+
+                    //**********************************************************
+                    // INSTEAD WE WILL USE QUEUE TO UPDATE WAITER VIEW STATUS
+                    //**********************************************************
                     SyncManagerProvider.get().addTableUpdate(tableId)
 
                 } catch (e: Exception) {
@@ -1834,9 +1834,12 @@ class BillViewModel(
         }
         val outletInfo = OutletMapper.fromEntity(outlet)
 
-       // printerManager.printTextNewSuspend(PrinterRole.BILLING, printOrder, outletInfo)
 
-        val printMode = prefs.getReceiptPrintMode()
+
+        val Pritnter_role = "BILLING"
+        val printMode = prefs.getReceiptPrintMode(
+            PrinterRole.valueOf(Pritnter_role)
+        )
 
         when (printMode) {
 
@@ -1858,18 +1861,19 @@ class BillViewModel(
                     outletInfo = outletInfo,
                     kotNumberText = kotNumberText,
                     stewardName = stewardName,
-                    referenceId,
+                    referenceId = referenceId
                 )
             }
         }
 
-//        printerManager.enqueueBill(printOrder,order.paymentMode, outletInfo)
+       // printerManager.enqueueBill(printOrder,order.paymentMode, outletInfo,referenceId,)
 //         printerManager.enqueueBillImage(
 //            order = printOrder,
 //            paymentMode = order.paymentMode,
 //            outletInfo = outletInfo,
 //            kotNumberText,
 //            stewardName,
+//             referenceId,
 //        )
 
           }

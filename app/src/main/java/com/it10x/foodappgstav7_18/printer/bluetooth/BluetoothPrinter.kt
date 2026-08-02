@@ -210,111 +210,8 @@ object BluetoothPrinter {
     }
 
 
-    fun printBitmap(
-        mac: String,
-        bitmap: Bitmap,
-        onResult: (Boolean) -> Unit
-    ) {
-
-        CoroutineScope(Dispatchers.IO).launch {
-
-            try {
-
-                val adapter = BluetoothAdapter.getDefaultAdapter()
-                    ?: throw IllegalStateException("Bluetooth not supported")
 
 
-                if (!adapter.isEnabled) {
-                    throw IllegalStateException("Bluetooth OFF")
-                }
-
-
-                ensureConnection(mac)
-
-                val out = output ?: throw Exception("No connection")
-
-
-                adapter.cancelDiscovery()
-
-
-                // INIT
-                out.write(
-                    byteArrayOf(
-                        0x1B,
-                        0x40
-                    )
-                )
-
-
-                // BEEP
-                out.write(
-                    byteArrayOf(
-                        0x1B,
-                        0x42,
-                        0x03,
-                        0x02
-                    )
-                )
-
-
-                // CENTER
-                out.write(
-                    byteArrayOf(
-                        0x1B,
-                        0x61,
-                        0x01
-                    )
-                )
-
-
-                // IMAGE
-                printBitmapInChunks(
-                    out,
-                    bitmap
-                )
-
-
-                // FEED
-                out.write(
-                    byteArrayOf(
-                        0x0A
-                    )
-                )
-
-
-                // CUT
-                out.write(
-                    byteArrayOf(
-                        0x1D,
-                        0x56,
-                        0x01
-                    )
-                )
-
-
-                out.flush()
-
-                withContext(Dispatchers.Main) {
-                    onResult(true)
-                }
-
-
-            } catch (e: Exception) {
-
-                Log.e(
-                    TAG,
-                    "Bluetooth bitmap print failed",
-                    e
-                )
-
-                resetConnection()
-
-                withContext(Dispatchers.Main) {
-                    onResult(false)
-                }
-            }
-        }
-    }
     // =============================
 // PRINT LOGO + TEXT + QR (SMART FALLBACK)
 // =============================
@@ -652,6 +549,191 @@ object BluetoothPrinter {
 
         Log.d("CON1", "Bluetooth connection reset")
     }
+
+
+
+    // =============================
+// PRINT IMAGE PRINT
+// =============================
+    fun printBitmap(
+        mac: String,
+        bitmap: Bitmap,
+        onResult: (Boolean) -> Unit
+    ) {
+
+        CoroutineScope(Dispatchers.IO).launch {
+
+            try {
+
+                val adapter =
+                    BluetoothAdapter.getDefaultAdapter()
+                        ?: throw Exception("Bluetooth not supported")
+
+
+                if (!adapter.isEnabled) {
+                    throw Exception("Bluetooth OFF")
+                }
+
+
+                adapter.cancelDiscovery()
+
+
+                ensureConnection(mac)
+
+
+                val out = output
+                    ?: throw Exception("No output")
+
+
+                // INIT
+                out.write(
+                    byteArrayOf(
+                        0x1B,
+                        0x40
+                    )
+                )
+
+
+                // BEEP
+                out.write(
+                    byteArrayOf(
+                        0x1B,
+                        0x42,
+                        0x03,
+                        0x02
+                    )
+                )
+
+
+                // CENTER
+                out.write(
+                    byteArrayOf(
+                        0x1B,
+                        0x61,
+                        0x01
+                    )
+                )
+
+
+                // IMAGE
+                printBitmapInChunksBT(
+                    out,
+                    bitmap
+                )
+
+
+                Thread.sleep(100)
+
+
+                // FEED + CUT
+                out.write(
+                    byteArrayOf(
+                        0x0A,
+                        0x0A,
+                        0x1D,
+                        0x56,
+                        0x01
+                    )
+                )
+
+
+                out.flush()
+
+
+                withContext(Dispatchers.Main) {
+                    onResult(true)
+                }
+
+
+            } catch(e:Exception) {
+
+                Log.e(
+                    TAG,
+                    "BT bitmap failed",
+                    e
+                )
+
+                resetConnection()
+
+                withContext(Dispatchers.Main) {
+                    onResult(false)
+                }
+            }
+        }
+    }
+
+
+
+    private fun printBitmapInChunksBT(
+        output: OutputStream,
+        bitmap: Bitmap
+    ){
+
+        val chunkHeight = 48
+
+        var y = 0
+
+
+        while(y < bitmap.height){
+
+            val height =
+                minOf(
+                    chunkHeight,
+                    bitmap.height-y
+                )
+
+
+            val chunk =
+                Bitmap.createBitmap(
+                    bitmap,
+                    0,
+                    y,
+                    bitmap.width,
+                    height
+                )
+
+
+            val bytes =
+                convertBitmapToRaster(chunk)
+
+
+            var offset = 0
+
+            val packetSize = 1024
+
+
+            while(offset < bytes.size){
+
+                val end =
+                    minOf(
+                        offset + packetSize,
+                        bytes.size
+                    )
+
+
+                output.write(
+                    bytes,
+                    offset,
+                    end-offset
+                )
+
+                output.flush()
+
+                offset = end
+
+                Thread.sleep(20)
+            }
+
+
+            y += height
+        }
+    }
+
+
+
+
+
+
 
 }
 

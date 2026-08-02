@@ -194,7 +194,9 @@ fun PrinterSettingsScreen(
         )
 
         var receiptMode by remember {
-            mutableStateOf(prefs.getReceiptPrintMode())
+            mutableStateOf(
+                prefs.getReceiptPrintMode(role)
+            )
         }
 
         Row(
@@ -206,18 +208,24 @@ fun PrinterSettingsScreen(
                 selected = receiptMode == ReceiptPrintMode.TEXT,
                 onClick = {
                     receiptMode = ReceiptPrintMode.TEXT
-                    prefs.setReceiptPrintMode(ReceiptPrintMode.TEXT)
+                    prefs.setReceiptPrintMode(
+                        role,
+                        ReceiptPrintMode.TEXT
+                    )
                 },
-                label = { Text("Text") }
+                label = { Text("Fast Print") }
             )
 
             FilterChip(
                 selected = receiptMode == ReceiptPrintMode.IMAGE,
                 onClick = {
                     receiptMode = ReceiptPrintMode.IMAGE
-                    prefs.setReceiptPrintMode(ReceiptPrintMode.IMAGE)
+                    prefs.setReceiptPrintMode(
+                        role,
+                        ReceiptPrintMode.IMAGE
+                    )
                 },
-                label = { Text("Image") }
+                label = { Text("Premium Print") }
             )
         }
         // 🔹 Actions

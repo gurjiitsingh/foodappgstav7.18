@@ -63,7 +63,9 @@ class AutoPrintManager(
 
                 printerManager.printTextKitchen(
                     PrinterRole.KITCHEN,
+                    tableName = order.srno.toString(),
                     sessionKey = order.srno.toString(),
+
                     orderType = "Online order",
                     kotItems,
                     kotNumber = "dummykot",

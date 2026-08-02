@@ -30,14 +30,22 @@ class TableKotSyncService(
                 .filter { it.status == "DONE" }
 
             // 🔥 CONVERT TO FIRESTORE MAP
+            // 🔥 CONVERT TO FIRESTORE MAP
             val itemList = items.map {
                 mapOf(
+                    "sessionId" to it.sessionId,
+                    "tableName" to it.tableName,
+
                     "productId" to it.productId,
                     "name" to it.name,
                     "quantity" to it.quantity,
                     "price" to it.basePrice,
+
                     "note" to (it.note ?: ""),
-                    "category" to it.categoryName
+                    "category" to it.categoryName,
+
+                    "createdByName" to (it.createdByName ?: ""),
+                    "modifiersJson" to (it.modifiersJson ?: "")
                 )
             }
             val cartCount = items.sumOf { it.quantity }

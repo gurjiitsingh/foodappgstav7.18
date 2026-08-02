@@ -168,15 +168,15 @@ fun TableSelectorGrid(
                                                 color = contentColor
                                             )
 
-                                            if (ui.billAmount > 0) {
-                                                Text(
-                                                    text = ui.billAmount.toInt().toString(),
-                                                    style = MaterialTheme.typography.bodySmall,
-                                                    fontWeight = FontWeight.Bold,
-                                                   // color = PosTheme.accent.primaryActionBg
-                                                            color = PosTheme.product.productCardText
-                                                )
-                                            }
+//                                            if (ui.billAmount > 0) {
+//                                                Text(
+//                                                    text = ui.billAmount.toInt().toString(),
+//                                                    style = MaterialTheme.typography.bodySmall,
+//                                                    fontWeight = FontWeight.Bold,
+//                                                   // color = PosTheme.accent.primaryActionBg
+//                                                            color = PosTheme.product.productCardText
+//                                                )
+//                                            }
                                         }
 
                                         // 🔹 STATUS INFO
@@ -280,8 +280,10 @@ fun TableSelectorGrid(
                         // Estimate how many columns fit based on screen width and min cell size
                         val screenWidth = LocalConfiguration.current.screenWidthDp
                         val columns = (screenWidth / 110).coerceAtLeast(1) // ~100dp per cell + spacing
+//                        val rows = (areaTables.size + columns - 1) / columns
+//                        val gridHeight = (rows * 110).dp
                         val rows = (areaTables.size + columns - 1) / columns
-                        val gridHeight = (rows * 110).dp
+                        val gridHeight = (rows * 90).dp
                         LazyVerticalGrid(
                             //columns = GridCells.Fixed(9), // ✅ keep logic
                             columns = GridCells.Adaptive(minSize = 85.dp),
@@ -342,14 +344,14 @@ fun TableSelectorGrid(
                                                 color = MaterialTheme.colorScheme.onSurface
                                             )
 
-                                            if (ui.billAmount > 0) {
-                                                Text(
-                                                    text = ui.billAmount.toInt().toString(),
-                                                    style = MaterialTheme.typography.bodySmall,
-                                                    fontWeight = FontWeight.Bold,
-                                                    color = Color.White.copy(alpha = 0.85f)
-                                                )
-                                            }
+//                                            if (ui.billAmount > 0) {
+//                                                Text(
+//                                                    text = ui.billAmount.toInt().toString(),
+//                                                    style = MaterialTheme.typography.bodySmall,
+//                                                    fontWeight = FontWeight.Bold,
+//                                                    color = Color.White.copy(alpha = 0.85f)
+//                                                )
+//                                            }
                                         }
 
                                         // 🔹 STATUS INFO
