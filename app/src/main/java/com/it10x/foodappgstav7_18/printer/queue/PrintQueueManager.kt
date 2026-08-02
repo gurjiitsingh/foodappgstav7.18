@@ -11,6 +11,7 @@ import kotlinx.coroutines.channels.Channel
 import java.util.UUID
 import kotlin.coroutines.resume
 import kotlinx.coroutines.suspendCancellableCoroutine
+import java.io.File
 
 class PrintQueueManager private constructor(
     private val dao: PrintQueueDao,
@@ -300,9 +301,32 @@ class PrintQueueManager private constructor(
             }
 
             // ✅ Success → remove from queue
+            // ✅ Success → remove from queue
             dao.delete(job.id)
 
+// ✅ Delete printed image file
+            job.imagePath?.let { path ->
+                try {
+                    val deleted = File(path).delete()
+
+                    Log.d(
+                        "PRINT_QUEUE",
+                        "IMAGE DELETE path=$path success=$deleted"
+                    )
+
+                } catch (e: Exception) {
+
+                    Log.e(
+                        "PRINT_QUEUE",
+                        "Failed to delete image file $path",
+                        e
+                    )
+                }
+            }
+
             Log.d("PRINT_QUEUE", "SUCCESS ${job.id}")
+
+
 
         } catch (e: Exception) {
 

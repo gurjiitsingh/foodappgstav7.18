@@ -952,29 +952,8 @@ suspend fun enqueueImagePrint(
 
                 try {
                     val isKitchen = role == PrinterRole.KITCHEN
-                  //  val size = prefs.getPrinterSize(role) ?: "80mm"
-
-                    // =============================
-                    // LOAD LOGO
-                    // =============================
-         //           val logoFile = java.io.File(context.filesDir, "logo.png")
-
-//                    val logoBitmap = if (logoFile.exists()) {
-//                        android.graphics.BitmapFactory.decodeFile(logoFile.absolutePath)
-//                    } else null
-
-//                    val targetWidth = if (size == "80mm") 384 else 384
-//
-//                    val resizedLogo = logoBitmap?.let {
-//                        BluetoothPrinter.resizeBitmap(it, targetWidth)
-//                    }
 
                     val logoBitmap = loadSavedLogo()
-
-                    // =============================
-                    // 🔥 GENERATE QR (NEW)
-                    // =============================
-
 
                     // =============================
                     // 🔥 MAIN LOGIC
@@ -1017,22 +996,10 @@ suspend fun enqueueImagePrint(
 
                     val logoFile = java.io.File(context.filesDir, "logo.png")
 
-//                    val bitmap = if (logoFile.exists()) {
-//                        android.graphics.BitmapFactory.decodeFile(logoFile.absolutePath)
-//                    } else null
-
-//                    val targetWidth = if (size == "80mm") 384 else 384
-//
-//                    val resizedLogo = bitmap?.let {
-//                        BluetoothPrinter.resizeBitmap(it, targetWidth)
-//                    }
-
                     val logoBitmap = loadSavedLogo()
 
 
                     if (!isKitchen && (logoBitmap != null || qrBitmap != null)) {
-
-
 
                         LanPrinter.printLogoTextQr(
                             ip = config.ip,
@@ -1097,17 +1064,6 @@ suspend fun enqueueImagePrint(
                     val isKitchen = role == PrinterRole.KITCHEN
 
                     val logoFile = java.io.File(context.filesDir, "logo.png")
-
-//                    val bitmap = if (logoFile.exists()) {
-//                        android.graphics.BitmapFactory.decodeFile(logoFile.absolutePath)
-//                    } else null
-
-//                    val size = prefs.getPrinterSize(role) ?: "80mm"
-//                    val targetWidth = if (size == "80mm") 384 else 384
-//
-//                    val resizedLogo = bitmap?.let {
-//                        BluetoothPrinter.resizeBitmap(it, targetWidth)
-//                    }
 
                     val logoBitmap = loadSavedLogo()
 
